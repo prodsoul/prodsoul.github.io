@@ -3,104 +3,195 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Joann Bisseling’s UX and game design portfolio.">
   <title>Joann Bisseling | UX &amp; Game Design</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&amp;family=Libre+Franklin:wght@400;500;600;700&amp;display=swap"
-  >
-
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&amp;family=Libre+Franklin:wght@400;500;600&amp;display=swap">
   <style>
     :root {
       color-scheme: dark;
-      --background: #0D0D0D;
-      --heading: #F2F2EF;
-      --body-text: #CACACA;
-      --blue: #397AFF;
+      --background: #0d0d0d;
+      --heading: #f2f2ef;
+      --text: #cacaca;
+      --blue: #397aff;
+      --rule: #34568e;
+      --box: #202020;
+      --gutter: clamp(1rem, 2vw, 3rem);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; }
     body {
       margin: 0;
+      padding: 0 var(--gutter);
       background: var(--background);
-      color: var(--body-text);
-      font-family: "Libre Franklin", Arial, sans-serif;
-      line-height: 1.6;
+      color: var(--text);
+      font: 400 1rem/1.55 "Libre Franklin", Arial, sans-serif;
     }
-
-    main {
-      width: min(100% - 3rem, 60rem);
-      margin: 0 auto;
-      padding: 16vh 0 4rem;
-    }
-
-    .section-label {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin: 0 0 1.5rem;
-      color: var(--blue);
-      font-size: 0.875rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-    }
-
-    .section-label::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: var(--blue);
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-      color: var(--heading);
+    h1, h2, h3 {
+      margin: 0;
       font-family: "Libre Caslon Display", Georgia, serif;
       font-weight: 400;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
+      line-height: 1.03;
+      color: var(--heading);
     }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(3.25rem, 8vw, 6rem);
+    a { color: var(--blue); text-underline-offset: .25em; }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-block: .75rem;
+      border-bottom: 1px solid var(--rule);
+      font-size: .875rem;
     }
-
+    nav span { color: var(--blue); }
     .intro {
-      margin: 1rem 0 2rem;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: var(--gutter);
+      align-items: start;
+      padding-block: var(--gutter) clamp(2rem, 5vw, 5rem);
+    }
+    h1 { font-size: clamp(3.25rem, 8.3vw, 13rem); letter-spacing: -.035em; }
+    .intro p { margin: 1rem 0; font-size: clamp(1rem, 1.35vw, 1.5rem); }
+    .image-box { width: 100%; aspect-ratio: 2 / 1; background: var(--box); }
+    h2 { font-size: clamp(2.5rem, 5.5vw, 7rem); margin-bottom: .24em; }
+    .project {
+      display: grid;
+      grid-template-columns: minmax(0, 16fr) minmax(0, 53fr) minmax(0, 31fr);
+      border-top: 1px solid var(--rule);
+      padding-bottom: clamp(2rem, 5vw, 6rem);
+    }
+    .project:last-child { border-bottom: 1px solid var(--rule); }
+    .identity, .media, .details { padding-block: var(--gutter); }
+    .identity { padding-right: var(--gutter); }
+    .identity h3 { font-size: clamp(1.5rem, 2.25vw, 3.5rem); }
+    .number {
+      display: block;
+      margin-top: .15em;
+      color: var(--heading);
+      font-size: clamp(3rem, 5.2vw, 8rem);
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+    .media { padding-inline: var(--gutter); border-inline: 1px solid var(--rule); }
+    .details { padding-left: var(--gutter); }
+    dl { margin: 0; }
+    dt { font-size: .8125rem; font-weight: 600; color: var(--blue); }
+    dd { margin: .1rem 0 .85rem; }
+    dd:last-child { margin-bottom: 0; }
+
+    @media (max-width: 52rem) {
+      .project { grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr); }
+      .media { padding-right: 0; border-right: 0; }
+      .details { grid-column: 2; border-left: 1px solid var(--rule); padding-top: 0; }
     }
 
-    a {
-      color: var(--blue);
-      font-weight: 500;
-      text-underline-offset: 0.25em;
-    }
-
-    a:hover {
-      text-decoration-thickness: 2px;
-    }
-
-    a:focus-visible {
-      outline: 2px solid var(--blue);
-      outline-offset: 4px;
-    }
-
-    button, input, select, textarea {
-      font: inherit;
+    @media (max-width: 36rem) {
+      .intro, .project { display: block; }
+      .intro .image-box { margin-top: 1.5rem; }
+      h1 { font-size: clamp(2.75rem, 12vw, 4.25rem); }
+      .identity { display: flex; align-items: baseline; justify-content: space-between; }
+      .identity, .media, .details { border: 0; padding-inline: 0; }
+      .number { margin: 0; font-size: 1.5rem; }
+      .media { padding-top: 0; }
+      .details { padding-bottom: 0; }
     }
   </style>
 </head>
-
 <body>
+  <nav aria-label="Portfolio navigation">
+    <span>~/portfolio</span>
+    <a href="#projects">Projects ↓</a>
+  </nav>
   <main>
-    <p class="section-label">~/portfolio</p>
-    <h1>Joann Bisseling</h1>
-    <p class="intro">UX &amp; Game Design student in Singapore.</p>
-    <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn ↗</a>
+    <header class="intro">
+      <div>
+        <h1>Joann Bisseling</h1>
+        <p>UX &amp; Game Design student in Singapore.</p>
+        <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn ↗</a>
+      </div>
+      <!-- Replace this box with your intro image when ready. -->
+      <div class="image-box" aria-hidden="true"></div>
+    </header>
+
+    <section id="projects" aria-labelledby="projects-title">
+      <h2 id="projects-title">Projects</h2>
+      <!-- Copy a whole article to add another project. -->
+      <article class="project">
+        <div class="identity">
+          <h3>Project 1</h3>
+          <span class="number" aria-hidden="true">01</span>
+        </div>
+        <div class="media">
+          <div class="image-box" aria-hidden="true"></div>
+        </div>
+        <div class="details">
+          <dl>
+            <dt>Year</dt><dd>—</dd>
+            <dt>Role</dt><dd>—</dd>
+            <dt>Tools</dt><dd>—</dd>
+            <dt>Overview</dt><dd>—</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="project">
+        <div class="identity">
+          <h3>Project 2</h3>
+          <span class="number" aria-hidden="true">02</span>
+        </div>
+        <div class="media">
+          <div class="image-box" aria-hidden="true"></div>
+        </div>
+        <div class="details">
+          <dl>
+            <dt>Year</dt><dd>—</dd>
+            <dt>Role</dt><dd>—</dd>
+            <dt>Tools</dt><dd>—</dd>
+            <dt>Overview</dt><dd>—</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="project">
+        <div class="identity">
+          <h3>Project 3</h3>
+          <span class="number" aria-hidden="true">03</span>
+        </div>
+        <div class="media">
+          <div class="image-box" aria-hidden="true"></div>
+        </div>
+        <div class="details">
+          <dl>
+            <dt>Year</dt><dd>—</dd>
+            <dt>Role</dt><dd>—</dd>
+            <dt>Tools</dt><dd>—</dd>
+            <dt>Overview</dt><dd>—</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="project">
+        <div class="identity">
+          <h3>Project 4</h3>
+          <span class="number" aria-hidden="true">04</span>
+        </div>
+        <div class="media">
+          <div class="image-box" aria-hidden="true"></div>
+        </div>
+        <div class="details">
+          <dl>
+            <dt>Year</dt><dd>—</dd>
+            <dt>Role</dt><dd>—</dd>
+            <dt>Tools</dt><dd>—</dd>
+            <dt>Overview</dt><dd>—</dd>
+          </dl>
+        </div>
+      </article>
+    </section>
   </main>
 </body>
 </html>
