@@ -15,50 +15,77 @@
   <style>
     :root {
       color-scheme: dark;
-      --background: #141414;
-      --body-text: #DADADA;
-      --heading-blue: #BBD9FF;
-      --link-blue: #82BAFF;
+      --background: #0D0D0D;
+      --heading: #F2F2EF;
+      --body-text: #CACACA;
+      --blue: #397AFF;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      background-color: var(--background);
+      background: var(--background);
       color: var(--body-text);
       font-family: "Libre Franklin", Arial, sans-serif;
       line-height: 1.6;
     }
 
     main {
-      max-width: 48rem;
+      width: min(100% - 3rem, 60rem);
       margin: 0 auto;
-      padding: 16vh 1.5rem 4rem;
+      padding: 16vh 0 4rem;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0 0 1.5rem;
+      color: var(--blue);
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    .section-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--blue);
     }
 
     h1, h2, h3, h4, h5, h6 {
-      color: var(--heading-blue);
+      color: var(--heading);
       font-family: "Libre Caslon Display", Georgia, serif;
       font-weight: 400;
-      line-height: 1.1;
+      line-height: 1.05;
       letter-spacing: -0.02em;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(2.75rem, 8vw, 5rem);
+      font-size: clamp(3.25rem, 8vw, 6rem);
     }
 
-    p {
+    .intro {
       margin: 1rem 0 2rem;
     }
 
     a {
-      color: var(--link-blue);
+      color: var(--blue);
+      font-weight: 500;
       text-underline-offset: 0.25em;
     }
 
+    a:hover {
+      text-decoration-thickness: 2px;
+    }
+
     a:focus-visible {
-      outline: 2px solid currentColor;
+      outline: 2px solid var(--blue);
       outline-offset: 4px;
     }
 
@@ -70,9 +97,10 @@
 
 <body>
   <main>
+    <p class="section-label">~/portfolio</p>
     <h1>Joann Bisseling</h1>
-    <p>UX &amp; Game Design student in Singapore.</p>
-    <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn</a>
+    <p class="intro">UX &amp; Game Design student in Singapore.</p>
+    <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn ↗</a>
   </main>
 </body>
 </html>
