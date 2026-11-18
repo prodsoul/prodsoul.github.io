@@ -150,7 +150,7 @@
     }
     .boot-fill {
       display: block; height: 100%; background: var(--blue); transform-origin: left;
-      animation: startup 3.8s ease-in-out both;
+      animation: startup 3.3s ease-in-out both;
     }
     @keyframes startup {
       0% { transform: scaleX(0); }
@@ -184,6 +184,20 @@
       html:not(.welcoming) .home, .case-page:target, .revealing { animation-name: appear; }
       .project:is(:hover,:focus-within) .case-link-label { transform: none; }
     }
+    .intro { align-items: end; padding-block: clamp(2rem, 5vw, 6rem) clamp(3rem, 7vw, 8rem); }
+    .intro .statement { max-width: 36ch; margin: 0 0 1.3rem; font-size: clamp(1.15rem, 2vw, 2rem); line-height: 1.35; }
+    .intro-copy { max-width: 44ch; justify-self: end; }
+    .intro-copy p { font-size: clamp(1rem, 1.25vw, 1.25rem); }
+    #projects, #about, #contact {
+      border-top: 2px solid var(--blue);
+      padding-block: clamp(3rem, 6vw, 7rem);
+    }
+    #projects > h2 { margin-bottom: .55em; }
+    #about p, #contact p { max-width: 54ch; font-size: clamp(1rem, 1.5vw, 1.35rem); }
+    .contact-actions { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-top: 1.5rem; }
+    .email-button { display: inline-block; border: 1px solid var(--blue); padding: .65rem 1.25rem; text-decoration: none; }
+    .email-button:hover { background: var(--blue); color: var(--background); }
+    @media (max-width: 36rem) { .intro-copy { margin-top: 1.5rem; } }
   </style>
 </head>
 <body>
@@ -199,18 +213,19 @@
   </div>
   <nav aria-label="Portfolio navigation">
     <span>~/portfolio</span>
-    <div class="nav-links"><a href="#projects">Projects</a><a href="#contact">Contact</a></div>
+    <div class="nav-links"><a href="#projects">Projects</a><a href="#about">About</a><a href="#contact">Contact</a></div>
   </nav>
   <main>
     <div class="home">
     <header class="intro">
       <div>
+        <p class="statement">Designing product experiences where structure does the heavy lifting, and creativity shapes the final feel.</p>
         <h1>Joann Bisseling</h1>
-        <p>UX &amp; Game Design student in Singapore.</p>
-        <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn ↗</a>
       </div>
-      <!-- Replace this box with your intro image when ready. -->
-      <div class="image-box" aria-hidden="true"></div>
+      <div class="intro-copy">
+        <p>I’m a UX and Game Design student in Singapore. I design interfaces and build playable prototypes, then watch people try them to see which details help and where they get stuck.</p>
+        <a href="#projects">See my work ↓</a>
+      </div>
     </header>
 
     <section id="projects" aria-labelledby="projects-title">
@@ -292,6 +307,11 @@
         </div>
       </article>
     </section>
+    <section id="about" aria-labelledby="about-title">
+      <h2 id="about-title">About me</h2>
+      <!-- Replace this placeholder with your bio. -->
+      <p>More about me coming soon.</p>
+    </section>
     </div>
 
     <!-- PROJECT PAGES: replace the dashes with your own copy and swap each .image-box for a project image. -->
@@ -361,7 +381,11 @@
   </main>
   <footer id="contact">
     <h2>Contact me</h2>
-    <a href="https://www.linkedin.com/in/joannbisseling/">Get in touch on LinkedIn ↗</a>
+    <p>Made it to the end, thank you. If anything here sparked questions or you’d like to talk about design, internships, or collaboration, I’d love to hear from you.</p>
+    <div class="contact-actions">
+      <a class="email-button" href="mailto:j29bisseling@gmail.com">Email me ↗</a>
+      <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn ↗</a>
+    </div>
   </footer>
   <script>
     function watchSections() {
@@ -374,15 +398,15 @@
           }
         }
       }, { threshold: 0.06 });
-      document.querySelectorAll(".project, .case-section, footer").forEach(el => observer.observe(el));
+      document.querySelectorAll(".project, .case-section, #about, footer").forEach(el => observer.observe(el));
     }
     if (document.documentElement.classList.contains("welcoming")) {
       const boot = document.querySelector(".boot");
-      setTimeout(() => boot.classList.add("leaving"), 3800);
+      setTimeout(() => boot.classList.add("leaving"), 3300);
       setTimeout(() => {
         document.documentElement.classList.remove("welcoming");
         watchSections();
-      }, 4000);
+      }, 3500);
     } else {
       watchSections();
     }
