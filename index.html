@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Joann Bisseling’s UX and game design portfolio.">
   <title>Joann Bisseling | UX &amp; Game Design</title>
-  <!-- Tab icon: to use your own PNG, replace the next line as described in the download message. -->
+  <!-- Replace the embedded tab icon URL with favicon.png to use your own icon. -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%225%22%20fill%3D%22%230d0d0d%22%2F%3E%3Cpath%20d%3D%22m6%209%208%207-8%207m12%200h8%22%20fill%3D%22none%22%20stroke%3D%22%23397aff%22%20stroke-width%3D%223.5%22%2F%3E%3C%2Fsvg%3E">
   <script>
     // Start on every homepage load, including its project-list and contact anchors.
@@ -54,7 +54,8 @@
       border-bottom: 0;
       font-size: .875rem;
     }
-    nav span { color: var(--blue); }
+    .signature { font: 400 1.3rem/1.15 "Libre Caslon Display", Georgia, serif; color: var(--heading); text-decoration: none; }
+    .signature:hover { text-decoration: underline; }
     .intro {
       display: grid;
       grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
@@ -62,20 +63,25 @@
       align-items: start;
       padding-block: var(--gutter) clamp(2rem, 5vw, 5rem);
     }
-    h1 { font-size: clamp(3.25rem, 8.3vw, 13rem); letter-spacing: -.035em; }
+    h1 { font-size: 1.75rem; }
+    .intro-name {
+      font-size: clamp(3rem, 8.1vw, 10rem);
+      line-height: .98;
+      letter-spacing: -.045em;
+      text-wrap: balance;
+    }
     .intro p { margin: 1rem 0; font-size: clamp(1rem, 1.35vw, 1.5rem); }
     .image-box { width: 100%; aspect-ratio: 2 / 1; background: var(--box); }
-    h2 { font-size: clamp(2.5rem, 5.5vw, 7rem); margin-bottom: .24em; }
+    h2 { font-size: 1.4rem; margin-bottom: .24em; }
     .project {
       display: grid;
       grid-template-columns: minmax(0, 16fr) minmax(0, 53fr) minmax(0, 31fr);
-      border-top: 0;
-      padding-bottom: clamp(2rem, 5vw, 6rem);
+      border-top: 1px solid var(--rule);
+      padding-bottom: clamp(1.5rem, 4vw, 5rem);
     }
-    .project:last-child { border-bottom: 0; }
     .identity, .media, .details { padding-block: var(--gutter); }
     .identity { padding-right: var(--gutter); }
-    .identity h3 { font-size: clamp(1.5rem, 2.25vw, 3.5rem); }
+    .identity h3 { font-size: 1.25rem; }
     .number {
       display: block;
       margin-top: .15em;
@@ -84,7 +90,7 @@
       line-height: 1;
       letter-spacing: -.05em;
     }
-    .media { padding-inline: var(--gutter); border-inline: 0; }
+    .media { padding-inline: var(--gutter); border-inline: 1px solid var(--rule); }
     .details { padding-left: var(--gutter); }
     dl { margin: 0; }
     dt { font-size: .8125rem; font-weight: 600; color: var(--blue); }
@@ -94,13 +100,13 @@
     @media (max-width: 52rem) {
       .project { grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr); }
       .media { padding-right: 0; border-right: 0; }
-      .details { grid-column: 2; border-left: 0; padding-top: 0; }
+      .details { grid-column: 2; border-left: 1px solid var(--rule); padding-top: 0; }
     }
 
     @media (max-width: 36rem) {
       .intro, .project { display: block; }
       .intro .image-box { margin-top: 1.5rem; }
-      h1 { font-size: clamp(2.75rem, 12vw, 4.25rem); }
+      h1 { font-size: 1.5rem; }
       .identity { display: flex; align-items: baseline; justify-content: space-between; }
       .identity, .media, .details { border: 0; padding-inline: 0; }
       .number { margin: 0; font-size: 1.5rem; }
@@ -130,7 +136,7 @@
       border-block: 0;
     }
     .case-section { max-width: 46rem; margin-top: 2.5rem; }
-    .case-section h2 { font-size: clamp(1.9rem, 3vw, 3rem); }
+    .case-section h2 { font-size: 1.35rem; }
     footer { border-top: 0; padding: 2.5rem 0 4rem; }
     .boot { display: none; }
     .welcoming .boot {
@@ -186,14 +192,11 @@
       .project:is(:hover,:focus-within) .case-link-label { transform: none; }
     }
     .intro { align-items: end; padding-block: clamp(2rem, 5vw, 6rem) clamp(3rem, 7vw, 8rem); }
-    .intro .statement { max-width: 36ch; margin: 0 0 1.3rem; font-size: clamp(1.15rem, 2vw, 2rem); line-height: 1.35; }
     .intro-copy { max-width: 44ch; justify-self: end; }
     .intro-copy p { font-size: clamp(1rem, 1.25vw, 1.25rem); }
-    #projects, #about, #contact {
-      border-top: 0;
-      padding-block: clamp(3rem, 6vw, 7rem);
-    }
-    #projects > h2 { margin-bottom: .55em; }
+    #about { margin-top: clamp(3rem, 6vw, 7rem); }
+    #about, #contact { border-top: 1px solid var(--rule); }
+    #about h2, #contact h2 { font-size: clamp(2.75rem, 5.5vw, 7rem); }
     #about p, #contact p { max-width: 54ch; font-size: clamp(1rem, 1.5vw, 1.35rem); }
     .contact-actions { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-top: 1.5rem; }
     .email-button { display: inline-block; border: 1px solid var(--blue); padding: .65rem 1.25rem; text-decoration: none; }
@@ -201,17 +204,16 @@
     @media (max-width: 36rem) { .intro-copy { margin-top: 1.5rem; } }
     :root { --screen: 100vh; --nav-height: 3rem; }
     @supports (height: 100dvh) { :root { --screen: 100dvh; } }
-    .intro, .project, #about, #contact {
+    .intro, #about, #contact {
       min-height: var(--screen);
       align-content: center;
       padding-block: clamp(3rem, 8vh, 8rem);
     }
     .intro { min-height: calc(var(--screen) - var(--nav-height)); }
     #projects { padding-block: 0; }
-    .project { align-items: start; }
     #about, #contact { display: grid; align-items: start; justify-items: start; }
     @media (max-width: 36rem) {
-      .intro, .project { display: flex; flex-direction: column; justify-content: center; align-items: stretch; }
+      .intro { display: flex; flex-direction: column; justify-content: center; align-items: stretch; }
     }
   </style>
 </head>
@@ -222,30 +224,25 @@
     <p>Welcome to Joann’s portfolio</p>
   </div>
   <nav aria-label="Portfolio navigation">
-    <span>~/portfolio</span>
+    <a class="signature" href="#intro">~/portfolio</a>
     <div class="nav-links"><a href="#projects">Projects</a><a href="#about">About</a><a href="#contact">Contact</a></div>
   </nav>
   <main>
     <div class="home">
-    <header class="intro">
-      <div>
-        <p class="statement">Designing product experiences where structure does the heavy lifting, and creativity shapes the final feel.</p>
-        <h1>Joann Bisseling</h1>
-      </div>
+    <header class="intro" id="intro">
+      <h1 class="intro-name">Joann Bisseling</h1>
       <div class="intro-copy">
         <p>I’m a UX and Game Design student in Singapore. I design interfaces and build playable prototypes, then watch people try them to see which details help and where they get stuck.</p>
-        <a href="#projects">See my work ↓</a>
       </div>
     </header>
 
-    <section id="projects" aria-labelledby="projects-title">
-      <h2 id="projects-title">Projects</h2>
+    <section id="projects" aria-label="Projects">
       <!-- Each row links to its matching case study below. -->
       <article class="project" id="entry-1">
         <div class="identity">
           <h3><a class="project-link" href="#project-1">Project 1</a></h3>
           <span class="number" aria-hidden="true">01</span>
-          <span class="case-link-label" aria-hidden="true">View project →</span>
+          <span class="case-link-label" aria-hidden="true">Open case study →</span>
         </div>
         <div class="media">
           <div class="image-box" aria-hidden="true"></div>
@@ -264,7 +261,7 @@
         <div class="identity">
           <h3><a class="project-link" href="#project-2">Project 2</a></h3>
           <span class="number" aria-hidden="true">02</span>
-          <span class="case-link-label" aria-hidden="true">View project →</span>
+          <span class="case-link-label" aria-hidden="true">Open case study →</span>
         </div>
         <div class="media">
           <div class="image-box" aria-hidden="true"></div>
@@ -283,7 +280,7 @@
         <div class="identity">
           <h3><a class="project-link" href="#project-3">Project 3</a></h3>
           <span class="number" aria-hidden="true">03</span>
-          <span class="case-link-label" aria-hidden="true">View project →</span>
+          <span class="case-link-label" aria-hidden="true">Open case study →</span>
         </div>
         <div class="media">
           <div class="image-box" aria-hidden="true"></div>
@@ -302,7 +299,7 @@
         <div class="identity">
           <h3><a class="project-link" href="#project-4">Project 4</a></h3>
           <span class="number" aria-hidden="true">04</span>
-          <span class="case-link-label" aria-hidden="true">View project →</span>
+          <span class="case-link-label" aria-hidden="true">Open case study →</span>
         </div>
         <div class="media">
           <div class="image-box" aria-hidden="true"></div>
