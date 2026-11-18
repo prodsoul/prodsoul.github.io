@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Joann Bisseling’s UX and game design portfolio.">
   <title>Joann Bisseling | UX &amp; Game Design</title>
+  <!-- Tab icon: to use your own PNG, replace the next line as described in the download message. -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%225%22%20fill%3D%22%230d0d0d%22%2F%3E%3Cpath%20d%3D%22m6%209%208%207-8%207m12%200h8%22%20fill%3D%22none%22%20stroke%3D%22%23397aff%22%20stroke-width%3D%223.5%22%2F%3E%3C%2Fsvg%3E">
   <script>
     // Start on every homepage load, including its project-list and contact anchors.
     if (!/^#project-\d+$/.test(location.hash)) {
@@ -49,7 +51,7 @@
       justify-content: space-between;
       align-items: center;
       padding-block: .75rem;
-      border-bottom: 1px solid var(--rule);
+      border-bottom: 0;
       font-size: .875rem;
     }
     nav span { color: var(--blue); }
@@ -67,10 +69,10 @@
     .project {
       display: grid;
       grid-template-columns: minmax(0, 16fr) minmax(0, 53fr) minmax(0, 31fr);
-      border-top: 1px solid var(--rule);
+      border-top: 0;
       padding-bottom: clamp(2rem, 5vw, 6rem);
     }
-    .project:last-child { border-bottom: 1px solid var(--rule); }
+    .project:last-child { border-bottom: 0; }
     .identity, .media, .details { padding-block: var(--gutter); }
     .identity { padding-right: var(--gutter); }
     .identity h3 { font-size: clamp(1.5rem, 2.25vw, 3.5rem); }
@@ -82,7 +84,7 @@
       line-height: 1;
       letter-spacing: -.05em;
     }
-    .media { padding-inline: var(--gutter); border-inline: 1px solid var(--rule); }
+    .media { padding-inline: var(--gutter); border-inline: 0; }
     .details { padding-left: var(--gutter); }
     dl { margin: 0; }
     dt { font-size: .8125rem; font-weight: 600; color: var(--blue); }
@@ -92,7 +94,7 @@
     @media (max-width: 52rem) {
       .project { grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr); }
       .media { padding-right: 0; border-right: 0; }
-      .details { grid-column: 2; border-left: 1px solid var(--rule); padding-top: 0; }
+      .details { grid-column: 2; border-left: 0; padding-top: 0; }
     }
 
     @media (max-width: 36rem) {
@@ -125,11 +127,11 @@
       grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
       gap: var(--gutter);
       padding: var(--gutter) 0;
-      border-block: 1px solid var(--rule);
+      border-block: 0;
     }
     .case-section { max-width: 46rem; margin-top: 2.5rem; }
     .case-section h2 { font-size: clamp(1.9rem, 3vw, 3rem); }
-    footer { border-top: 1px solid var(--rule); padding: 2.5rem 0 4rem; }
+    footer { border-top: 0; padding: 2.5rem 0 4rem; }
     .boot { display: none; }
     .welcoming .boot {
       position: fixed; inset: 0; z-index: 10;
@@ -138,7 +140,6 @@
     }
     .welcoming body { overflow: hidden; }
     .welcoming :is(nav, main, footer) { visibility: hidden; }
-    .boot-face { width: 3rem; height: 3rem; color: var(--blue); }
     .boot-title {
       margin: .2em 0 .35em;
       font: 400 clamp(3.5rem, 8vw, 6.5rem)/1.1 "Libre Caslon Display", Georgia, serif;
@@ -189,7 +190,7 @@
     .intro-copy { max-width: 44ch; justify-self: end; }
     .intro-copy p { font-size: clamp(1rem, 1.25vw, 1.25rem); }
     #projects, #about, #contact {
-      border-top: 2px solid var(--blue);
+      border-top: 0;
       padding-block: clamp(3rem, 6vw, 7rem);
     }
     #projects > h2 { margin-bottom: .55em; }
@@ -198,15 +199,24 @@
     .email-button { display: inline-block; border: 1px solid var(--blue); padding: .65rem 1.25rem; text-decoration: none; }
     .email-button:hover { background: var(--blue); color: var(--background); }
     @media (max-width: 36rem) { .intro-copy { margin-top: 1.5rem; } }
+    :root { --screen: 100vh; --nav-height: 3rem; }
+    @supports (height: 100dvh) { :root { --screen: 100dvh; } }
+    .intro, .project, #about, #contact {
+      min-height: var(--screen);
+      align-content: center;
+      padding-block: clamp(3rem, 8vh, 8rem);
+    }
+    .intro { min-height: calc(var(--screen) - var(--nav-height)); }
+    #projects { padding-block: 0; }
+    .project { align-items: start; }
+    #about, #contact { display: grid; align-items: start; justify-items: start; }
+    @media (max-width: 36rem) {
+      .intro, .project { display: flex; flex-direction: column; justify-content: center; align-items: stretch; }
+    }
   </style>
 </head>
 <body>
   <div class="boot" role="status">
-    <svg class="boot-face" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <circle cx="24" cy="24" r="21" stroke="currentColor" stroke-width="2"/>
-      <g fill="currentColor"><circle cx="17" cy="19" r="2"/><circle cx="31" cy="19" r="2"/></g>
-      <path d="M14 28 Q24 41 34 28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-    </svg>
     <p class="boot-title">Portfolio</p>
     <div class="boot-track" aria-hidden="true"><span class="boot-fill"></span></div>
     <p>Welcome to Joann’s portfolio</p>
@@ -388,6 +398,52 @@
     </div>
   </footer>
   <script>
+    const nav = document.querySelector("nav");
+    function sizeIntro() {
+      document.documentElement.style.setProperty("--nav-height", nav.offsetHeight + "px");
+    }
+    sizeIntro();
+    if ("ResizeObserver" in window) new ResizeObserver(sizeIntro).observe(nav);
+
+    // Reduce vertical wheel travel on desktops. Touch, zoom and keyboard use native scrolling.
+    const desktopPointer = matchMedia("(any-pointer: fine)");
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    let remaining = 0;
+    let frame = 0;
+    function stopGlide() {
+      cancelAnimationFrame(frame);
+      remaining = 0;
+      frame = 0;
+    }
+    function glide() {
+      const step = Math.abs(remaining) < 8 ? remaining : remaining * .24;
+      const before = window.scrollY;
+      window.scrollBy(0, step);
+      remaining -= window.scrollY - before;
+      if (Math.abs(remaining) < 1 || before === window.scrollY) stopGlide();
+      else frame = requestAnimationFrame(glide);
+    }
+    window.addEventListener("wheel", event => {
+      if (!desktopPointer.matches || !event.cancelable || event.defaultPrevented ||
+          event.ctrlKey || event.shiftKey || event.altKey || event.metaKey ||
+          Math.abs(event.deltaX) >= Math.abs(event.deltaY) ||
+          document.documentElement.classList.contains("welcoming")) return;
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1;
+      const distance = event.deltaY * unit * .55;
+      event.preventDefault();
+      if (reducedMotion.matches) {
+        stopGlide();
+        window.scrollBy(0, distance);
+        return;
+      }
+      if (Math.sign(distance) !== Math.sign(remaining)) remaining = 0;
+      remaining += distance;
+      if (!frame) frame = requestAnimationFrame(glide);
+    }, { passive: false });
+    for (const type of ["pointerdown", "keydown", "hashchange", "touchstart", "pagehide"]) {
+      window.addEventListener(type, stopGlide, { passive: true });
+    }
+
     function watchSections() {
       if (!("IntersectionObserver" in window)) return;
       const observer = new IntersectionObserver(entries => {
