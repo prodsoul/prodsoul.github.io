@@ -6,14 +6,9 @@
   <meta name="description" content="Joann Bisseling’s UX and game design portfolio.">
   <title>Joann Bisseling | UX &amp; Game Design</title>
   <script>
-    // Show the welcome screen once per tab; shared project links open directly.
-    if (!location.hash && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      try {
-        if (!sessionStorage.getItem("portfolio-welcomed")) {
-          document.documentElement.classList.add("welcoming");
-          sessionStorage.setItem("portfolio-welcomed", "1");
-        }
-      } catch { /* The portfolio also works when storage is disabled. */ }
+    // Start on every homepage load, including its project-list and contact anchors.
+    if (!/^#project-\d+$/.test(location.hash)) {
+      document.documentElement.classList.add("welcoming");
     }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -155,9 +150,31 @@
     }
     .boot-fill {
       display: block; height: 100%; background: var(--blue); transform-origin: left;
-      animation: startup 1.1s ease-in-out both;
+      animation: startup 6s ease-in-out both;
     }
-    @keyframes startup { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes startup {
+      0% { transform: scaleX(0); }
+      12% { transform: scaleX(.28); }
+      30% { transform: scaleX(.32); }
+      42%, 52% { transform: scaleX(.65); }
+      76% { transform: scaleX(.73); }
+      85%, 91% { transform: scaleX(.94); }
+      100% { transform: scaleX(1); }
+    }
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes dissolve { to { opacity: 0; } }
+    @media (prefers-reduced-motion: no-preference) {
+      .boot.leaving { animation: dissolve .25s ease-in both; }
+      html:not(.welcoming) .home, .case-page:target {
+        animation: arrive .42s ease-in-out both;
+      }
+      .revealing { animation: arrive .55s cubic-bezier(.22,.68,.22,1) both; }
+      .case-link-label { transition: transform .22s ease-in-out; }
+      .project:is(:hover,:focus-within) .case-link-label { transform: translateX(4px); }
+    }
     .boot p:last-child { margin: .75rem 0 0; }
     @media (max-width: 36rem) {
       .case-content { grid-template-columns: 1fr; }
@@ -348,7 +365,23 @@
   </footer>
   <script>
     if (document.documentElement.classList.contains("welcoming")) {
-      setTimeout(() => document.documentElement.classList.remove("welcoming"), 1250);
+      const boot = document.querySelector(".boot");
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      setTimeout(() => {
+        boot.classList.add("leaving");
+        setTimeout(() => document.documentElement.classList.remove("welcoming"), reduced ? 0 : 250);
+      }, reduced ? 400 : 6000);
+    }
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("revealing");
+            observer.unobserve(entry.target);
+          }
+        }
+      }, { threshold: 0.06 });
+      document.querySelectorAll(".project, .case-section, footer").forEach(el => observer.observe(el));
     }
     function updatePageTitle() {
       const heading = document.querySelector(".case-page:target h1");
