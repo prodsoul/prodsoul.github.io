@@ -8,9 +8,24 @@
     const bio = document.querySelector("#bio");
     const cat = document.querySelector("#cat");
 
+    installStyles();
+    setupNavigation(nav);
+    setupFolders(files);
+    setupFooter();
+
+    if (cat) setupMeows(cat);
+
+    if (name && bio) {
+      const sounds = createTypewriterSounds();
+      playIntro(name, bio, sounds);
+    }
+  }
+
+  function installStyles() {
     const styles = document.createElement("style");
+
     styles.textContent = `
-      /* The navigation belongs to the top of the page and scrolls with it. */
+      /* Scroll the homepage navigation away with the page. */
       body .nav {
         position: absolute;
         inset: 0 0 auto;
@@ -19,7 +34,19 @@
         transition: none;
       }
 
-      /* Folded files stop below a visible strip of the page background. */
+      /* Show a little of the first folder cover below its tab. */
+      body .hero {
+        min-height: max(536px, calc(var(--vh) - var(--tab) - 24px));
+      }
+
+      /* Preserve the line break before, during and after typing. */
+      #name {
+        white-space: pre-line;
+        text-transform: uppercase;
+        line-height: 1.2;
+      }
+
+      /* Keep the existing gap above the stacked folders. */
       .files {
         --file-air: clamp(32px, 7vh, 64px);
       }
@@ -29,12 +56,11 @@
         min-height: calc(var(--vh) - var(--file-air) - var(--tab));
       }
 
-      /* Taller files can scroll far enough to reveal their last line. */
       .files .folder[data-tall] {
         top: var(--tall-top);
       }
 
-      /* Reserve the final text dimensions while typing into the same space. */
+      /* Both layers occupy the same space so typing doesn't move the bio. */
       .tw-block {
         display: grid;
       }
@@ -98,26 +124,68 @@
         gap: 12px 28px;
       }
 
-      .site-ending a + a { margin-left: 0; }
-      .site-ending a:focus-visible { outline-color: #e4e0d5; }
+      .site-ending a + a {
+        margin-left: 0;
+      }
+
+      .site-ending a:focus-visible {
+        outline-color: #e4e0d5;
+      }
 
       @media (max-width: 680px) {
+        body .hero {
+          min-height: calc(var(--vh) - var(--tab) - 24px);
+        }
+
+        #name {
+          font-size: clamp(2.5rem, 11.5vw, 4.4rem);
+        }
+
         .files { --file-air: 28px; }
         .site-ending { min-height: 44vh; }
       }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tw-caret { animation: none; }
+      }
     `;
+
     document.head.append(styles);
+  }
 
-    setupNavigation(nav);
-    setupFolders(files);
-    setupFooter();
+  function setupMeows(cat) {
+    const clips = [
+      "assets/meow-1.wav",
+      "assets/meow-2.wav",
+      "assets/meow-3.wav"
+    ];
 
-    const sound = createSound();
-    if (cat) cat.addEventListener("click", sound.meow);
+    const player = new Audio();
+    player.volume = 0.75;
 
-    if (name && bio) {
-      typeIntro(name, bio, sound);
-    }
+    let previous = -1;
+
+    cat.addEventListener("click", () => {
+      const choices = clips
+        .map((_, index) => index)
+        .filter(index => index !== previous);
+
+      const selected = choices[Math.floor(Math.random() * choices.length)];
+      previous = selected;
+
+      player.pause();
+      player.src = clips[selected];
+
+      // Start directly inside the click so the first tap works on mobile.
+      player.play().catch(error => {
+        // A second click can intentionally interrupt the first recording.
+        if (error.name !== "AbortError") {
+          console.warn("Could not play the cat recording:", clips[selected], error);
+        }
+      });
+    });
+
+    window.addEventListener("pagehide", () => player.pause());
   }
 
   function setupNavigation(nav) {
@@ -127,6 +195,7 @@
 
     function paint() {
       scheduled = false;
+
       const distance = Math.max(1, nav.offsetHeight);
       const fraction = Math.min(1, Math.max(0, window.scrollY / distance));
 
@@ -157,6 +226,7 @@
 
       for (const folder of folders) {
         folder.removeAttribute("data-tall");
+
         const top = parseFloat(getComputedStyle(folder).top);
         const height = folder.getBoundingClientRect().height;
 
@@ -174,41 +244,30 @@
   }
 
   function setupFooter() {
-    const footer = document.querySelector("footer") ||
-      document.body.appendChild(document.createElement("footer"));
+    const footer = document.querySelector("footer");
+    if (!footer) return;
 
-    footer.className = "site-ending";
-    footer.innerHTML = `
-      <h2>Contact me</h2>
-      <a class="ending-email" href="mailto:j29bisseling@gmail.com">
-        j29bisseling@gmail.com
-      </a>
-      <div class="ending-links">
-        <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn</a>
-        <a href="works.html">See all works</a>
-        <a href="#top">Back to top ↑</a>
-      </div>
-    `;
+    footer.classList.add("site-ending");
     document.documentElement.id = "top";
+
+    const backToTop = footer.querySelector('a[href="#nav"]');
+    if (backToTop) backToTop.href = "#top";
   }
 
-  function createSound() {
+  function createTypewriterSounds() {
     const AudioEngine = window.AudioContext || window.webkitAudioContext;
     let context;
     let clickSample;
-    let lastMeow = -Infinity;
 
-    function enable() {
-      if (!AudioEngine) return Promise.resolve(false);
+    async function enable() {
+      if (!AudioEngine) return false;
 
       try {
-        context ||= new AudioEngine();
-        if (context.state === "running") return Promise.resolve(true);
-        return context.resume()
-          .then(() => context.state === "running")
-          .catch(() => false);
+        if (!context) context = new AudioEngine();
+        if (context.state !== "running") await context.resume();
+        return context.state === "running";
       } catch {
-        return Promise.resolve(false);
+        return false;
       }
     }
 
@@ -224,13 +283,15 @@
     for (const event of ["pointerdown", "click", "keydown"]) {
       document.addEventListener(event, unlock);
     }
+
+    // The animation continues even when the browser requires a gesture for audio.
     unlock();
 
     function key() {
       if (context?.state !== "running") return;
 
       if (!clickSample) {
-        const length = Math.ceil(context.sampleRate * .035);
+        const length = Math.ceil(context.sampleRate * 0.035);
         clickSample = context.createBuffer(1, length, context.sampleRate);
         const samples = clickSample.getChannelData(0);
 
@@ -244,103 +305,80 @@
       const gain = context.createGain();
 
       source.buffer = clickSample;
-      source.playbackRate.value = .86 + Math.random() * .3;
+      source.playbackRate.value = 0.86 + Math.random() * 0.3;
       filter.type = "bandpass";
       filter.frequency.value = 1800;
-      gain.gain.value = .2;
+      gain.gain.value = 0.2;
 
       source.connect(filter).connect(gain).connect(context.destination);
+
       source.onended = () => {
         source.disconnect();
         filter.disconnect();
         gain.disconnect();
       };
+
       source.start();
     }
 
     function ding() {
       if (context?.state !== "running") return;
+
       const now = context.currentTime;
 
-      for (const [frequency, volume] of [[1320, .06], [2644, .017]]) {
+      for (const [frequency, volume] of [[1320, 0.06], [2644, 0.017]]) {
         const tone = context.createOscillator();
         const gain = context.createGain();
 
         tone.frequency.value = frequency;
-        gain.gain.setValueAtTime(.0001, now);
-        gain.gain.exponentialRampToValueAtTime(volume, now + .006);
-        gain.gain.exponentialRampToValueAtTime(.0001, now + .48);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(volume, now + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.48);
 
         tone.connect(gain).connect(context.destination);
+
         tone.onended = () => {
           tone.disconnect();
           gain.disconnect();
         };
+
         tone.start(now);
-        tone.stop(now + .5);
+        tone.stop(now + 0.5);
       }
     }
 
-    async function meow() {
-      if (!(await enable())) return;
-      const now = context.currentTime;
-      if (now - lastMeow < .55) return;
-      lastMeow = now;
-
-      const voice = context.createOscillator();
-      const mouth = context.createBiquadFilter();
-      const gain = context.createGain();
-
-      voice.type = "sawtooth";
-      voice.frequency.setValueAtTime(420, now);
-      voice.frequency.exponentialRampToValueAtTime(730, now + .13);
-      voice.frequency.exponentialRampToValueAtTime(530, now + .31);
-      voice.frequency.exponentialRampToValueAtTime(315, now + .55);
-
-      mouth.type = "bandpass";
-      mouth.Q.value = 2.4;
-      mouth.frequency.setValueAtTime(1000, now);
-      mouth.frequency.exponentialRampToValueAtTime(2150, now + .12);
-      mouth.frequency.exponentialRampToValueAtTime(790, now + .52);
-
-      gain.gain.setValueAtTime(.0001, now);
-      gain.gain.exponentialRampToValueAtTime(.14, now + .04);
-      gain.gain.exponentialRampToValueAtTime(.09, now + .28);
-      gain.gain.exponentialRampToValueAtTime(.0001, now + .56);
-
-      voice.connect(mouth).connect(gain).connect(context.destination);
-      voice.onended = () => {
-        voice.disconnect();
-        mouth.disconnect();
-        gain.disconnect();
-      };
-      voice.start(now);
-      voice.stop(now + .58);
-    }
-
-    return { key, ding, meow };
+    return { key, ding };
   }
 
-  async function typeIntro(name, bio, sound) {
+  async function playIntro(name, bio, sounds) {
     const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-    if (reduceMotion.matches) return;
+    // A real newline is shared by the finished heading and the animation.
+    const fullName = "JOANN\nBISSELING";
+    const fullBio = bio.textContent.trim();
 
-    function prepare(element) {
-      const text = element.textContent.trim();
+    name.textContent = fullName;
+    name.setAttribute("aria-label", "Joann Bisseling");
+
+    if (reducedMotion.matches) return;
+
+    function prepare(element, text, label) {
       const measure = document.createElement("span");
       const output = document.createElement("span");
       const letters = document.createTextNode("");
       const caret = document.createElement("span");
 
       element.classList.add("tw-block");
-      element.setAttribute("aria-label", text);
+      element.setAttribute("aria-label", label);
+
       measure.className = "tw-measure";
       measure.setAttribute("aria-hidden", "true");
       measure.textContent = text;
+
       output.className = "tw-output";
       output.setAttribute("aria-hidden", "true");
+
       caret.className = "tw-caret";
       output.append(letters);
       element.replaceChildren(measure, output);
@@ -348,16 +386,24 @@
       return { element, text, output, letters, caret };
     }
 
-    const title = prepare(name);
-    const paragraph = prepare(bio);
+    const title = prepare(name, fullName, "Joann Bisseling");
+    const paragraph = prepare(bio, fullBio, fullBio);
 
     async function type(section, speed) {
       section.output.append(section.caret);
 
       for (const character of section.text) {
-        if (reduceMotion.matches) break;
+        if (reducedMotion.matches) break;
+
         section.letters.appendData(character);
-        if (character.trim()) sound.key();
+
+        if (character === "\n") {
+          // Brief carriage return between names, without ringing the bell.
+          await delay(160);
+          continue;
+        }
+
+        if (character.trim()) sounds.key();
 
         const pause = /[.!?]/.test(character) ? 90 : 0;
         await delay(speed + pause);
@@ -366,8 +412,7 @@
       section.element.textContent = section.text;
       section.element.classList.remove("tw-block");
 
-      // Only a finished section rings. Wrapping onto a new line is silent.
-      if (!reduceMotion.matches) sound.ding();
+      if (!reducedMotion.matches) sounds.ding();
     }
 
     await delay(260);
