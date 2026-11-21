@@ -4,57 +4,70 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Joann Bisseling | UX and Game Design</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="stylesheet" href="style.css">
 <script>document.documentElement.classList.add("js")</script>
 <style>
-:root{--gap:clamp(20px,5vh,56px);--ease:cubic-bezier(.2,.7,.2,1)}
+:root{--gap:clamp(20px,5vh,56px);--ease:cubic-bezier(.2,.7,.2,1);--m:clamp(16px,4.2vw,60px)}
 .hero{position:relative;height:var(--vh);min-height:560px;overflow:hidden}
-.intro{position:absolute;left:clamp(16px,4.2vw,60px);bottom:calc(var(--band) + 14vh);z-index:3;max-width:calc(100vw - 2 * clamp(16px,4.2vw,60px))}
-h1{margin:0 0 22px;font-weight:400;font-size:clamp(2.4rem,min(6.7vw,10.5vh),6.5rem);line-height:1.05;white-space:pre-wrap;text-transform:uppercase;color:var(--ink-blue);text-shadow:0 0 1px rgba(38,48,63,.45)}
-.bio{margin:0;font-size:clamp(1rem,1.65vw,1.6rem);line-height:1.4;max-width:min(47ch,100%);color:var(--sepia);text-shadow:0 0 .6px rgba(77,64,51,.4)}
+.intro{position:absolute;left:var(--m);bottom:calc(var(--band) + 14vh);z-index:3;max-width:calc(100vw - 2 * var(--m))}
+h1{margin:0 0 22px;font-weight:400;font-size:clamp(3rem,min(8.2vw,12.5vh),8.5rem);line-height:1.02;white-space:pre-wrap;text-transform:uppercase;color:var(--head);text-shadow:0 0 1px rgba(31,27,23,.5)}
+.bio{margin:0;white-space:pre;font-size:clamp(.8rem,min(1.65vw,calc((100vw - 2 * var(--m)) / 27)),1.6rem);line-height:1.4;color:var(--sepia);text-shadow:0 0 .6px rgba(77,64,51,.4)}
 .r{color:transparent;text-shadow:none}
 .c{display:inline-block;width:0;height:1em;border-left:.1em solid var(--ink);margin-right:-.1em;vertical-align:-.12em;animation:bk 1s steps(1) infinite}
 .c[hidden]{display:none}
 @keyframes bk{50%{opacity:0}}
 .cat{position:absolute;right:3vw;bottom:var(--band);height:min(74vh,calc(52vw * 1.49));width:auto;mix-blend-mode:multiply;z-index:1;pointer-events:none;animation:rise 1.4s var(--ease) .3s both}
 @keyframes rise{from{opacity:0;transform:translateY(48px)}to{opacity:1;transform:none}}
-.tab{position:absolute;left:calc(var(--i) * 24%);top:calc(-1 * var(--tab));width:24%;height:var(--tab);display:flex;align-items:center;padding:0 22px 0 12px;font-size:.95rem;white-space:nowrap;overflow:hidden;background:var(--bg);color:var(--ink);text-decoration:none;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 100%,0 100%)}
+.tab{position:absolute;left:calc(var(--i) * 24%);top:calc(-1 * var(--tab));width:24%;height:var(--tab);display:flex;align-items:center;padding:0 22px 0 12px;font-size:.95rem;white-space:nowrap;overflow:hidden;background:var(--bg);color:var(--t);text-decoration:none;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 100%,0 100%)}
 .tab.all{left:72%;width:28%;background:var(--ink);color:var(--paper);text-transform:uppercase;font-size:.85rem;transition:background .3s}
 .tab.all:hover{background:var(--rust)}
-.f1{--bg:var(--c1)}.f2{--bg:var(--c2)}.f3{--bg:var(--c3)}
+/* each folder gets text colors that suit its own paper */
+.f1{--bg:var(--c1);--t:#3a2610;--b:#4d3a1f}
+.f2{--bg:var(--c2);--t:#232a10;--b:#2c3217}
+.f3{--bg:var(--c3);--t:#18242d;--b:#2b3943}
 .stack{position:relative;z-index:5;margin-top:calc(-1 * var(--band))}
-.folder{position:sticky;top:calc(var(--gap) + var(--tab));min-height:calc(var(--vh) - var(--gap) - var(--tab));padding:30px clamp(16px,4.2vw,60px) 56px;background-color:var(--bg);background-image:linear-gradient(180deg,rgba(255,255,255,.12),rgba(60,40,20,.07));color:var(--ink);box-shadow:0 -3px 0 rgba(60,40,20,.28),0 -14px 30px rgba(60,40,20,.12)}
+.folder{--cols:.9fr 1.8fr .9fr;--g:clamp(14px,2vw,32px);position:sticky;top:calc(var(--gap) + var(--tab));min-height:calc(var(--vh) - var(--gap) - var(--tab));display:flex;flex-direction:column;gap:22px;padding:30px var(--m) 40px;background-color:var(--bg);background-image:linear-gradient(180deg,rgba(255,255,255,.12),rgba(60,40,20,.07));color:var(--b);box-shadow:0 -3px 0 rgba(60,40,20,.28),0 -14px 30px rgba(60,40,20,.12)}
 .dwell{height:70vh}
-.meta{display:flex;gap:28px;flex-wrap:wrap;font-size:.85rem;text-transform:uppercase;padding-bottom:14px;border-bottom:1px solid rgba(58,47,37,.55);margin-bottom:26px;color:#4a3a2c}
-.cols{display:grid;grid-template-columns:1fr 1.3fr;gap:32px}
-.folder h2{margin:0 0 14px;font-weight:400;font-size:clamp(1.8rem,4vw,3.4rem);line-height:1.05;color:var(--ink-blue)}
-.folder p{max-width:44ch;margin:0 0 18px;color:var(--sepia)}
-.go{display:inline-block;padding:8px 18px;border:2px solid var(--ink);text-decoration:none;text-transform:uppercase;font-size:.9rem;transition:background .3s,color .3s}
-.go:hover{background:var(--ink);color:var(--paper)}
-.shots{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.shot{aspect-ratio:4/3;border:2px dashed rgba(58,47,37,.6);display:grid;place-items:center;font-size:.85rem;color:#5a4a3a;text-align:center;padding:8px}
-.js .folder .meta,.js .folder .cols,.js .rv{opacity:0;transform:translateY(32px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
-.js .folder .cols{transition-delay:.15s}
-.js .folder.in .meta,.js .folder.in .cols,.js .rv.in{opacity:1;transform:none}
-.sect{position:relative;z-index:6;background:var(--paper);padding:72px clamp(16px,4.2vw,60px) 72px}
+.head{display:grid;grid-template-columns:var(--cols);gap:var(--g);align-items:start;padding-bottom:20px;border-bottom:1px dotted var(--b)}
+.folder h2{grid-column:1/3;margin:0;font-weight:400;font-size:clamp(2rem,5vw,4.6rem);line-height:1;color:var(--t)}
+.info{display:flex;flex-direction:column;gap:4px;font-size:.9rem;text-transform:uppercase}
+.info .tags{margin-top:10px;padding:3px 8px;background:rgba(255,255,255,.28);font-size:.78rem}
+.body{flex:1;min-height:300px;display:grid;grid-template-columns:var(--cols);gap:var(--g)}
+.desc{display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+.desc p{margin:0;max-width:40ch;text-transform:uppercase;font-size:.85rem;line-height:1.8}
+.go{display:inline-block;padding:8px 18px;border:2px solid var(--b);color:var(--t);text-decoration:none;text-transform:uppercase;font-size:.9rem;transition:background .3s,color .3s}
+.go:hover{background:var(--t);color:var(--bg)}
+.side{display:grid;grid-template-rows:1fr 1fr;gap:var(--g)}
+.shot{border:2px dashed color-mix(in srgb,var(--b) 55%,transparent);display:grid;place-items:center;font-size:.85rem;text-align:center;padding:8px;min-height:0}
+.js .folder .head,.js .folder .body,.js .rv{opacity:0;transform:translateY(32px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.js .folder .body{transition-delay:.15s}
+.js .folder.in .head,.js .folder.in .body,.js .rv.in{opacity:1;transform:none}
+.sect{position:relative;z-index:6;background:var(--paper);padding:72px var(--m)}
 .sect+.sect{padding-top:48px;border-top:2px solid var(--ink)}
-.sect h2{margin:0 0 22px;font-weight:400;font-size:clamp(2.4rem,7vw,6rem);line-height:1;text-transform:uppercase;color:var(--ink-blue)}
+.sect h2{margin:0 0 22px;font-weight:400;font-size:clamp(2.4rem,7vw,6rem);line-height:1;text-transform:uppercase;color:var(--head)}
 .sect p{max-width:52ch;font-size:clamp(1rem,1.4vw,1.3rem);color:var(--sepia)}
-.foot{position:relative;z-index:6;background:var(--ink);color:#e9dfc9;padding:40px clamp(16px,4.2vw,60px) 24px;font-size:.9rem}
+.foot{position:relative;z-index:6;background:var(--ink);color:#e9dfc9;padding:40px var(--m) 24px;font-size:.9rem}
 #snd{position:fixed;left:14px;bottom:14px;z-index:120;font:inherit;font-size:.8rem;background:var(--paper);color:var(--ink);border:2px solid var(--ink);padding:5px 12px;cursor:pointer}
+@media(max-width:900px){
+  .folder{--cols:1fr}
+  .folder h2,.info{grid-column:auto}
+  .body{grid-template-columns:1fr}
+  .shot{aspect-ratio:4/3}
+  .side{grid-template-rows:none;grid-template-columns:1fr 1fr}
+}
 @media(max-width:760px){
-  h1{font-size:min(13vw,10.5vh)}
-  .cols{grid-template-columns:1fr}
+  h1{font-size:min(15vw,11vh)}
   .tab{font-size:.72rem;padding:0 16px 0 8px}.tab.all{left:70%;width:30%;font-size:.68rem}
   .intro{bottom:calc(var(--band) + 10vh)}
 }
 @media(max-height:560px){
-  h1{font-size:min(6.7vw,15vh)}.bio{font-size:.95rem}
+  h1{font-size:min(8.2vw,17vh)}
   .intro{bottom:calc(var(--band) + 4vh)}.cat{height:62vh}
 }
 @media(prefers-reduced-motion:reduce){
   .c{animation:none}.cat{animation:none}
-  .js .folder .meta,.js .folder .cols,.js .rv{opacity:1;transform:none;transition:none}
+  .js .folder .head,.js .folder .body,.js .rv{opacity:1;transform:none;transition:none}
 }
 </style>
 </head>
@@ -70,19 +83,19 @@ h1{margin:0 0 22px;font-weight:400;font-size:clamp(2.4rem,min(6.7vw,10.5vh),6.5r
 </header>
 
 <main class="stack">
-  <!-- TODO: replace names, tags, summaries and screenshots for each folder -->
+  <!-- TODO: replace names, year, tags, descriptions and the image boxes in each folder -->
   <article class="folder f1" id="p1" style="--i:0"><span class="tab">Project 1 - Name</span><a class="tab all" href="works.html">See all works</a>
-    <div class="meta"><span>Project 01</span><span>2026</span><span>UX, Prototype</span></div>
-    <div class="cols"><div><h2>Project 1 - Name</h2><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p1">View project</a></div>
-    <div class="shots"><div class="shot">Screenshot goes here</div><div class="shot">Screenshot goes here</div></div></div></article>
+    <div class="head"><h2>Project 1 - Name</h2><div class="info"><span>2026</span><span>UX Research</span><span class="tags">Research, Prototyping, Usability testing</span></div></div>
+    <div class="body"><div class="desc"><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p1">View project</a></div>
+      <div class="shot">Main image</div><div class="side"><div class="shot">Detail image</div><div class="shot">Detail image</div></div></div></article>
   <article class="folder f2" id="p2" style="--i:1"><span class="tab">Project 2 - Name</span>
-    <div class="meta"><span>Project 02</span><span>2026</span><span>Game Design</span></div>
-    <div class="cols"><div><h2>Project 2 - Name</h2><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p2">View project</a></div>
-    <div class="shots"><div class="shot">Screenshot goes here</div><div class="shot">Screenshot goes here</div></div></div></article>
+    <div class="head"><h2>Project 2 - Name</h2><div class="info"><span>2026</span><span>Game Design</span><span class="tags">Playable prototype, Game feel</span></div></div>
+    <div class="body"><div class="desc"><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p2">View project</a></div>
+      <div class="shot">Main image</div><div class="side"><div class="shot">Detail image</div><div class="shot">Detail image</div></div></div></article>
   <article class="folder f3" id="p3" style="--i:2"><span class="tab">Project 3 - Name</span>
-    <div class="meta"><span>Project 03</span><span>2026</span><span>UX Research</span></div>
-    <div class="cols"><div><h2>Project 3 - Name</h2><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p3">View project</a></div>
-    <div class="shots"><div class="shot">Screenshot goes here</div><div class="shot">Screenshot goes here</div></div></div></article>
+    <div class="head"><h2>Project 3 - Name</h2><div class="info"><span>2026</span><span>UX Design</span><span class="tags">Interface design, Wireframes</span></div></div>
+    <div class="body"><div class="desc"><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p3">View project</a></div>
+      <div class="shot">Main image</div><div class="side"><div class="shot">Detail image</div><div class="shot">Detail image</div></div></div></article>
   <div class="dwell" aria-hidden="true"></div>
 </main>
 
@@ -98,7 +111,8 @@ h1{margin:0 0 22px;font-weight:400;font-size:clamp(2.4rem,min(6.7vw,10.5vh),6.5r
 
 <script>
 const $=id=>document.getElementById(id),reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-const NAME="Joann\nBisseling",BIO="I’m a UX and Game Design student in Singapore. I design interfaces and build playable prototypes, then watch people try them to see which details help and where they get stuck.";
+const NAME="Joann\nBisseling";
+const BIO="I’m a UX and Game Design student in Singapore.\nI design interfaces and build playable\nprototypes, then watch people try them to see\nwhich details help and where they get stuck.";
 
 /* nav fades away once you scroll and comes back at the very top */
 const nav=$("nav");
@@ -120,14 +134,14 @@ if(!reduce&&matchMedia("(pointer:fine)").matches){
   addEventListener("scroll",()=>{if(!busy)cur=tgt=scrollY},{passive:true});
 }
 
-/* soft typewriter sound, synthesized (no audio files) */
-let ac,nb,muted=false;
+/* soft typewriter sound, synthesized. Clicks are thinned out so they never pile up. */
+let ac,nb,muted=false,lastS=0;
 function audio(){if(ac)return ac;const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ac=new A();nb=ac.createBuffer(1,ac.sampleRate*.3,ac.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return ac}
 const ok=()=>!muted&&ac&&ac.state==="running";
 function soft(fr,dur,v){if(!ok())return;const s=ac.createBufferSource();s.buffer=nb;const f=ac.createBiquadFilter();f.type="lowpass";f.frequency.value=fr*(.92+Math.random()*.16);f.Q.value=.4;const g=ac.createGain(),t=ac.currentTime;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(ac.destination);s.start(t);s.stop(t+dur+.02)}
 function tone(fr,dur,v){if(!ok())return;const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.frequency.value=fr;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+dur+.02)}
-const key=sp=>sp?(soft(600,.08,.13),tone(100,.09,.05)):(soft(1000,.045,.1),tone(150,.05,.035));
-const ret=()=>{soft(450,.22,.16);tone(1568,.6,.018)};
+function key(sp){const n=performance.now();if(n-lastS<110||(!sp&&Math.random()<.35))return;lastS=n;sp?(soft(600,.08,.09),tone(100,.09,.035)):(soft(1000,.04,.07),tone(150,.05,.028))}
+const ret=()=>{lastS=performance.now();soft(450,.22,.14);tone(1568,.6,.016)};
 function label(){$("snd").textContent=muted?"Sound off":(ac&&ac.state==="running")?"Sound on":"Tap for sound"}
 
 /* typing with a human rhythm: uneven pace, pauses after words and punctuation */
@@ -151,10 +165,13 @@ function type(el,text,sp){return new Promise(done=>{const t=el.querySelector(".t
 
 /* browsers only allow sound after a click, tap or key press */
 audio();
-function unlock(){audio();if(ac&&ac.state!=="running")ac.resume().then(label);label()}
+function unlock(e){if(e.target.closest&&e.target.closest("#snd"))return;audio();if(ac&&ac.state!=="running")ac.resume().then(label);label()}
 ["pointerdown","keydown","touchend"].forEach(e=>addEventListener(e,unlock,{passive:true}));
 if(ac)ac.resume().then(label).catch(()=>{});
-$("snd").addEventListener("click",()=>{if(ac&&ac.state==="running")muted=!muted;else muted=false;label()});
+$("snd").addEventListener("click",()=>{audio();
+  if(ac.state!=="running"){muted=false;ac.resume().then(label)}   /* first tap turns sound ON */
+  else muted=!muted;
+  label()});
 label();
 </script>
 </body>

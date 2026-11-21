@@ -4,7 +4,7 @@
 :root{
   --paper:#F8F3E7;      /* page background */
   --ink:#3a2f25;        /* warm carbon, main text */
-  --ink-blue:#26303f;   /* blue-black ribbon, headings */
+  --head:#1f1b17;       /* soft ribbon black, headings */
   --sepia:#4d4033;      /* faded sepia, paragraphs */
   --muted:#7a6c5c;
   --rust:#9a4a38;       /* faded red ribbon, small labels */
@@ -23,10 +23,11 @@ a{color:inherit}
 .nav{position:fixed;inset:0 0 auto 0;height:var(--nav);background:var(--paper);display:flex;justify-content:space-between;align-items:center;padding:0 clamp(16px,4.2vw,60px);z-index:100;border-bottom:2px solid transparent;transition:opacity .5s ease,visibility .5s}
 .nav.s{border-color:var(--ink)}
 .nav.h{opacity:0;visibility:hidden;pointer-events:none}
-.nav a{font-size:clamp(1rem,1.9vw,1.7rem);text-transform:uppercase;text-decoration:none}
-.nav a:hover,.nav a[aria-current]{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:6px}
+.nav a{display:inline-block;font-size:clamp(1rem,1.9vw,1.7rem);text-transform:uppercase;text-decoration:none;transition:transform .25s ease,color .25s ease}
+.nav a:hover{transform:scale(1.12)}
+.nav a[aria-current]{color:var(--rust)}
 .page{max-width:820px;margin:0 auto;padding:calc(var(--nav) + 56px) 24px 80px}
-.page h1{font-weight:400;font-size:clamp(2.4rem,7vw,5rem);line-height:1;margin:0 0 28px;text-transform:uppercase;color:var(--ink-blue)}
+.page h1{font-weight:400;font-size:clamp(2.4rem,7vw,5rem);line-height:1;margin:0 0 28px;text-transform:uppercase;color:var(--head)}
 .page article{padding:24px 0;border-top:2px solid var(--ink)}
 .page h2{font-weight:400;margin:0 0 6px;font-size:1.8rem}
 .page p{max-width:60ch;color:var(--sepia)}
