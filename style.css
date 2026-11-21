@@ -2,30 +2,35 @@
 /* Put the font in /fonts. Either file name below works. */
 @font-face{font-family:"Tox Typewriter";src:url("fonts/ToxTypewriter.ttf") format("truetype"),url("fonts/Tox%20Typewriter.ttf") format("truetype");font-display:swap}
 :root{
-  --paper:#F8F3E7;
-  --ink:#1d1915;
-  --muted:#6b6257;
-  --c1:#dcbf86;   /* manila folder */
-  --c2:#d99f8a;   /* dusty rose */
-  --c3:#8fb8ad;   /* faded teal */
+  --paper:#F8F3E7;      /* page background */
+  --ink:#3a2f25;        /* warm carbon, main text */
+  --ink-blue:#26303f;   /* blue-black ribbon, headings */
+  --sepia:#4d4033;      /* faded sepia, paragraphs */
+  --muted:#7a6c5c;
+  --rust:#9a4a38;       /* faded red ribbon, small labels */
+  --c1:#d2ae72;         /* manila kraft folder */
+  --c2:#9aa06c;         /* olive file-cabinet green */
+  --c3:#8fa3ad;         /* slate blue-grey folder */
   --font:"Tox Typewriter","Courier Prime","Courier New",monospace;
-  --nav:64px;--tab:34px;--band:100px;
+  --nav:64px;--tab:34px;--band:100px;--vh:100vh;
 }
+@supports(height:100svh){:root{--vh:100svh}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.45}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.45;overflow-x:hidden}
 a{color:inherit}
-:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
-.nav{position:fixed;inset:0 0 auto 0;height:var(--nav);background:var(--paper);display:flex;justify-content:space-between;align-items:center;padding:0 clamp(16px,4.2vw,60px);z-index:100;border-bottom:2px solid transparent;transition:opacity .35s,visibility .35s,border-color .2s}
+:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
+.nav{position:fixed;inset:0 0 auto 0;height:var(--nav);background:var(--paper);display:flex;justify-content:space-between;align-items:center;padding:0 clamp(16px,4.2vw,60px);z-index:100;border-bottom:2px solid transparent;transition:opacity .5s ease,visibility .5s}
 .nav.s{border-color:var(--ink)}
 .nav.h{opacity:0;visibility:hidden;pointer-events:none}
 .nav a{font-size:clamp(1rem,1.9vw,1.7rem);text-transform:uppercase;text-decoration:none}
 .nav a:hover,.nav a[aria-current]{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:6px}
 .page{max-width:820px;margin:0 auto;padding:calc(var(--nav) + 56px) 24px 80px}
-.page h1{font-weight:400;font-size:clamp(2.4rem,7vw,5rem);line-height:1;margin:0 0 28px;text-transform:uppercase}
+.page h1{font-weight:400;font-size:clamp(2.4rem,7vw,5rem);line-height:1;margin:0 0 28px;text-transform:uppercase;color:var(--ink-blue)}
 .page article{padding:24px 0;border-top:2px solid var(--ink)}
 .page h2{font-weight:400;margin:0 0 6px;font-size:1.8rem}
-.page p{max-width:60ch}
-.btn{display:inline-block;margin:6px 10px 0 0;padding:9px 20px;border:2px solid var(--ink);text-decoration:none;background:var(--ink);color:var(--paper)}
+.page p{max-width:60ch;color:var(--sepia)}
+.btn{display:inline-block;margin:6px 10px 0 0;padding:9px 20px;border:2px solid var(--ink);text-decoration:none;background:var(--ink);color:var(--paper);transition:background .25s,color .25s}
 .btn.o{background:transparent;color:var(--ink)}
+.btn:hover{background:var(--rust);border-color:var(--rust);color:var(--paper)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

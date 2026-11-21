@@ -2,42 +2,60 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Joann Bisseling | UX and Game Design</title>
 <link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add("js")</script>
 <style>
-.hero{position:relative;height:100vh;min-height:620px;overflow:hidden}
-.intro{position:absolute;left:clamp(16px,4.2vw,60px);bottom:calc(var(--band) + 15vh);z-index:3;max-width:min(46rem,56vw)}
-h1{margin:0 0 22px;font-weight:400;font-size:clamp(2.6rem,6.7vw,6.5rem);line-height:1.05;white-space:pre-wrap;text-transform:uppercase}
-.bio{margin:0;font-size:clamp(1rem,1.4vw,1.3rem);line-height:1.4;max-width:34ch}
-.hint{margin:18px 0 0;font-size:.85rem;color:var(--muted)}
-.r{color:transparent}
+:root{--gap:clamp(20px,5vh,56px);--ease:cubic-bezier(.2,.7,.2,1)}
+.hero{position:relative;height:var(--vh);min-height:560px;overflow:hidden}
+.intro{position:absolute;left:clamp(16px,4.2vw,60px);bottom:calc(var(--band) + 14vh);z-index:3;max-width:calc(100vw - 2 * clamp(16px,4.2vw,60px))}
+h1{margin:0 0 22px;font-weight:400;font-size:clamp(2.4rem,min(6.7vw,10.5vh),6.5rem);line-height:1.05;white-space:pre-wrap;text-transform:uppercase;color:var(--ink-blue);text-shadow:0 0 1px rgba(38,48,63,.45)}
+.bio{margin:0;font-size:clamp(1rem,1.65vw,1.6rem);line-height:1.4;max-width:min(47ch,100%);color:var(--sepia);text-shadow:0 0 .6px rgba(77,64,51,.4)}
+.r{color:transparent;text-shadow:none}
 .c{display:inline-block;width:0;height:1em;border-left:.1em solid var(--ink);margin-right:-.1em;vertical-align:-.12em;animation:bk 1s steps(1) infinite}
 .c[hidden]{display:none}
 @keyframes bk{50%{opacity:0}}
-.cat{position:absolute;right:3vw;bottom:var(--band);height:min(76vh,760px);width:auto;mix-blend-mode:multiply;z-index:1;pointer-events:none}
+.cat{position:absolute;right:3vw;bottom:var(--band);height:min(74vh,calc(52vw * 1.49));width:auto;mix-blend-mode:multiply;z-index:1;pointer-events:none;animation:rise 1.4s var(--ease) .3s both}
+@keyframes rise{from{opacity:0;transform:translateY(48px)}to{opacity:1;transform:none}}
 .tab{position:absolute;left:calc(var(--i) * 24%);top:calc(-1 * var(--tab));width:24%;height:var(--tab);display:flex;align-items:center;padding:0 22px 0 12px;font-size:.95rem;white-space:nowrap;overflow:hidden;background:var(--bg);color:var(--ink);text-decoration:none;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 100%,0 100%)}
-.tab.all{left:72%;width:28%;background:var(--ink);color:var(--paper);text-transform:uppercase;font-size:.85rem}
-.tab.all:hover{text-decoration:underline}
+.tab.all{left:72%;width:28%;background:var(--ink);color:var(--paper);text-transform:uppercase;font-size:.85rem;transition:background .3s}
+.tab.all:hover{background:var(--rust)}
 .f1{--bg:var(--c1)}.f2{--bg:var(--c2)}.f3{--bg:var(--c3)}
 .stack{position:relative;z-index:5;margin-top:calc(-1 * var(--band))}
-.folder{position:sticky;top:var(--tab);min-height:calc(100vh - var(--tab));padding:30px clamp(16px,4.2vw,60px) 56px;background:var(--bg);color:var(--ink);box-shadow:0 -3px 0 rgba(0,0,0,.22)}
-.meta{display:flex;gap:28px;flex-wrap:wrap;font-size:.85rem;text-transform:uppercase;padding-bottom:14px;border-bottom:1px solid var(--ink);margin-bottom:26px}
+.folder{position:sticky;top:calc(var(--gap) + var(--tab));min-height:calc(var(--vh) - var(--gap) - var(--tab));padding:30px clamp(16px,4.2vw,60px) 56px;background-color:var(--bg);background-image:linear-gradient(180deg,rgba(255,255,255,.12),rgba(60,40,20,.07));color:var(--ink);box-shadow:0 -3px 0 rgba(60,40,20,.28),0 -14px 30px rgba(60,40,20,.12)}
+.dwell{height:70vh}
+.meta{display:flex;gap:28px;flex-wrap:wrap;font-size:.85rem;text-transform:uppercase;padding-bottom:14px;border-bottom:1px solid rgba(58,47,37,.55);margin-bottom:26px;color:#4a3a2c}
 .cols{display:grid;grid-template-columns:1fr 1.3fr;gap:32px}
-.folder h2{margin:0 0 14px;font-weight:400;font-size:clamp(1.8rem,4vw,3.4rem);line-height:1.05}
-.folder p{max-width:44ch;margin:0 0 18px}
-.go{display:inline-block;padding:8px 18px;border:2px solid var(--ink);text-decoration:none;text-transform:uppercase;font-size:.9rem}
+.folder h2{margin:0 0 14px;font-weight:400;font-size:clamp(1.8rem,4vw,3.4rem);line-height:1.05;color:var(--ink-blue)}
+.folder p{max-width:44ch;margin:0 0 18px;color:var(--sepia)}
+.go{display:inline-block;padding:8px 18px;border:2px solid var(--ink);text-decoration:none;text-transform:uppercase;font-size:.9rem;transition:background .3s,color .3s}
 .go:hover{background:var(--ink);color:var(--paper)}
 .shots{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.shot{aspect-ratio:4/3;border:2px dashed var(--ink);display:grid;place-items:center;font-size:.85rem;opacity:.7;text-align:center;padding:8px}
-.sect{position:relative;z-index:6;background:var(--paper);padding:calc(var(--nav) + 64px) clamp(16px,4.2vw,60px) 72px}
+.shot{aspect-ratio:4/3;border:2px dashed rgba(58,47,37,.6);display:grid;place-items:center;font-size:.85rem;color:#5a4a3a;text-align:center;padding:8px}
+.js .folder .meta,.js .folder .cols,.js .rv{opacity:0;transform:translateY(32px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.js .folder .cols{transition-delay:.15s}
+.js .folder.in .meta,.js .folder.in .cols,.js .rv.in{opacity:1;transform:none}
+.sect{position:relative;z-index:6;background:var(--paper);padding:72px clamp(16px,4.2vw,60px) 72px}
 .sect+.sect{padding-top:48px;border-top:2px solid var(--ink)}
-.sect h2{margin:0 0 22px;font-weight:400;font-size:clamp(2.4rem,7vw,6rem);line-height:1;text-transform:uppercase}
-.sect p{max-width:52ch;font-size:clamp(1rem,1.4vw,1.3rem)}
-.foot{position:relative;z-index:6;background:var(--ink);color:var(--paper);padding:40px clamp(16px,4.2vw,60px) 24px;font-size:.9rem}
+.sect h2{margin:0 0 22px;font-weight:400;font-size:clamp(2.4rem,7vw,6rem);line-height:1;text-transform:uppercase;color:var(--ink-blue)}
+.sect p{max-width:52ch;font-size:clamp(1rem,1.4vw,1.3rem);color:var(--sepia)}
+.foot{position:relative;z-index:6;background:var(--ink);color:#e9dfc9;padding:40px clamp(16px,4.2vw,60px) 24px;font-size:.9rem}
 #snd{position:fixed;left:14px;bottom:14px;z-index:120;font:inherit;font-size:.8rem;background:var(--paper);color:var(--ink);border:2px solid var(--ink);padding:5px 12px;cursor:pointer}
-@media(max-width:760px){.cols{grid-template-columns:1fr}.tab{width:30%}.tab.all{left:70%;width:30%}.cat{height:46vh;right:-8vw}.intro{max-width:92vw;bottom:calc(var(--band) + 12vh)}.bio{max-width:26ch}}
-@media(prefers-reduced-motion:reduce){.c{animation:none}}
+@media(max-width:760px){
+  h1{font-size:min(13vw,10.5vh)}
+  .cols{grid-template-columns:1fr}
+  .tab{font-size:.72rem;padding:0 16px 0 8px}.tab.all{left:70%;width:30%;font-size:.68rem}
+  .intro{bottom:calc(var(--band) + 10vh)}
+}
+@media(max-height:560px){
+  h1{font-size:min(6.7vw,15vh)}.bio{font-size:.95rem}
+  .intro{bottom:calc(var(--band) + 4vh)}.cat{height:62vh}
+}
+@media(prefers-reduced-motion:reduce){
+  .c{animation:none}.cat{animation:none}
+  .js .folder .meta,.js .folder .cols,.js .rv{opacity:1;transform:none;transition:none}
+}
 </style>
 </head>
 <body>
@@ -47,7 +65,6 @@ h1{margin:0 0 22px;font-weight:400;font-size:clamp(2.6rem,6.7vw,6.5rem);line-hei
   <div class="intro">
     <h1 id="nm" aria-label="Joann Bisseling"><span class="t" aria-hidden="true"></span><i class="c" aria-hidden="true"></i><span class="r" aria-hidden="true"></span></h1>
     <p class="bio" id="bio" aria-label="I’m a UX and Game Design student in Singapore. I design interfaces and build playable prototypes, then watch people try them to see which details help and where they get stuck."><span class="t" aria-hidden="true"></span><i class="c" aria-hidden="true" hidden></i><span class="r" aria-hidden="true"></span></p>
-    <p class="hint" id="hint">Press any key or click to start the typewriter.</p>
   </div>
   <img class="cat" src="assets/cat.png" alt="Halftone portrait of a cat wearing a bow tie">
 </header>
@@ -58,20 +75,21 @@ h1{margin:0 0 22px;font-weight:400;font-size:clamp(2.6rem,6.7vw,6.5rem);line-hei
     <div class="meta"><span>Project 01</span><span>2026</span><span>UX, Prototype</span></div>
     <div class="cols"><div><h2>Project 1 - Name</h2><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p1">View project</a></div>
     <div class="shots"><div class="shot">Screenshot goes here</div><div class="shot">Screenshot goes here</div></div></div></article>
-  <article class="folder f2" id="p2" style="--i:1"><span class="tab">Project 2 - Name</span><a class="tab all" href="works.html">See all works</a>
+  <article class="folder f2" id="p2" style="--i:1"><span class="tab">Project 2 - Name</span>
     <div class="meta"><span>Project 02</span><span>2026</span><span>Game Design</span></div>
     <div class="cols"><div><h2>Project 2 - Name</h2><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p2">View project</a></div>
     <div class="shots"><div class="shot">Screenshot goes here</div><div class="shot">Screenshot goes here</div></div></div></article>
-  <article class="folder f3" id="p3" style="--i:2"><span class="tab">Project 3 - Name</span><a class="tab all" href="works.html">See all works</a>
+  <article class="folder f3" id="p3" style="--i:2"><span class="tab">Project 3 - Name</span>
     <div class="meta"><span>Project 03</span><span>2026</span><span>UX Research</span></div>
     <div class="cols"><div><h2>Project 3 - Name</h2><p>One or two lines on the problem, your role and what you built.</p><a class="go" href="works.html#p3">View project</a></div>
     <div class="shots"><div class="shot">Screenshot goes here</div><div class="shot">Screenshot goes here</div></div></div></article>
+  <div class="dwell" aria-hidden="true"></div>
 </main>
 
-<section class="sect" id="about"><h2>About me</h2>
+<section class="sect rv" id="about"><h2>About me</h2>
   <p>I’m a UX and Game Design student in Singapore. I design interfaces and build playable prototypes, then watch people try them to see which details help and where they get stuck.</p>
   <p>TODO: add a few more lines about your story, skills and tools.</p></section>
-<section class="sect" id="contact"><h2>Contact me</h2>
+<section class="sect rv" id="contact"><h2>Contact me</h2>
   <p>Open to conversations about design, internships and collaboration.</p>
   <a class="btn" href="mailto:j29bisseling@gmail.com">Email Joann</a><a class="btn o" href="https://www.linkedin.com/in/joannbisseling/" target="_blank" rel="noopener">LinkedIn</a></section>
 <footer class="foot">Joann Bisseling, 2026</footer>
@@ -79,40 +97,64 @@ h1{margin:0 0 22px;font-weight:400;font-size:clamp(2.6rem,6.7vw,6.5rem);line-hei
 <button id="snd" type="button">Tap for sound</button>
 
 <script>
-const $=id=>document.getElementById(id);
+const $=id=>document.getElementById(id),reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const NAME="Joann\nBisseling",BIO="I’m a UX and Game Design student in Singapore. I design interfaces and build playable prototypes, then watch people try them to see which details help and where they get stuck.";
 
-/* nav: visible at the very top and after the folders, faded away in between */
-const nav=$("nav"),stack=document.querySelector(".stack");
-function navState(){const bottom=stack.getBoundingClientRect().bottom<=innerHeight*.5;nav.classList.toggle("h",!(scrollY<60||bottom));nav.classList.toggle("s",bottom)}
-addEventListener("scroll",navState,{passive:true});addEventListener("resize",navState);navState();
+/* nav fades away once you scroll and comes back at the very top */
+const nav=$("nav");
+function navState(){nav.classList.toggle("h",scrollY>=60)}
+addEventListener("scroll",navState,{passive:true});navState();
 
-/* typewriter sound, synthesized so no audio files are needed */
+/* reveal on scroll */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll(".folder,.rv").forEach(n=>io.observe(n));
+
+/* slower, eased mouse-wheel scrolling (desktop only) */
+if(!reduce&&matchMedia("(pointer:fine)").matches){
+  let cur=scrollY,tgt=cur,busy=false;
+  const max=()=>document.documentElement.scrollHeight-innerHeight;
+  const go=y=>scrollTo({top:y,behavior:"instant"});
+  const tick=()=>{cur+=(tgt-cur)*.085;if(Math.abs(tgt-cur)<.5){cur=tgt;busy=false}else requestAnimationFrame(tick);go(cur)};
+  addEventListener("wheel",e=>{if(e.ctrlKey)return;e.preventDefault();if(!busy){cur=tgt=scrollY}
+    tgt=Math.max(0,Math.min(max(),tgt+(e.deltaMode===1?e.deltaY*32:e.deltaY)*.7));if(!busy){busy=true;requestAnimationFrame(tick)}},{passive:false});
+  addEventListener("scroll",()=>{if(!busy)cur=tgt=scrollY},{passive:true});
+}
+
+/* soft typewriter sound, synthesized (no audio files) */
 let ac,nb,muted=false;
-function audio(){if(ac)return ac;const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ac=new A();nb=ac.createBuffer(1,ac.sampleRate*.2,ac.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return ac}
+function audio(){if(ac)return ac;const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ac=new A();nb=ac.createBuffer(1,ac.sampleRate*.3,ac.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return ac}
 const ok=()=>!muted&&ac&&ac.state==="running";
-function burst(fr,q,dur,v,type){if(!ok())return;const s=ac.createBufferSource();s.buffer=nb;const f=ac.createBiquadFilter();f.type=type||"bandpass";f.frequency.value=fr*(.9+Math.random()*.2);f.Q.value=q;const g=ac.createGain(),t=ac.currentTime;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(ac.destination);s.start(t);s.stop(t+dur+.02)}
+function soft(fr,dur,v){if(!ok())return;const s=ac.createBufferSource();s.buffer=nb;const f=ac.createBiquadFilter();f.type="lowpass";f.frequency.value=fr*(.92+Math.random()*.16);f.Q.value=.4;const g=ac.createGain(),t=ac.currentTime;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(ac.destination);s.start(t);s.stop(t+dur+.02)}
 function tone(fr,dur,v){if(!ok())return;const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.frequency.value=fr;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+dur+.02)}
-const key=sp=>sp?(burst(900,.8,.06,.9),burst(110,.8,.09,1.2,"lowpass")):(burst(2200,1.2,.035,.8),burst(160,.8,.05,1,"lowpass"));
-const ret=()=>{burst(320,.7,.18,1.2,"lowpass");tone(2350,.8,.2);tone(3500,.5,.09)};
+const key=sp=>sp?(soft(600,.08,.13),tone(100,.09,.05)):(soft(1000,.045,.1),tone(150,.05,.035));
+const ret=()=>{soft(450,.22,.16);tone(1568,.6,.018)};
 function label(){$("snd").textContent=muted?"Sound off":(ac&&ac.state==="running")?"Sound on":"Tap for sound"}
 
-/* typing: always letter by letter, one character at a time */
-function type(el,text,speed){return new Promise(done=>{const t=el.querySelector(".t"),r=el.querySelector(".r"),c=el.querySelector(".c");r.textContent=text;t.textContent="";c.hidden=false;let i=0;
-  (function step(){if(i>=text.length)return done();const ch=text[i++];t.textContent=text.slice(0,i);r.textContent=text.slice(i);ch==="\n"?ret():key(ch===" ");
-    setTimeout(step,speed*(.6+Math.random()*.8)+(ch==="."||ch===","?140:0)+(ch==="\n"?260:0))})()})}
-let started=false;
-async function begin(){if(started)return;started=true;$("hint").hidden=true;try{await document.fonts.ready}catch(e){}
-  await new Promise(r=>setTimeout(r,300));
-  await type($("nm"),NAME,110);$("nm").querySelector(".c").hidden=true;
-  await new Promise(r=>setTimeout(r,350));
-  await type($("bio"),BIO,38)}
+/* typing with a human rhythm: uneven pace, pauses after words and punctuation */
+function wait(ch,prev,sp){let d=sp*(.5+Math.random()*1.1);
+  if(ch===" ")d+=sp*.7;
+  if(prev===" "&&Math.random()<.14)d+=sp*3;
+  if(ch===","||ch===".")d+=110+Math.random()*90;
+  if(Math.random()<.035)d+=sp*5;
+  if(Math.random()<.18)d*=.55;
+  if(ch==="\n")d+=240;
+  return d}
+function type(el,text,sp){return new Promise(done=>{const t=el.querySelector(".t"),r=el.querySelector(".r"),c=el.querySelector(".c");r.textContent=text;t.textContent="";c.hidden=false;let i=0;
+  (function step(){if(i>=text.length)return done();const ch=text[i],prev=text[i-1]||"";i++;t.textContent=text.slice(0,i);r.textContent=text.slice(i);ch==="\n"?ret():key(ch===" ");setTimeout(step,wait(ch,prev,sp))})()})}
 
-/* the first click, tap or key press unlocks audio and starts the typing */
-function unlock(){audio();Promise.resolve(ac&&ac.state!=="running"?ac.resume():0).then(()=>{label();begin()})}
+/* typing starts as soon as the page loads */
+(async()=>{try{await document.fonts.ready}catch(e){}
+  await new Promise(r=>setTimeout(r,350));
+  await type($("nm"),NAME,80);$("nm").querySelector(".c").hidden=true;
+  await new Promise(r=>setTimeout(r,300));
+  await type($("bio"),BIO,19)})();
+
+/* browsers only allow sound after a click, tap or key press */
+audio();
+function unlock(){audio();if(ac&&ac.state!=="running")ac.resume().then(label);label()}
 ["pointerdown","keydown","touchend"].forEach(e=>addEventListener(e,unlock,{passive:true}));
+if(ac)ac.resume().then(label).catch(()=>{});
 $("snd").addEventListener("click",()=>{if(ac&&ac.state==="running")muted=!muted;else muted=false;label()});
-setTimeout(begin,4000); /* silent fallback if nobody interacts */
 label();
 </script>
 </body>
