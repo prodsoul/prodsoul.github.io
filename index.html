@@ -3,12 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Joann Bisseling | Portfolio</title>
+
+    <title>Joann Bisseling | UX & Game Design Portfolio</title>
+    <meta name="description"
+          content="UX and game design projects by Joann Bisseling, a designer based in Singapore.">
+
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
+    <script src="home.js" defer></script>
 </head>
+
 <body>
-    <nav class="nav" id="nav" aria-label="Main">
+    <nav class="nav" id="nav" aria-label="Main navigation">
         <a href="index.html" aria-current="page">Home</a>
         <a href="works.html">Works</a>
         <a href="about.html">About</a>
@@ -19,31 +25,43 @@
         <section class="hero" aria-labelledby="name">
             <div class="intro">
                 <h1 id="name">Joann Bisseling</h1>
-                <p id="bio" class="bio">I’m a UX and Game Design student in Singapore. I design interfaces and build playable prototypes, then watch people try them to see which details help and where they get stuck.</p>
+                <p class="bio" id="bio">I’m a UX and Game Design student in Singapore. I design interfaces and build playable prototypes, then watch people try them to see which details help and where they get stuck.</p>
             </div>
-            <button class="cat-button" id="cat" type="button" aria-label="Make the cat meow">
+
+            <button class="cat-button"
+                    id="cat"
+                    type="button"
+                    aria-label="Make the cat meow">
                 <img src="assets/cat.png" alt="" draggable="false">
             </button>
         </section>
 
         <section class="files" aria-label="Featured projects">
+            <!-- Folder 1 -->
             <article class="folder f1" id="p1" aria-labelledby="title1">
-                <div class="tab"><span>Project 1 - Name</span></div>
+                <div class="tab">
+                    <span>Project 1 - Name</span>
+                </div>
                 <a class="tab all" href="works.html">See all works</a>
+
                 <div class="sheet">
                     <header class="file-head">
                         <h2 id="title1">Project 1 - Name</h2>
                         <div class="info">
-                            2026<br>UX Research
+                            2026<br>
+                            UX Research
                             <span class="tags">Research, prototyping, usability testing</span>
                         </div>
                     </header>
+
                     <div class="file-body">
                         <div class="file-copy">
                             <p>One or two lines on the problem, your role and what you built.</p>
                             <a class="btn o" href="works.html#p1">View project</a>
                         </div>
+
                         <div class="placeholder">Main image</div>
+
                         <div class="details">
                             <div class="placeholder">Detail image</div>
                             <div class="placeholder">Detail image</div>
@@ -54,22 +72,30 @@
 
             <div class="folder-hold" aria-hidden="true"></div>
 
+            <!-- Folder 2 -->
             <article class="folder f2" id="p2" aria-labelledby="title2">
-                <div class="tab"><span>Project 2 - Name</span></div>
+                <div class="tab">
+                    <span>Project 2 - Name</span>
+                </div>
+
                 <div class="sheet">
                     <header class="file-head">
                         <h2 id="title2">Project 2 - Name</h2>
                         <div class="info">
-                            2026<br>Game Design
+                            2026<br>
+                            Game Design
                             <span class="tags">Level design, prototyping, playtesting</span>
                         </div>
                     </header>
+
                     <div class="file-body">
                         <div class="file-copy">
                             <p>One or two lines on the problem, your role and what you built.</p>
                             <a class="btn o" href="works.html#p2">View project</a>
                         </div>
+
                         <div class="placeholder">Main image</div>
+
                         <div class="details">
                             <div class="placeholder">Detail image</div>
                             <div class="placeholder">Detail image</div>
@@ -80,22 +106,30 @@
 
             <div class="folder-hold" aria-hidden="true"></div>
 
+            <!-- Folder 3 -->
             <article class="folder f3" id="p3" aria-labelledby="title3">
-                <div class="tab"><span>Project 3 - Name</span></div>
+                <div class="tab">
+                    <span>Project 3 - Name</span>
+                </div>
+
                 <div class="sheet">
                     <header class="file-head">
                         <h2 id="title3">Project 3 - Name</h2>
                         <div class="info">
-                            2026<br>Interaction Design
+                            2026<br>
+                            Interaction Design
                             <span class="tags">Unity, interaction design, prototyping</span>
                         </div>
                     </header>
+
                     <div class="file-body">
                         <div class="file-copy">
                             <p>One or two lines on the problem, your role and what you built.</p>
                             <a class="btn o" href="works.html#p3">View project</a>
                         </div>
+
                         <div class="placeholder">Main image</div>
+
                         <div class="details">
                             <div class="placeholder">Detail image</div>
                             <div class="placeholder">Detail image</div>
@@ -108,208 +142,16 @@
         </section>
     </main>
 
-    <footer class="foot">
-        <a href="works.html">Works</a>
-        <a href="contact.html">Contact</a>
+    <footer class="foot site-ending">
+        <h2>Contact me</h2>
+        <a class="ending-email" href="mailto:j29bisseling@gmail.com">
+            j29bisseling@gmail.com
+        </a>
+        <div class="ending-links">
+            <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn</a>
+            <a href="works.html">See all works</a>
+            <a href="#nav">Back to top ↑</a>
+        </div>
     </footer>
-
-    <script>
-            (() => {
-              const nav = document.querySelector("#nav");
-              const files = document.querySelector(".files");
-              const folders = [...document.querySelectorAll(".folder")];
-              const name = document.querySelector("#name");
-              const bio = document.querySelector("#bio");
-              const cat = document.querySelector("#cat");
-
-              /* On shorter screens, let the bottom of a tall file scroll into
-                 view before pinning it. Ordinary desktop files pin below the tabs. */
-              function sizeFolders() {
-                const tab = document.querySelector(".tab").offsetHeight - 1;
-                const viewport = document.documentElement.clientHeight;
-                for (const folder of folders) {
-                  const top = Math.min(tab, viewport - folder.offsetHeight);
-                  folder.style.setProperty("--stick-top", `${top}px`);
-                }
-              }
-
-              function updateNav() {
-                const bounds = files.getBoundingClientRect();
-                nav.classList.toggle("s", window.scrollY > 8);
-                nav.classList.toggle("h",
-                  bounds.top < nav.offsetHeight && bounds.bottom > 0
-                );
-              }
-
-              function updateLayout() {
-                sizeFolders();
-                updateNav();
-              }
-
-              window.addEventListener("resize", updateLayout);
-              window.addEventListener("scroll", updateNav, { passive: true });
-              document.fonts.ready.then(updateLayout);
-              updateLayout();
-
-              /* Sound is generated locally. No extra audio files are needed. */
-              const AudioEngine = window.AudioContext || window.webkitAudioContext;
-              let audio = null;
-              let clickBuffer = null;
-
-              function enableAudio() {
-                if (!AudioEngine) return Promise.resolve(false);
-                try {
-                  if (!audio) audio = new AudioEngine();
-                  if (audio.state === "running") return Promise.resolve(true);
-                  return audio.resume()
-                    .then(() => audio.state === "running")
-                    .catch(() => false);
-                } catch {
-                  return Promise.resolve(false);
-                }
-              }
-
-              function onGesture() {
-                enableAudio().then(enabled => {
-                  if (!enabled) return;
-                  document.removeEventListener("pointerdown", onGesture);
-                  document.removeEventListener("keydown", onGesture);
-                  document.removeEventListener("click", onGesture);
-                });
-              }
-
-              document.addEventListener("pointerdown", onGesture);
-              document.addEventListener("keydown", onGesture);
-              document.addEventListener("click", onGesture);
-              enableAudio();
-
-              function keyClick() {
-                if (audio?.state !== "running") return;
-                if (!clickBuffer) {
-                  const samples = Math.ceil(audio.sampleRate * 0.028);
-                  clickBuffer = audio.createBuffer(1, samples, audio.sampleRate);
-                  const data = clickBuffer.getChannelData(0);
-                  for (let i = 0; i < samples; i++) {
-                    data[i] = (Math.random() * 2 - 1) * Math.exp(-6 * i / samples);
-                  }
-                }
-
-                const source = audio.createBufferSource();
-                const filter = audio.createBiquadFilter();
-                const gain = audio.createGain();
-                source.buffer = clickBuffer;
-                source.playbackRate.value = 0.85 + Math.random() * 0.3;
-                filter.type = "bandpass";
-                filter.frequency.value = 1700;
-                gain.gain.value = 0.19;
-                source.connect(filter).connect(gain).connect(audio.destination);
-                source.onended = () => {
-                  source.disconnect();
-                  filter.disconnect();
-                  gain.disconnect();
-                };
-                source.start();
-              }
-
-              function bell() {
-                if (audio?.state !== "running") return;
-                const now = audio.currentTime;
-                for (const [frequency, volume] of [[1320, 0.065], [2645, 0.018]]) {
-                  const tone = audio.createOscillator();
-                  const gain = audio.createGain();
-                  tone.frequency.value = frequency;
-                  gain.gain.setValueAtTime(0.0001, now);
-                  gain.gain.exponentialRampToValueAtTime(volume, now + 0.004);
-                  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-                  tone.connect(gain).connect(audio.destination);
-                  tone.onended = () => {
-                    tone.disconnect();
-                    gain.disconnect();
-                  };
-                  tone.start(now);
-                  tone.stop(now + 0.44);
-                }
-              }
-
-              let lastMeow = -Infinity;
-              cat.addEventListener("click", async () => {
-                if (!(await enableAudio())) return;
-                const now = audio.currentTime;
-                if (now - lastMeow < 0.45) return;
-                lastMeow = now;
-
-                const voice = audio.createOscillator();
-                const mouth = audio.createBiquadFilter();
-                const gain = audio.createGain();
-
-                voice.type = "sawtooth";
-                voice.frequency.setValueAtTime(440, now);
-                voice.frequency.exponentialRampToValueAtTime(740, now + 0.12);
-                voice.frequency.exponentialRampToValueAtTime(515, now + 0.31);
-                voice.frequency.exponentialRampToValueAtTime(325, now + 0.52);
-
-                mouth.type = "bandpass";
-                mouth.Q.value = 2.3;
-                mouth.frequency.setValueAtTime(1050, now);
-                mouth.frequency.exponentialRampToValueAtTime(2200, now + 0.11);
-                mouth.frequency.exponentialRampToValueAtTime(820, now + 0.5);
-
-                gain.gain.setValueAtTime(0.0001, now);
-                gain.gain.exponentialRampToValueAtTime(0.14, now + 0.035);
-                gain.gain.exponentialRampToValueAtTime(0.09, now + 0.27);
-                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.54);
-
-                voice.connect(mouth).connect(gain).connect(audio.destination);
-                voice.onended = () => {
-                  voice.disconnect();
-                  mouth.disconnect();
-                  gain.disconnect();
-                };
-                voice.start(now);
-                voice.stop(now + 0.55);
-              });
-
-              const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-              async function typeSection(element, text, speed) {
-                element.classList.add("typing");
-                const output = document.createTextNode("");
-                element.replaceChildren(output);
-                for (const character of text) {
-                  output.appendData(character);
-                  if (character.trim()) keyClick();
-                  await wait(speed);
-                }
-                element.classList.remove("typing");
-                bell();
-              }
-
-              async function playIntro() {
-                if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-                  return;
-                }
-
-                const fullName = name.textContent;
-                const fullBio = bio.textContent;
-                name.setAttribute("aria-label", fullName);
-                bio.setAttribute("aria-label", fullBio);
-
-                /* Reserve the finished intro height so the name stays in place
-                   while the paragraph fills in beneath it. */
-                const intro = name.parentElement;
-                intro.style.minHeight = `${intro.offsetHeight}px`;
-                name.textContent = "";
-                bio.textContent = "";
-
-                await wait(220);
-                await typeSection(name, fullName, 80);
-                await wait(260);
-                await typeSection(bio, fullBio, 26);
-                intro.style.minHeight = "";
-              }
-
-              playIntro();
-            })();
-    </script>
 </body>
 </html>
