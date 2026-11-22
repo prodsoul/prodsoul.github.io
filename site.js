@@ -11,6 +11,8 @@ const resumeURL = new URL("resume.html", siteRoot).href;
 const isReload = performance.getEntriesByType("navigation")[0]?.type === "reload";
 
 // Declared up here because typing starts while the script is still loading.
+// Typing waits while this time is in the future: the paper-flip sound plays in full before a title starts typing.
+let typingHoldUntil = 0;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SR_ONLY = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap";
 
@@ -662,6 +664,7 @@ function createTypewriterSounds() {
       .then(buffer => { clip.buffer = buffer; })
       .catch(() => { clip.failed = true; });
   }
+  const buffer_duration = clip => clip.buffer.duration * 1000;
   function playClip(name, volume) {
     const clip = clips[name];
     if (!clip) { loadClip(name); return; }
@@ -674,11 +677,17 @@ function createTypewriterSounds() {
       gain.connect(context.destination);
       source.onended = () => { source.disconnect(); gain.disconnect(); };
       source.start();
+      if (name === "PaperFlip.wav") typingHoldUntil = Math.max(typingHoldUntil, performance.now() + buffer_duration(clip));
     } else if (clip.failed) {
       // Fallback (for example when the page is opened straight from a folder): play the file normally.
       const audio = new Audio(clipURL(name));
       audio.volume = Math.min(1, volume);
-      audio.play().catch(() => {});
+      const paper = name === "PaperFlip.wav";
+      if (paper) {
+        typingHoldUntil = Infinity;
+        audio.addEventListener("ended", () => { typingHoldUntil = 0; });
+      }
+      audio.play().catch(() => { if (paper) typingHoldUntil = 0; });
     }
   }
   // Load the clips a page needs up front so the first key press already has its sound.
@@ -841,7 +850,7 @@ function setupScrollTyping(groups) {
       if (!running.visible()) token.stop = true;
       return;
     }
-    if (heroTyping || performance.now() - lastFast < 380) return;
+    if (heroTyping || performance.now() - lastFast < 380 || performance.now() < typingHoldUntil) return;
     for (const group of groups) {
       if (group.state === "pending" && group.passed?.()) finishGroup(group);
     }
