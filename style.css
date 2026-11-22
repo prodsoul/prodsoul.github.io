@@ -395,3 +395,9 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   .folder-tab:hover span,.all-tab:hover span,.file-tab:hover span,.work-entry:hover .work-name { transform: none; }
   .project-card:hover .project-card-frame,.project-card:hover .project-card-image { transform: none; }
 }
+
+/* Works page: the folder contents line up with the nav's HOME and CONTACT edges. */
+.gallery-panel { padding-inline: calc(var(--edge) - var(--gallery-rim)); }
+
+/* A little more room between the last landing folder and the About section. */
+.about-section { padding-top: calc(max(6rem,12svh) + clamp(48px,9svh,110px)); }

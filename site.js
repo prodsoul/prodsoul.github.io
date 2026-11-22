@@ -354,7 +354,7 @@ if (page === "resume") {
 }
 
 function setupScrollReveals() {
-  if (reducedMotion.matches || !("IntersectionObserver" in window)) return;
+  if (!("IntersectionObserver" in window)) return;
   const blocks = document.querySelectorAll(
     ".folder-sheet > *, .about-inner > *, .case-intro, .case-story > *, .see-more, .contact-copy"
   );
@@ -362,12 +362,10 @@ function setupScrollReveals() {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       seen.unobserve(entry.target);
-      if (!reducedMotion.matches) {
-        entry.target.animate(
-          [{ opacity: .58, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }],
-          { duration: 590, easing: "cubic-bezier(.18,.7,.24,1)" }
-        );
-      }
+      entry.target.animate(
+        [{ opacity: .3, transform: "translateY(30px)" }, { opacity: 1, transform: "none" }],
+        { duration: 950, easing: "cubic-bezier(.18,.7,.24,1)" }
+      );
     }
   });
   blocks.forEach(block => seen.observe(block));
@@ -385,7 +383,7 @@ function setupGentleWheel() {
   }
 
   function step() {
-    position += (target - position) * .22;
+    position += (target - position) * .075;
     if (Math.abs(target - position) < 1) {
       position = target;
       frame = 0;
@@ -396,7 +394,7 @@ function setupGentleWheel() {
   }
 
   window.addEventListener("wheel", event => {
-    if (reducedMotion.matches || !precisePointer.matches || !event.cancelable ||
+    if (!precisePointer.matches || !event.cancelable ||
         event.ctrlKey || event.metaKey || event.shiftKey ||
         Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
     const element = event.target instanceof Element ? event.target : event.target.parentElement;
@@ -409,7 +407,7 @@ function setupGentleWheel() {
     if (max <= 0) return;
     if (!frame) position = target = window.scrollY;
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
-    target = Math.max(0, Math.min(max, target + event.deltaY * unit * .74));
+    target = Math.max(0, Math.min(max, target + event.deltaY * unit * .5));
     event.preventDefault();
     if (!frame) frame = requestAnimationFrame(step);
   }, { passive: false });
@@ -450,12 +448,28 @@ for (const box of document.querySelectorAll("[data-youtube]")) {
   box.replaceChildren(frame);
 }
 
+// Typing plays once per visit. Moving between pages does not replay it; reloading the site does.
+const navigationType = performance.getEntriesByType("navigation")[0]?.type;
+let typingEnabled = true;
+try {
+  const store = window.sessionStorage;
+  if (navigationType === "reload") {
+    for (const key of Object.keys(store)) if (key.startsWith("typed:")) store.removeItem(key);
+  }
+  typingEnabled = !store.getItem("typed:" + page);
+  store.setItem("typed:" + page, "1");
+} catch { /* storage blocked: type every time */ }
+
+const sound = page === "home" || page === "works" ? createTypewriterSounds() : () => {};
+let heroTyping = false;
 if (page === "home") {
   setupCat();
-  const typewriterSound = createTypewriterSounds();
-  runTypewriter(typewriterSound);
-  includesDone.then(() => setupHeadingTypers(typewriterSound));
+  if (typingEnabled) {
+    runHeroTyping();
+    includesDone.then(setupHomeTyping);
+  }
 }
+if (page === "works") setupWorksTyping();
 
 function setupCat() {
   const clips = ["assets/meow-1.wav", "assets/meow-2.wav", "assets/meow-3.wav"];
@@ -479,9 +493,10 @@ function createTypewriterSounds() {
     if (context.state === "suspended") context.resume().catch(() => {});
   }
   resume();
-  for (const type of ["pointerdown", "click", "touchend", "keydown"]) {
+  for (const type of ["pointerdown", "click", "touchend", "keydown", "focus", "pageshow"]) {
     window.addEventListener(type, resume, { passive: true });
   }
+  document.addEventListener("visibilitychange", resume);
   const noise = context.createBuffer(1, context.sampleRate * .055, context.sampleRate);
   const samples = noise.getChannelData(0);
   for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
@@ -513,8 +528,210 @@ function createTypewriterSounds() {
   };
 }
 
-async function runTypewriter(sound) {
-  const sections = ["name","bio"].map(id => {
+/* ---------- Typewriter ---------- */
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+// An uneven, human rhythm: quick runs, small hesitations, pauses at word starts and punctuation.
+function pace(base, character, previous) {
+  let wait = base * (.55 + Math.random());
+  if (Math.random() < .12) wait *= .5;
+  if (Math.random() < .05) wait += base * (3 + Math.random() * 4);
+  if (previous === " ") wait += base * Math.random() * 1.2;
+  if (character === " ") wait += base * .5;
+  if (",;:".includes(character)) wait += 90 + Math.random() * 90;
+  if (".!?".includes(character)) wait += 170 + Math.random() * 140;
+  return wait;
+}
+
+const SR_ONLY = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap";
+
+// The full text stays in the layout (hidden) while it types, so nothing around it moves.
+function prepareText(element) {
+  const text = (element.dataset.typedText ??= element.textContent.replace(/\s+/g, " ").trim());
+  const full = document.createElement("span");
+  const visible = document.createElement("span");
+  const caret = document.createElement("span");
+  const waiting = document.createElement("span");
+  full.style.cssText = SR_ONLY;
+  full.textContent = text;
+  caret.style.cssText = "display:inline-block;width:0;height:.82em;border-left:2px solid currentColor;margin-right:-2px;visibility:hidden";
+  waiting.textContent = text;
+  waiting.style.visibility = "hidden";
+  for (const part of [visible, caret, waiting]) part.setAttribute("aria-hidden", "true");
+  element.replaceChildren(full, visible, caret, waiting);
+  return { element, text, visible, caret, waiting };
+}
+
+function showFull(item) {
+  item.visible.textContent = item.text;
+  item.waiting.textContent = "";
+  item.caret.style.visibility = "hidden";
+}
+
+async function typeItem(item, base, token) {
+  const { text, visible, waiting, caret } = item;
+  caret.style.visibility = "visible";
+  for (let count = 1; count <= text.length; count++) {
+    if (token.stop) { showFull(item); return false; }
+    visible.textContent = text.slice(0, count);
+    waiting.textContent = text.slice(count);
+    if (text[count - 1] !== " ") sound(false);
+    await delay(pace(base, text[count - 1], text[count - 2]));
+  }
+  showFull(item);
+  return true;
+}
+
+async function runGroup(group, token) {
+  for (const [index, item] of group.items.entries()) {
+    if (token.stop) { showFull(item); continue; }
+    if (await typeItem(item, group.speeds[index], token)) {
+      sound(true); // one bell when a section has finished
+      await delay(180);
+    }
+  }
+}
+
+// Typing starts only when the visitor settles on a section. Scrolling quickly stops it and
+// shows the full text, and anything scrolled past is shown in full.
+function setupScrollTyping(groups) {
+  if (!groups.length) return;
+  let lastY = window.scrollY;
+  let lastTime = performance.now();
+  let lastFast = lastTime;
+  let running = null;
+  let token = null;
+
+  const finishGroup = group => {
+    group.state = "done";
+    for (const item of group.items) showFull(item);
+  };
+
+  window.addEventListener("scroll", () => {
+    const now = performance.now();
+    const speed = Math.abs(window.scrollY - lastY) / Math.max(1, now - lastTime) * 1000;
+    lastY = window.scrollY;
+    lastTime = now;
+    if (speed > 650) lastFast = now;
+    if (speed > 1500 && token) token.stop = true;
+  }, { passive: true });
+
+  setInterval(() => {
+    if (running) {
+      if (!running.visible()) token.stop = true;
+      return;
+    }
+    if (heroTyping || performance.now() - lastFast < 380) return;
+    for (const group of groups) {
+      if (group.state === "pending" && group.passed?.()) finishGroup(group);
+    }
+    const next = groups.find(group => group.state === "pending" && group.visible());
+    if (!next) return;
+    if (next.skipEarlier !== false) {
+      for (const group of groups) {
+        if (group === next) break;
+        if (group.state === "pending") finishGroup(group);
+      }
+    }
+    running = next;
+    next.state = "running";
+    token = { stop: false };
+    runGroup(next, token).then(() => { next.state = "done"; running = null; token = null; });
+  }, 140);
+}
+
+const onScreen = element => {
+  const box = element.getBoundingClientRect();
+  return box.bottom > window.innerHeight * .12 && box.top < window.innerHeight * .8;
+};
+
+function textGroup(elements, headingSpeed = 46) {
+  const items = elements.map(prepareText);
+  const speeds = items.map(item => item.element.matches("h2") ? headingSpeed : item.text.length > 200 ? 11 : 18);
+  return { items, speeds, state: "pending" };
+}
+
+function setupHomeTyping() {
+  const groups = [];
+  const folders = Array.from(document.querySelectorAll(".folders .folder"));
+  for (const [index, folder] of folders.entries()) {
+    const heading = folder.querySelector(".folder-sheet header h2");
+    const description = folder.querySelector(".folder-body p");
+    if (!heading || !description) continue;
+    const group = textGroup([heading, description]);
+    const next = folders[index + 1];
+    group.visible = () => {
+      const box = heading.getBoundingClientRect();
+      return onScreen(heading) && box.top >= 0 && (!next || next.getBoundingClientRect().top > box.bottom);
+    };
+    groups.push(group);
+  }
+
+  const about = Array.from(document.querySelectorAll(".about-inner h2, .about-inner p"));
+  if (about.length) {
+    const group = textGroup(about);
+    group.visible = () => group.items.some(item => onScreen(item.element));
+    group.passed = () => group.items.every(item => item.element.getBoundingClientRect().bottom < 0);
+    groups.push(group);
+  }
+
+  // The contact panel waits underneath the page and is revealed as the page scrolls away.
+  const contactHeading = document.querySelector(".contact-copy h2");
+  const contactNote = document.querySelector(".contact-copy .contact-note");
+  if (contactHeading) {
+    const group = textGroup(contactNote ? [contactHeading, contactNote] : [contactHeading]);
+    group.visible = () => {
+      const box = contactHeading.getBoundingClientRect();
+      return footerAnchor.getBoundingClientRect().top <= box.top + box.height * .4 &&
+        box.top < window.innerHeight * .85 && box.bottom > 0;
+    };
+    groups.push(group);
+  }
+  setupScrollTyping(groups);
+}
+
+function setupWorksTyping() {
+  // Hovering a project types its title; moving away puts the normal title straight back.
+  let hovered = null;
+  let hoverToken = null;
+  function stopHover() {
+    if (!hovered) return;
+    hoverToken.stop = true;
+    hovered.textContent = hovered.dataset.typedText;
+    hovered = hoverToken = null;
+  }
+  document.addEventListener("pointerover", event => {
+    if (event.pointerType === "touch") return;
+    const card = event.target.closest?.(".project-card");
+    if (!card || card.contains(event.relatedTarget)) return;
+    const title = card.querySelector(".project-card-title");
+    if (!title) return;
+    stopHover();
+    hovered = title;
+    hoverToken = { stop: false };
+    const token = hoverToken;
+    const item = prepareText(title);
+    typeItem(item, 38, token).then(finished => { if (finished) sound(true); });
+  });
+  document.addEventListener("pointerout", event => {
+    const card = event.target.closest?.(".project-card");
+    if (!card || card.contains(event.relatedTarget)) return;
+    stopHover();
+  });
+
+  if (!typingEnabled) return;
+  const groups = Array.from(document.querySelectorAll(".gallery-panel")).map(panel => {
+    const group = textGroup([panel.querySelector("h2")]);
+    group.skipEarlier = false;
+    group.visible = () => !panel.hidden && onScreen(group.items[0].element);
+    return group;
+  });
+  setupScrollTyping(groups);
+}
+
+async function runHeroTyping() {
+  heroTyping = true;
+  const sections = ["name", "bio"].map(id => {
     const container = document.getElementById(id);
     const lines = Array.from(container.querySelectorAll(".typed-line"));
     container.setAttribute("aria-label", lines.map(line => line.textContent).join(" "));
@@ -529,93 +746,33 @@ async function runTypewriter(sound) {
       return { line, text, visible, waiting };
     });
   });
-  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   const loaded = document.readyState === "complete"
     ? Promise.resolve()
     : new Promise(resolve => window.addEventListener("load", resolve, { once: true }));
   await Promise.all([loaded, Promise.race([document.fonts.ready, delay(1500)])]);
   await delay(1000); // typing starts one second after the page has loaded
+
+  let away = false;
   for (const [index, lines] of sections.entries()) {
     for (const { line, text, visible, waiting } of lines) {
+      if (window.scrollY > window.innerHeight * .55) away = true;
       line.classList.add("typing");
-      for (let count = 1; count <= text.length; count++) {
+      for (let count = 1; count <= text.length && !away; count++) {
+        if (window.scrollY > window.innerHeight * .55) { away = true; break; }
         visible.textContent = text.slice(0, count);
         waiting.textContent = text.slice(count);
         line.style.setProperty("--caret-x", visible.getBoundingClientRect().width + "px");
         if (text[count - 1] !== " ") sound(false);
-        await delay((index === 0 ? 67 : 17) + Math.random() * 24);
+        await delay(pace(index === 0 ? 62 : 24, text[count - 1], text[count - 2]));
       }
+      visible.textContent = text;
+      waiting.textContent = "";
       line.classList.remove("typing");
     }
-    sound(true); // one bell when the whole section has finished
-    await delay(220);
-  }
-}
-
-// Folder titles, "About me" and "Contact me" type themselves when scrolled into view.
-function setupHeadingTypers(sound) {
-  if (!("IntersectionObserver" in window)) return;
-  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-  let queue = Promise.resolve();
-
-  function prepare(heading) {
-    const text = heading.textContent.trim();
-    const visible = document.createElement("span");
-    const caret = document.createElement("span");
-    const waiting = document.createElement("span");
-    caret.style.cssText = "display:inline-block;width:0;height:.82em;border-left:2px solid currentColor;margin-right:-2px;visibility:hidden";
-    waiting.textContent = text;
-    waiting.style.visibility = "hidden"; // keeps the final layout while typing
-    visible.setAttribute("aria-hidden", "true");
-    caret.setAttribute("aria-hidden", "true");
-    waiting.setAttribute("aria-hidden", "true");
-    heading.setAttribute("aria-label", text);
-    heading.replaceChildren(visible, caret, waiting);
-    heading._typing = { text, visible, caret, waiting };
-  }
-
-  async function typeHeading(heading) {
-    const { text, visible, caret, waiting } = heading._typing;
-    caret.style.visibility = "visible";
-    for (let count = 1; count <= text.length; count++) {
-      visible.textContent = text.slice(0, count);
-      waiting.textContent = text.slice(count);
-      if (text[count - 1] !== " ") sound(false);
-      await delay(46 + Math.random() * 28);
+    if (!away) {
+      sound(true); // one bell when the whole section has finished
+      await delay(220);
     }
-    heading.textContent = text; // back to plain text, identical to the original
-    heading.removeAttribute("aria-label");
-    sound(true);
-    await delay(150);
   }
-
-  const play = heading => { queue = queue.then(() => typeHeading(heading)); };
-
-  const headings = Array.from(document.querySelectorAll(".folders .folder-sheet header h2, .about-inner h2"));
-  headings.forEach(prepare);
-  const seen = new IntersectionObserver(entries => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      seen.unobserve(entry.target);
-      play(entry.target);
-    }
-  }, { rootMargin: "0px 0px -18% 0px", threshold: .5 });
-  headings.forEach(heading => seen.observe(heading));
-
-  // The contact panel waits underneath the page, so it starts once the page has scrolled away from it.
-  const contact = document.querySelector(".contact-copy h2");
-  if (contact) {
-    prepare(contact);
-    const check = () => {
-      const box = contact.getBoundingClientRect();
-      const revealed = footerAnchor.getBoundingClientRect().top <= box.top + box.height * .4;
-      if (!revealed || box.top > window.innerHeight * .85) return;
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
-      play(contact);
-    };
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check);
-    check();
-  }
+  heroTyping = false;
 }
