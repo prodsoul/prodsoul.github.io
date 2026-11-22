@@ -4,10 +4,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Home | Joann Bisseling</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<script>
+// Show the welcome page on a fresh visit or a reload (set before the page paints, so nothing flashes).
+(function () {
+  var root = document.documentElement;
+  try {
+    var nav = performance.getEntriesByType("navigation")[0];
+    if (nav && nav.type === "reload") sessionStorage.removeItem("mode");
+    if (!sessionStorage.getItem("mode")) root.classList.add("intro-active");
+  } catch (e) { root.classList.add("intro-active"); }
+})();
+</script>
 <link rel="stylesheet" href="style.css">
 <script defer src="site.js"></script>
 </head>
 <body data-page="home">
+<div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+  <p class="welcome-top"><span>Portfolio</span><span>UX &amp; Game Design</span><span>Singapore</span></p>
+  <div class="welcome-center">
+    <h1 class="welcome-title" id="welcome-title">Welcome</h1>
+    <p class="welcome-sub">Joann Bisseling’s Portfolio</p>
+    <div class="welcome-prompt">
+      <p class="welcome-status" aria-live="polite">Type <b>START</b> to begin</p>
+      <div class="welcome-typing" role="group" aria-label="Type S, T, A, R, T">
+        <span class="welcome-key">S</span><span class="welcome-key">T</span><span class="welcome-key">A</span><span class="welcome-key">R</span><span class="welcome-key">T</span>
+      </div>
+      <p class="welcome-hint">Use your keyboard. Capital letters don’t matter. On a phone, tap the keys.</p>
+      <input class="welcome-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type start to begin">
+    </div>
+    <div class="welcome-actions">
+      <button class="welcome-sound" type="button" aria-pressed="true">Sound on</button>
+      <button class="welcome-skip" type="button">Skip to site</button>
+    </div>
+    <p class="welcome-note">Skipping opens the plain site, with no typing effects.</p>
+  </div>
+  <p class="welcome-bottom">Best with sound on · Typewriter edition</p>
+  <img class="welcome-cat" src="assets/cat.png" width="1042" height="1562" alt="">
+</div>
 <nav class="top-nav" aria-label="Main navigation">
   <a href="index.html" aria-current="page">Home</a>
   <a href="works.html">Works</a>

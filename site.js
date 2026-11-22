@@ -10,6 +10,10 @@ const siteRoot = new URL(".", document.currentScript.src);
 const resumeURL = new URL("resume.html", siteRoot).href;
 const isReload = performance.getEntriesByType("navigation")[0]?.type === "reload";
 
+// Declared up here because typing starts while the script is still loading.
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const SR_ONLY = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap";
+
 function clearPageHash() {
   if (location.hash) history.replaceState(history.state, "", location.pathname + location.search);
 }
@@ -460,10 +464,22 @@ try {
   store.setItem("typed:" + page, "1");
 } catch { /* storage blocked: type every time */ }
 
+// The welcome page offers an interactive version (type START) or a plain one with no typing effects.
+let siteMode = null;
+try { siteMode = window.sessionStorage.getItem("mode"); } catch { /* storage blocked */ }
+const plainMode = siteMode === "plain";
+if (plainMode) typingEnabled = false;
+const introActive = page === "home" && document.documentElement.classList.contains("intro-active");
+
 // Sound can be switched off with the button; the choice is remembered between visits.
+// The welcome page always starts with sound on.
 let soundMuted = false;
 let audioContext = null;
 try { soundMuted = window.localStorage.getItem("sound") === "off"; } catch { /* storage blocked */ }
+if (introActive) {
+  soundMuted = false;
+  try { window.localStorage.setItem("sound", "on"); } catch { /* storage blocked */ }
+}
 
 const usesSound = page === "home" || page === "works" || page === "project";
 const sound = usesSound ? createTypewriterSounds() : () => {};
@@ -472,10 +488,8 @@ let heroTyping = false;
 if (page === "home") {
   setupCat();
   setupCatFade();
-  if (typingEnabled) {
-    runHeroTyping();
-    includesDone.then(setupHomeTyping);
-  }
+  if (introActive) setupWelcome(hide => startInteractiveHome(hide));
+  else if (typingEnabled) startInteractiveHome();
 }
 if (page === "works") setupWorksTyping();
 if (page === "project") setupCardHoverTyping();
@@ -531,11 +545,10 @@ function createTypewriterSounds() {
   const samples = noise.getChannelData(0);
   for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
   let lastClick = -Infinity;
-  return function sound(bell) {
-    if (soundMuted || context.state !== "running") return;
+  function play(bell, force) {
     const now = context.currentTime;
     // Only some letters click, with a minimum gap, so fast typing sounds natural.
-    if (!bell && (now - lastClick < .09 || Math.random() < .35)) return;
+    if (!bell && !force && (now - lastClick < .09 || Math.random() < .35)) return;
     if (!bell) lastClick = now;
     const gain = context.createGain();
     const duration = bell ? .46 : .032;
@@ -555,6 +568,13 @@ function createTypewriterSounds() {
     gain.connect(context.destination);
     source.start(now);
     source.stop(now + duration);
+  }
+  // "force" is used for key presses on the welcome page: they are a user gesture, so audio that the
+  // browser had suspended is started right then and the very first key already clicks.
+  return function sound(bell, force) {
+    if (soundMuted) return;
+    if (context.state === "running") { play(bell, force); return; }
+    if (force) context.resume().then(() => play(bell, force)).catch(() => {});
   };
 }
 
@@ -565,22 +585,18 @@ function setupSoundButton() {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "sound-toggle";
-  const blocked = () => !soundMuted && audioContext.state !== "running";
   function render() {
-    button.textContent = soundMuted ? "Sound off" : blocked() ? "Tap for sound" : "Sound on";
-    button.setAttribute("aria-pressed", String(!soundMuted && !blocked()));
-    button.setAttribute("aria-label", soundMuted ? "Sound is off. Turn sound on" : blocked() ? "Sound is waiting. Tap to enable sound" : "Sound is on. Turn sound off");
+    button.textContent = soundMuted ? "Sound off" : "Sound on";
+    button.setAttribute("aria-pressed", String(!soundMuted));
+    button.setAttribute("aria-label", soundMuted ? "Sound is off. Turn sound on" : "Sound is on. Turn sound off");
   }
   button.addEventListener("click", () => {
-    if (blocked()) {
-      audioContext.resume().catch(() => {});
-    } else {
-      soundMuted = !soundMuted;
-      try { window.localStorage.setItem("sound", soundMuted ? "off" : "on"); } catch { /* storage blocked */ }
-    }
+    soundMuted = !soundMuted;
+    try { window.localStorage.setItem("sound", soundMuted ? "off" : "on"); } catch { /* storage blocked */ }
+    if (!soundMuted) audioContext.resume().catch(() => {});
     render();
   });
-  audioContext.addEventListener("statechange", render);
+  window.addEventListener("soundchange", render);
   render();
   document.body.append(button);
 }
@@ -609,7 +625,6 @@ function setupCatFade() {
 }
 
 /* ---------- Typewriter ---------- */
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // An uneven, human rhythm: quick runs, small hesitations, pauses at word starts and punctuation.
 function pace(base, character, previous) {
@@ -623,7 +638,6 @@ function pace(base, character, previous) {
   return wait;
 }
 
-const SR_ONLY = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap";
 
 // The full text stays in the layout (hidden) while it types, so nothing around it moves.
 function prepareText(element) {
@@ -634,7 +648,10 @@ function prepareText(element) {
   const waiting = document.createElement("span");
   full.style.cssText = SR_ONLY;
   full.textContent = text;
-  caret.style.cssText = "display:inline-block;width:0;height:.82em;border-left:2px solid currentColor;margin-right:-2px;visibility:hidden";
+  // An inline (not inline-block) caret adds no line-break opportunity, so typing never re-wraps the text.
+  caret.style.cssText = "display:inline;padding-left:2px;margin-right:-2px;background:linear-gradient(currentColor,currentColor) left center/2px .82em no-repeat;visibility:hidden";
+  const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+  if (lineHeight && element.getBoundingClientRect().height < lineHeight * 1.5) element.style.whiteSpace = "nowrap";
   waiting.textContent = text;
   waiting.style.visibility = "hidden";
   for (const part of [visible, caret, waiting]) part.setAttribute("aria-hidden", "true");
@@ -772,37 +789,45 @@ function setupHomeTyping() {
 
 // Short titles type more slowly and long titles faster, so every title takes a similar, readable time.
 function hoverSpeed(length) {
-  return Math.max(24, Math.min(120, 150 - length * 4));
+  return Math.max(20, Math.min(85, 105 - length * 3));
 }
 
 function setupCardHoverTyping() {
-  // Hovering a project types its title; moving away puts the normal title straight back.
-  let hovered = null;
-  let hoverToken = null;
+  if (plainMode) return;
+  // Typing starts only while the pointer is over the visible box or its title, and replays every time
+  // the pointer enters a box (including after switching tabs). Leaving puts the normal title back.
+  let current = null;
+  let last = null;
   function stopHover() {
-    if (!hovered) return;
-    hoverToken.stop = true;
-    hovered.textContent = hovered.dataset.typedText;
-    hovered = hoverToken = null;
+    if (!current) return;
+    current.token.stop = true;
+    current.title.textContent = current.title.dataset.typedText;
+    current = null;
   }
-  document.addEventListener("pointerover", event => {
-    if (event.pointerType === "touch") return;
-    const card = event.target.closest?.(".project-card");
-    if (!card || card.contains(event.relatedTarget)) return;
-    const title = card.querySelector(".project-card-title");
-    if (!title) return;
+  function update() {
+    if (!last) return;
+    const found = document.elementFromPoint(last.x, last.y)?.closest?.(".project-card");
+    if (found === current?.card) return;
     stopHover();
-    hovered = title;
-    hoverToken = { stop: false };
-    const token = hoverToken;
+    const title = found?.querySelector(".project-card-title");
+    if (!title) return;
+    const token = { stop: false };
+    current = { card: found, title, token };
     const item = prepareText(title);
     typeItem(item, hoverSpeed(item.text.length), token).then(finished => { if (finished) sound(true); });
+  }
+  document.addEventListener("pointermove", event => {
+    if (event.pointerType === "touch") return;
+    last = { x: event.clientX, y: event.clientY };
+    update();
+  }, { passive: true });
+  // Cards moving under a still pointer (scrolling, switching tabs) are picked up too.
+  window.addEventListener("scroll", () => requestAnimationFrame(update), { passive: true });
+  document.addEventListener("click", event => {
+    if (event.target.closest?.(".file-tab")) { stopHover(); requestAnimationFrame(update); }
   });
-  document.addEventListener("pointerout", event => {
-    const card = event.target.closest?.(".project-card");
-    if (!card || card.contains(event.relatedTarget)) return;
-    stopHover();
-  });
+  document.documentElement.addEventListener("pointerleave", () => { last = null; stopHover(); });
+  window.addEventListener("hashchange", () => { stopHover(); requestAnimationFrame(update); });
 }
 
 function setupWorksTyping() {
@@ -818,7 +843,7 @@ function setupWorksTyping() {
   setupScrollTyping(groups);
 }
 
-async function runHeroTyping() {
+function prepareHero() {
   heroTyping = true;
   const sections = ["name", "bio"].map(id => {
     const container = document.getElementById(id);
@@ -835,19 +860,36 @@ async function runHeroTyping() {
       return { line, text, visible, waiting };
     });
   });
+  // A blinking caret waits at the start of the first line until the typing begins.
+  const first = sections[0]?.[0];
+  if (first) {
+    first.line.classList.add("typing", "idle");
+    first.line.style.setProperty("--caret-x", "0px");
+  }
+  return sections;
+}
+
+function startInteractiveHome(reveal) {
+  const hero = prepareHero();
+  includesDone.then(setupHomeTyping);
+  if (reveal) reveal();
+  runHeroTyping(hero);
+}
+
+async function runHeroTyping(sections) {
   // Typing never waits for the whole page (large images) or for audio, only briefly for the fonts,
   // and the finished text is always restored, so the hero content can never stay hidden.
   const finishAll = () => {
     for (const { line, text, visible, waiting } of sections.flat()) {
-      line.classList.remove("typing");
+      line.classList.remove("typing", "idle");
       visible.textContent = text;
       waiting.textContent = "";
     }
     heroTyping = false;
   };
   try {
-    await Promise.race([document.fonts?.ready, delay(1500)]);
-    await delay(700);
+    await Promise.race([document.fonts?.ready, delay(600)]);
+    await delay(450);
     await typeHero(sections);
   } catch { /* fall through and show the text */ }
   finishAll();
@@ -858,6 +900,7 @@ async function typeHero(sections) {
   for (const [index, lines] of sections.entries()) {
     for (const { line, text, visible, waiting } of lines) {
       if (window.scrollY > window.innerHeight * .55) away = true;
+      line.classList.remove("idle");
       line.classList.add("typing");
       for (let count = 1; count <= text.length && !away; count++) {
         if (window.scrollY > window.innerHeight * .55) { away = true; break; }
@@ -876,4 +919,99 @@ async function typeHero(sections) {
       await delay(220);
     }
   }
+}
+
+// The welcome page: type START (capitals don't matter) for the interactive version, or skip to a plain site.
+function setupWelcome(onStart) {
+  const root = document.getElementById("welcome");
+  if (!root) {
+    document.documentElement.classList.remove("intro-active");
+    onStart(() => {});
+    return;
+  }
+  const WORD = "start";
+  const keys = Array.from(root.querySelectorAll(".welcome-key"));
+  const typing = root.querySelector(".welcome-typing");
+  const status = root.querySelector(".welcome-status");
+  const input = root.querySelector(".welcome-input");
+  const soundButton = root.querySelector(".welcome-sound");
+  const skipButton = root.querySelector(".welcome-skip");
+  const prompt = status.innerHTML;
+  let index = 0;
+  let finished = false;
+
+  const setMode = mode => { try { window.sessionStorage.setItem("mode", mode); } catch { /* storage blocked */ } };
+  function hide() {
+    root.classList.add("leaving");
+    setTimeout(() => {
+      root.hidden = true;
+      document.documentElement.classList.remove("intro-active");
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }, 520);
+  }
+  function render() {
+    keys.forEach((key, i) => {
+      key.classList.toggle("typed", i < index);
+      key.classList.toggle("next", i === index && !finished);
+    });
+  }
+  function feed(character) {
+    if (finished) return;
+    character = character.toLowerCase();
+    if (!/^[a-z]$/.test(character)) return;
+    if (character === WORD[index]) {
+      index++;
+      status.innerHTML = prompt;
+      sound(false, true);
+      if (index === WORD.length) {
+        finished = true;
+        status.textContent = "Starting\u2026";
+        setTimeout(() => sound(true, true), 120);
+        setTimeout(() => { setMode("interactive"); onStart(hide); }, 420);
+      }
+    } else {
+      index = 0;
+      status.textContent = "Not quite. Start again.";
+      typing.classList.remove("shake");
+      void typing.offsetWidth;
+      typing.classList.add("shake");
+    }
+    render();
+  }
+
+  window.addEventListener("keydown", event => {
+    if (finished || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key === "Backspace") {
+      if (index > 0) { index--; render(); }
+      return;
+    }
+    if (event.target === input) return; // phones: letters arrive through the input event
+    if (event.key.length === 1) feed(event.key);
+  });
+  input.addEventListener("input", () => {
+    const value = input.value;
+    input.value = "";
+    for (const character of value) feed(character);
+  });
+  typing.addEventListener("click", () => input.focus());
+
+  function showSound() {
+    soundButton.textContent = soundMuted ? "Sound off" : "Sound on";
+    soundButton.setAttribute("aria-pressed", String(!soundMuted));
+  }
+  soundButton.addEventListener("click", () => {
+    soundMuted = !soundMuted;
+    try { window.localStorage.setItem("sound", soundMuted ? "off" : "on"); } catch { /* storage blocked */ }
+    if (!soundMuted) { audioContext?.resume().catch(() => {}); sound(false, true); }
+    showSound();
+    window.dispatchEvent(new Event("soundchange"));
+  });
+  skipButton.addEventListener("click", () => {
+    if (finished) return;
+    finished = true;
+    setMode("plain");
+    hide();
+  });
+  showSound();
+  render();
 }

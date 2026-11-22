@@ -94,7 +94,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .slate { --stock: var(--slate); }
 .cat-art { display: block; width: var(--cat-width); height: auto; max-width: none; }
 .hero { height: 100svh; min-height: 480px; position: relative; overflow: hidden; }
-.intro { position: absolute; left: var(--edge); bottom: max(19%, calc(var(--peek) + 1rem)); z-index: 1; }
+.intro { position: absolute; left: var(--edge); bottom: max(28%, calc(var(--peek) + 1rem)); z-index: 1; }
 .intro h1 {
   text-transform: uppercase; font-size: clamp(3.3rem, min(8.3vw, 12svh), 9rem);
   line-height: 1.13; margin-bottom: clamp(10px, 1.3svh, 18px);
@@ -102,6 +102,8 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .intro p { font-size: min(1.68vw, 2.65svh, 1.65rem); line-height: 1.32; }
 .typed-line { display: block; white-space: pre; position: relative; width: max-content; }
 .typed-line .untyped { visibility: hidden; }
+.typing.idle::before { animation: caret-blink 1s steps(1) infinite; }
+@keyframes caret-blink { 50% { opacity: 0; } }
 .typing::before { content: ""; position: absolute; height: .88em; bottom: .16em;
   left: var(--caret-x,0px); width: 2px; background: currentColor; }
 .hero-cat { padding: 0; border: 0; background: transparent; position: absolute;
@@ -183,7 +185,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .link-arrow { font: 400 1.35em/1 system-ui, sans-serif; }
 .details { display: grid; gap: 1rem; grid-template-rows: 1fr 1fr; }
 .hold { height: 64svh; }
-.hold:last-child { height: 44svh; }
+.hold:last-child { height: 90svh; }
 .media-box,.video-slot { background: var(--wine); color: #eee7da;
   display: grid; place-content: center; text-align: center; overflow: hidden; }
 .media-box figcaption, .video-slot > span { padding: .4rem 1rem; font-size: 1rem; }
@@ -263,6 +265,9 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   gap: clamp(16px,2.4vw,38px); list-style: none; padding: 0; margin: 0;
 }
 .project-card { display: block; min-width: 0; }
+/* Only the visible box and its title react to the pointer, not the empty space beside them. */
+.project-card { pointer-events: none; }
+.project-card-frame, .project-card-caption { pointer-events: auto; }
 .project-card .project-card-frame { transition: transform .24s ease, box-shadow .24s ease; }
 @media (hover:hover) {
   .project-card:hover .project-card-frame {
@@ -283,7 +288,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .project-card:hover .project-card-image { transform: scale(1.035); }
 .project-card-caption {
   display: flex; align-items: baseline; justify-content: space-between;
-  gap: .55em; margin-top: .6rem;
+  gap: .55em; padding-top: .6rem;
 }
 .project-card-index { flex: none; color: var(--soft); font-variant-numeric: tabular-nums; }
 .project-card-title {
@@ -330,7 +335,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
     display: grid; grid-template-rows: minmax(0,1fr) auto; height: 100%;
   }
   .gallery-panel .project-card-frame { max-height: 100%; align-self: start; }
-  .gallery-panel .project-card-caption { margin-top: .4rem; }
+  .gallery-panel .project-card-caption { padding-top: .4rem; }
 }
 .file-tab span { max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.12; }
 .resume-tab { display: none; }
@@ -409,7 +414,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .about-section { padding-top: calc(max(6rem,12svh) + clamp(48px,9svh,110px)); }
 
 /* About fills the whole screen, so no other section shows above or below it. */
-.about-section { min-height: 100svh; }
+.about-section { min-height: 100svh; padding-top: calc(max(6rem,12svh) + clamp(120px,24svh,260px)); }
 #about { scroll-margin-top: 0; }
 
 /* Sound on/off button */
@@ -422,3 +427,84 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   transition: color .18s, background .18s;
 }
 @media (hover:hover) { .sound-toggle:hover { color: var(--hover); } }
+
+/* ---------- Welcome page ---------- */
+.welcome { display: none; }
+html.intro-active body { overflow: hidden; }
+html.intro-active .welcome {
+  position: fixed; inset: 0; z-index: 100; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 4rem var(--edge);
+  background: linear-gradient(var(--paper-wash), var(--paper-wash)),
+    var(--paper-texture) center / cover no-repeat, var(--paper);
+  transition: opacity .5s ease;
+}
+.welcome.leaving { opacity: 0; pointer-events: none; }
+.welcome-top {
+  position: absolute; top: 0; left: 0; right: 0; padding: 1.4rem var(--edge) 0;
+  display: flex; justify-content: space-between; gap: 1rem;
+  font-family: var(--display-font); text-transform: uppercase; font-size: clamp(.78rem,1.1vw,1rem);
+  color: var(--soft);
+}
+.welcome-center { position: relative; z-index: 1; display: grid; justify-items: center; text-align: center; gap: 0; }
+.welcome-title {
+  font-size: clamp(3.2rem, 11vw, 9rem); line-height: 1; text-transform: uppercase;
+  animation: welcome-rise .7s ease both;
+}
+.welcome-sub {
+  margin-top: .9rem; font-size: clamp(1rem,1.7vw,1.5rem); color: var(--soft);
+  animation: welcome-rise .7s .12s ease both;
+}
+.welcome-prompt {
+  margin-top: clamp(1.8rem, 6svh, 4rem); display: grid; justify-items: center; gap: 1.1rem;
+  animation: welcome-rise .7s .25s ease both;
+}
+.welcome-status { font-size: clamp(1rem,1.5vw,1.35rem); color: var(--ink); min-height: 1.5em; }
+.welcome-status b { font-family: var(--display-font); font-weight: 400; letter-spacing: .08em; }
+.welcome-typing { display: flex; gap: clamp(8px,1.2vw,16px); cursor: text; }
+.welcome-key {
+  position: relative; display: grid; place-items: center;
+  width: clamp(46px,6.2vw,72px); aspect-ratio: 1; border-radius: 50%;
+  font-family: var(--display-font); font-size: clamp(1.3rem,2.4vw,2.2rem); text-transform: uppercase;
+  color: var(--soft); background: var(--label-tape); border: 3px solid #686659;
+  box-shadow: 0 5px 0 #686659; transition: transform .08s ease, box-shadow .08s ease, background .12s, color .12s;
+}
+.welcome-key.typed { transform: translateY(4px); box-shadow: 0 1px 0 #686659; background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.welcome-key.next { border-color: var(--red); color: var(--red); }
+.welcome-key.next::after {
+  content: ""; position: absolute; bottom: -18px; width: 1.2em; height: 2px; background: var(--red);
+  animation: caret-blink 1s steps(1) infinite;
+}
+.welcome-typing.shake { animation: welcome-shake .35s ease; }
+.welcome-hint { font-size: clamp(.82rem,1.05vw,1rem); color: var(--soft); max-width: 40ch; }
+.welcome-input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.welcome-actions {
+  margin-top: clamp(1.8rem, 6svh, 3.5rem); display: flex; gap: clamp(1.5rem,6vw,5rem); justify-content: center;
+  animation: welcome-rise .7s .4s ease both;
+}
+.welcome-actions button {
+  min-height: 44px; padding: 0 .2rem; background: none; border: 0; cursor: pointer;
+  font-family: var(--display-font); text-transform: uppercase; font-size: clamp(1rem,1.6vw,1.4rem);
+  border-bottom: 2px solid transparent; transition: color .18s, border-color .18s;
+}
+.welcome-actions button:hover { color: var(--hover); border-bottom-color: var(--hover); }
+.welcome-note { margin-top: .4rem; font-size: clamp(.78rem,.95vw,.92rem); color: var(--soft); }
+.welcome-bottom {
+  position: absolute; bottom: 1.2rem; left: var(--edge);
+  font-size: clamp(.78rem,.95vw,.92rem); color: var(--soft);
+}
+.welcome-cat {
+  position: absolute; right: 3.5%; bottom: -12%; width: min(30vw, 46svh); height: auto;
+  pointer-events: none; animation: welcome-peek 1s .3s ease both;
+}
+@keyframes welcome-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes welcome-peek { from { transform: translateY(40%); } to { transform: none; } }
+@keyframes welcome-shake { 20%,60% { transform: translateX(-7px); } 40%,80% { transform: translateX(7px); } }
+@media (max-width: 640px) {
+  .welcome-top span:nth-child(2) { display: none; }
+  .welcome-cat { width: 38vw; right: -4%; }
+  .welcome-bottom { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .typing.idle::before, .welcome-key.next::after { animation: none; }
+}
