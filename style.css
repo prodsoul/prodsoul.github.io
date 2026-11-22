@@ -15,6 +15,7 @@
   src: url("fonts/Tox%20Typewriter.ttf") format("truetype");
   font-display: swap;
 }
+
 :root {
   --paper: #d8d5cb;
   --ink: #272622;
@@ -24,7 +25,6 @@
   --tab-active: var(--kraft);
   --tab-inactive: #c9c4b6;
   --label-tape: #ece4ce;
-  /* CSS image paths are relative to style.css, including on project pages. */
   --paper-texture: url("assets/stainedpaper.jpg");
   --texture-opacity: .24;
   --texture-size: cover;
@@ -48,6 +48,7 @@
   color: var(--ink);
   background: var(--paper);
 }
+
 * { box-sizing: border-box; }
 body { margin: 0; }
 html { overflow-anchor: none; }
@@ -61,6 +62,7 @@ a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; }
 a:focus-visible,button:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; }
 main { position: relative; z-index: 1; }
+
 .top-nav {
   position: fixed; inset: 0 0 auto; height: var(--nav); z-index: 8;
   display: flex; justify-content: space-between; align-items: center; padding-inline: var(--edge);
@@ -74,7 +76,8 @@ main { position: relative; z-index: 1; }
 }
 .top-nav a { pointer-events: auto; }
 .top-nav a[aria-current] { color: var(--red); }
-/* Paper is painted behind the content at each surface, including the sticky footer. */
+
+/* Paper behind the page, navigation, folders, and sticky footer. */
 main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   background: linear-gradient(var(--paper-wash), var(--paper-wash)),
     var(--paper-texture) center / var(--texture-size) no-repeat fixed, var(--paper);
@@ -84,15 +87,18 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 }
 .top-nav.fading:not(:has(:focus-visible)) a { pointer-events: none; }
 #about,#contact { scroll-margin-top: var(--nav); }
+
 @media (hover:hover) {
   .top-nav a:hover, .contact-links a:hover, .back-link:hover, .view-link:hover {
     color: var(--hover); transform: scale(1.045);
   }
 }
+
 .kraft { --stock: var(--kraft); }
 .sage { --stock: var(--sage); }
 .slate { --stock: var(--slate); }
 .cat-art { display: block; width: var(--cat-width); height: auto; max-width: none; }
+
 .hero { height: 100svh; min-height: 480px; position: relative; overflow: hidden; }
 .intro { position: absolute; left: var(--edge); bottom: max(28%, calc(var(--peek) + 1rem)); z-index: 1; }
 .intro h1 {
@@ -104,20 +110,26 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .typed-line .untyped { visibility: hidden; }
 .typing.idle::before { animation: caret-blink 1s steps(1) infinite; }
 @keyframes caret-blink { 50% { opacity: 0; } }
-.typing::before { content: ""; position: absolute; height: .88em; bottom: .16em;
-  left: var(--caret-x,0px); width: 2px; background: currentColor; }
-.hero-cat { padding: 0; border: 0; background: transparent; position: absolute;
-  right: 3.5%; bottom: calc(var(--peek) - var(--tab)); cursor: pointer; }
+.typing::before {
+  content: ""; position: absolute; height: .88em; bottom: .16em;
+  left: var(--caret-x,0px); width: 2px; background: currentColor;
+}
+.hero-cat {
+  padding: 0; border: 0; background: transparent; position: absolute;
+  right: 3.5%; bottom: calc(var(--peek) - var(--tab)); cursor: pointer;
+}
 .hero-cat {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--cat-fade, 0%)), transparent);
   mask-image: linear-gradient(to bottom, #000 calc(100% - var(--cat-fade, 0%)), transparent);
 }
 .hero-cat img { pointer-events: none; }
+
 .folders { position: relative; z-index: 2; padding-top: var(--tab); margin-top: calc(-1 * var(--peek)); }
-.folder { position: sticky; top: calc(var(--gap) + var(--tab)); padding: 10px clamp(10px,1vw,20px) 14px;
+.folder {
+  position: sticky; top: calc(var(--gap) + var(--tab)); padding: 10px clamp(10px,1vw,20px) 14px;
   background: var(--stock); border-radius: 11px 11px 6px 6px; display: flex; flex-direction: column;
-  min-height: calc(100svh - var(--gap) - var(--tab)); box-shadow: 0 -3px 10px #27262218; }
-/* The first tab joins the folder at the left edge, so it owns that corner. */
+  min-height: calc(100svh - var(--gap) - var(--tab)); box-shadow: 0 -3px 10px #27262218;
+}
 .folder:first-child { border-top-left-radius: 0; }
 .folder-tab,.all-tab {
   position: absolute; bottom: calc(100% - 1px); left: calc(var(--slot) * 24%);
@@ -157,6 +169,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   box-shadow: none;
 }
 .work-name { display: inline-block; transition: transform .18s ease, color .18s ease; transform-origin: left center; }
+
 @media (hover:hover) {
   .folder-tab:hover::before,.all-tab:hover::before,.file-tab:hover::before {
     top: -7px; filter: brightness(1.06);
@@ -167,10 +180,15 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   .all-tab:hover span { color: #fff7e8; }
   .work-entry:hover .work-name { transform: scale(1.025); color: var(--hover); }
 }
-.folder-sheet { border-radius: 3px; padding: clamp(20px,2.7vw,46px);
-  display: flex; flex: 1; flex-direction: column; gap: 1.4rem; }
-.folder-sheet header { display: grid; grid-template-columns: 3fr 1fr; gap: 2vw; align-items: start;
-  padding-bottom: 1rem; border-bottom: 1px dotted #686659; }
+
+.folder-sheet {
+  border-radius: 3px; padding: clamp(20px,2.7vw,46px);
+  display: flex; flex: 1; flex-direction: column; gap: 1.4rem;
+}
+.folder-sheet header {
+  display: grid; grid-template-columns: 3fr 1fr; gap: 2vw; align-items: start;
+  padding-bottom: 1rem; border-bottom: 1px dotted #686659;
+}
 .folder-sheet header h2 { font-size: clamp(2rem,4.4vw,5rem); line-height: 1.02; }
 .folder-sheet header div { font-size: clamp(.875rem,1.1vw,1.1rem); text-transform: uppercase; }
 .folder-meta { display: grid; justify-items: start; gap: .16rem; }
@@ -186,20 +204,27 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .details { display: grid; gap: 1rem; grid-template-rows: 1fr 1fr; }
 .hold { height: 64svh; }
 .hold:last-child { height: 90svh; }
-.media-box,.video-slot { background: var(--wine); color: #eee7da;
-  display: grid; place-content: center; text-align: center; overflow: hidden; }
+
+.media-box,.video-slot {
+  background: var(--wine); color: #eee7da;
+  display: grid; place-content: center; text-align: center; overflow: hidden;
+}
 .media-box figcaption, .video-slot > span { padding: .4rem 1rem; font-size: 1rem; }
 .media-box:has(img) { display: block; }
 .media-box img { display:block; width: 100%; height: 100%; object-fit: contain; }
 .folder-body .media-box { background: transparent; color: var(--soft); border: 1px dashed #807c70; }
+
 .about-section,.works-index { padding: max(6rem,12svh) var(--edge); }
 .about-inner { width: min(100%, max(31rem, 42.5vw)); }
 .about-section h2,.works-index h1 { font-size: clamp(3rem,6.7vw,7rem); line-height: 1; margin-bottom: 1.5rem; text-transform: uppercase; }
 .about-inner p { font-size: clamp(1.1rem,1.6vw,1.5rem); line-height: 1.5; margin-top: 1em; }
+
 .contact-anchor { height: 0; }
-.contact-panel { position: sticky; bottom: 0; z-index: 0;
+.contact-panel {
+  position: sticky; bottom: 0; z-index: 0;
   min-height: max(100svh,310px); display: grid; align-content: end; justify-items: start; isolation: isolate;
-  overflow: hidden; padding: 0 var(--edge) max(8.8svh,env(safe-area-inset-bottom)); }
+  overflow: hidden; padding: 0 var(--edge) max(8.8svh,env(safe-area-inset-bottom));
+}
 .footer-cat { position: absolute; right: 3.5%; bottom: 0; z-index: -1; }
 .contact-content { width: max-content; max-width: min(54vw,55rem); }
 .contact-note {
@@ -212,6 +237,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .contact-links > * { color: var(--ink); }
 .contact-links [aria-current] { color: var(--red); }
 .open-pdf:hover { color: var(--hover); }
+
 .works-index { min-height: 100svh; padding-top: calc(var(--nav) + 1rem); }
 .works-index.has-gallery { padding-inline: 0; padding-bottom: 0; }
 .has-gallery > h1 {
@@ -224,6 +250,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .work-entry::before { content: ""; width: .35rem; height: .35rem; background: currentColor; border-radius: 50%; flex-shrink: 0; }
 .work-name { font-size: clamp(1.25rem,2.4vw,2.5rem); }
 .work-type { color: var(--soft); margin-left: auto; text-align: right; }
+
 .project-main {
   --stock: var(--tab-active);
   padding-top: calc(var(--nav) + clamp(12px,2svh,30px));
@@ -255,7 +282,6 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   padding: clamp(22px,3vw,48px) var(--edge);
   scroll-margin-top: calc(var(--nav) + var(--tab) + 12px);
 }
-/* Keep the tallest panel in the layout so the folder and footer never jump between tabs. */
 .gallery-panel[hidden] { display: block !important; visibility: hidden; pointer-events: none; }
 .gallery-panel h2,.see-more h2 {
   font-size: clamp(2rem,4vw,4.4rem); margin: 0 0 .65em; line-height: 1.12;
@@ -265,16 +291,17 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   gap: clamp(16px,2.4vw,38px); list-style: none; padding: 0; margin: 0;
 }
 .project-card { display: block; min-width: 0; }
-/* Only the visible box and its title react to the pointer, not the empty space beside them. */
 .project-card { pointer-events: none; }
 .project-card-frame, .project-card-caption { pointer-events: auto; }
 .project-card .project-card-frame { transition: transform .24s ease, box-shadow .24s ease; }
+
 @media (hover:hover) {
   .project-card:hover .project-card-frame {
     transform: translateY(-5px);
     box-shadow: 0 7px 15px #27262235;
   }
 }
+
 .project-card-frame {
   aspect-ratio: 16 / 9;
   background: var(--wine);
@@ -294,7 +321,6 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .project-card-title {
   display: block; font-size: clamp(1rem,1.45vw,1.5rem);
   line-height: 1.25; font-family: var(--display-font);
-  /* Always one line, before, during and after the hover typing, so the card never changes size. */
   min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .project-card:hover .project-card-title { color: var(--hover); }
@@ -305,13 +331,13 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 }
 .coming-soon .project-card-title { color: var(--soft); }
 .see-more { padding: 2rem var(--edge) 5rem; }
+
 @media (max-width: 1000px) {
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 500px) {
   .project-grid { grid-template-columns: minmax(0, 1fr); }
 }
-/* The six-card desktop gallery fits above Contact. Narrow and short screens can flow normally. */
 @media (min-width: 1001px) and (min-height: 640px) {
   .work-gallery:not(:has(.project-grid > li:nth-child(7))) {
     height: var(--gallery-room);
@@ -337,9 +363,12 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   .gallery-panel .project-card-frame { max-height: 100%; align-self: start; }
   .gallery-panel .project-card-caption { padding-top: .4rem; }
 }
+
 .file-tab span { max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.12; }
 .resume-tab { display: none; }
 [hidden] { display: none !important; }
+
+/* Project pages: details on the left and the case study on the right. */
 .case-sheet {
   display: grid; grid-template-columns: minmax(0,1fr) minmax(0,2.05fr);
   padding: clamp(32px,5vw,80px) var(--edge) clamp(48px,5vw,84px);
@@ -366,6 +395,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 .resume-pdf { display: block; width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid #848174; background: var(--paper); }
 .resume-pending { padding: 1.5rem 0; }
 .open-pdf { display: inline-flex; align-items: center; min-height: 44px; }
+
 @media (max-width: 580px) {
   .tab-track { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
@@ -407,17 +437,12 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   .project-card:hover .project-card-frame,.project-card:hover .project-card-image { transform: none; }
 }
 
-/* Works page: the folder contents line up with the nav's HOME and CONTACT edges. */
 .gallery-panel { padding-inline: calc(var(--edge) - var(--gallery-rim)); }
-
-/* A little more room between the last landing folder and the About section. */
 .about-section { padding-top: calc(max(6rem,12svh) + clamp(48px,9svh,110px)); }
-
-/* About fills the whole screen, so no other section shows above or below it. */
 .about-section { min-height: 100svh; padding-top: calc(max(6rem,12svh) + clamp(120px,24svh,260px)); }
 #about { scroll-margin-top: 0; }
 
-/* ---------- Welcome page ---------- */
+/* Welcome page */
 .welcome { display: none; }
 html.intro-active body { overflow: hidden; }
 html.intro-active .welcome {
@@ -444,8 +469,6 @@ html.intro-active .welcome {
   animation: welcome-rise .7s .25s ease both;
 }
 .welcome-status b { font-weight: inherit; }
-
-/* The word to type: shown faintly, and each correct letter turns solid as it is typed. */
 .welcome-type {
   margin-top: clamp(2rem, 5.6svh, 4rem); white-space: nowrap; line-height: 1; text-transform: uppercase;
   font-family: var(--display-font); font-size: clamp(2.2rem, 5.6vw, 5.8rem);
@@ -459,7 +482,6 @@ html.intro-active .welcome {
   content: ""; position: absolute; left: -.03em; top: 0; bottom: 0; width: .045em; background: var(--ink);
   animation: caret-blink 1s steps(1) infinite;
 }
-
 .welcome-actions {
   position: absolute; left: 0; right: 0; bottom: clamp(1.5rem, 14svh, 10rem);
   display: grid; justify-items: center; gap: clamp(.7rem, 1.8svh, 1.1rem); text-align: center;
@@ -474,22 +496,20 @@ html.intro-active .welcome {
 .welcome-actions button:hover { color: var(--hover); }
 .welcome-note { margin: -.4rem 0 0; font-size: clamp(.78rem, .95vw, .92rem); color: var(--soft); }
 
-@keyframes welcome-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes welcome-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .typing.idle::before, .wt-caret::before { animation: none; }
 }
 
-/* ---------- Updates ---------- */
-
-/* Contact: the intro paragraph is wide enough for two lines. It may run past the end of "CONTACT ME"
-   without widening the row of links (the negative end margin keeps it out of the box's width). */
 .contact-note {
   width: max-content;
   max-width: min(84ch, calc(100vw - 2 * var(--edge)));
   margin-inline-end: -100vw;
 }
 
-/* Works page: the category tabs spring up when hovered, and dip slightly when pressed. */
 @media (hover:hover) {
   .gallery-tabs .file-tab::before {
     transition: top .34s cubic-bezier(.34, 1.56, .64, 1), filter .22s ease;
@@ -507,8 +527,7 @@ html.intro-active .welcome {
   .gallery-tabs .file-tab:hover span,.gallery-tabs .file-tab:active span { transform: none; }
 }
 
-/* Resume page: the title sits on the left, the PDF is centred on the screen, and the box is tall enough
-   to show the whole (A4) page without scrolling inside it. --pdf-slack covers the browser's own PDF toolbar. */
+/* Resume page */
 .resume-sheet {
   grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
   column-gap: clamp(20px,3vw,48px);
@@ -535,36 +554,29 @@ html.intro-active .welcome {
   .resume-viewer { grid-column: 1; width: min(100%, 60rem); justify-self: center; }
 }
 
-/* ---------- Phone layout ---------- */
-
-/* Copies of "See all works" that phones show on every landing folder. */
+/* Phone layout */
 .all-tab-extra { display: none; }
 .gallery-back { display: none; }
 
 @media (max-width: 640px) and (orientation: portrait) {
-  /* Contact: the text sits near the top and the cat fills the bottom of the screen. */
   .contact-panel { align-content: start; padding-top: calc(var(--nav) + 1svh); }
-  /* The cat is pushed a little below the bottom edge, so its cut edge is never visible. */
   .footer-cat {
     display: block; right: auto; left: 50%; bottom: 0; transform: translate(-50%, 9%);
     --cat-width: min(73vw, 33svh);
   }
-  /* dvh follows the browser bars as they slide away, so the panel always reaches the bottom of the screen. */
-  @supports (height: 100dvh) { .contact-panel { min-height: max(100dvh, 310px); } }
+  @supports (height: 100dvh) {
+    .contact-panel { min-height: max(100dvh, 310px); }
+  }
 
-  /* The paper texture stays on a fixed layer behind everything, so no edge of the page is ever bare. */
   body::before {
     content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background: linear-gradient(var(--paper-wash), var(--paper-wash)), var(--paper-texture) center / cover no-repeat, var(--paper);
   }
 
-  /* Landing page: no cat up top, so the intro flows from the top and the folders follow close behind. */
   .hero-cat { display: none; }
   .hero { height: auto; min-height: 0; padding-bottom: calc(var(--peek) + 1.5rem); }
   .intro { position: relative; top: auto; bottom: auto; left: auto; margin-left: var(--edge); padding-top: calc(var(--nav) + 4svh); }
 
-  /* Landing folders: one wide project tab plus "See all works" on every folder, and each folder
-     fills the screen (lvh = the tallest the screen gets once the browser bars slide away). */
   :root { --gap: 14px; }
   .folder { border-top-left-radius: 0; }
   .folder-tab { left: 0; width: 66%; padding-left: clamp(10px,1vw,20px); font-size: min(4.1vw, 1.05rem); }
@@ -578,7 +590,6 @@ html.intro-active .welcome {
     .folder-sheet { padding-bottom: calc(clamp(20px,2.7vw,46px) + 100lvh - 100svh); }
   }
 
-  /* Works page: the categories are stacked tabs; tapping one opens its projects. */
   .works-index.has-gallery { min-height: 0; }
   .work-gallery {
     --t1: var(--kraft); --t2: var(--sage); --t3: var(--slate); --t4: #c9c4b6;
@@ -601,14 +612,12 @@ html.intro-active .welcome {
     inset: 0; bottom: 0; border-radius: 12px 0 0 0;
     clip-path: polygon(0 0, calc(var(--raise) - 6px) 0, calc(var(--raise) + 18px) var(--notch), 100% var(--notch), 100% 100%, 0 100%);
   }
-  /* Nothing open yet: a short stack, the last tab with just a little room under its label. */
   .work-gallery[data-view="index"] .gallery-tabs .file-tab:last-child {
     margin-bottom: 0; height: calc(var(--pitch) + var(--notch) + 22px);
   }
   .work-gallery[data-view="index"] .gallery-tabs .file-tab:last-child::before { border-radius: 12px 0 18px 18px; }
   .work-gallery[data-view="index"] .gallery-panels { display: none; }
 
-  /* A category is open: its tab sits on top of the projects, with a way back to all categories. */
   .work-gallery[data-view="category"] .gallery-back { display: inline-flex; padding-inline: var(--edge); }
   .work-gallery[data-view="category"] .gallery-tabs .file-tab:not([aria-current]) { display: none; }
   .work-gallery[data-view="category"] .gallery-tabs .file-tab {
@@ -622,18 +631,14 @@ html.intro-active .welcome {
   .work-gallery[data-tone="4"] .gallery-panels { background: var(--t4); }
   .work-gallery .gallery-panel[hidden] { display: none !important; }
 
-  /* More room around the project boxes. */
   .work-gallery .gallery-panel { padding: 28px 24px 36px; }
   .gallery-panel .project-grid { gap: 28px; }
 }
 
-/* Works page: while a category's paper-flip sound and title typing are still going, the project boxes
-   do not react to the pointer. */
 .work-gallery.settling .project-card:hover .project-card-frame { transform: none; box-shadow: none; }
 .work-gallery.settling .project-card:hover .project-card-image { transform: none; }
 .work-gallery.settling .project-card:hover .project-card-title { color: inherit; }
 
-/* Project pages: date, category and methods instead of the Date / Role / Methods list (all screen sizes). */
 .case-intro dl { display: none; }
 .case-meta {
   display: grid; justify-items: start; gap: .3rem;
@@ -646,62 +651,12 @@ html.intro-active .welcome {
 }
 .case-extra { margin-top: .6rem; color: var(--soft); font-size: .95em; line-height: 1.4; }
 
-/* While a category is still settling in, the project boxes ignore the pointer completely. */
 .work-gallery.settling .project-card-frame,
 .work-gallery.settling .project-card-caption { pointer-events: none; }
 
-/* Case studies */
-body[data-page="project"] .case-sheet {
-  display: block;
-  width: min(100%, 90rem);
-  margin-inline: auto;
-  padding-block: clamp(1.5rem, 3vw, 3rem) clamp(4rem, 7vw, 7rem);
-}
-
-body[data-page="project"] .case-intro {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
-  gap: .75rem clamp(1.5rem, 5vw, 5rem);
-  align-items: start;
-  margin-bottom: clamp(2.75rem, 6vw, 5.5rem);
-  padding-bottom: clamp(1.65rem, 4vw, 3.25rem);
-  border-bottom: 1px solid #807c70;
-}
-
-body[data-page="project"] .case-intro > .back-link,
-body[data-page="project"] .case-intro > h1 {
-  grid-column: 1 / -1;
-  justify-self: start;
-}
-
-body[data-page="project"] .case-intro > h1 {
-  line-height: 1.08;
-  margin: .25rem 0 .5rem;
-}
-
-body[data-page="project"] .case-intro > p {
-  grid-column: 1;
-  grid-row: 3;
-  font-size: clamp(1.15rem, 1.75vw, 1.62rem);
-  line-height: 1.55;
-}
-
-body[data-page="project"] .case-meta {
-  grid-column: 2;
-  grid-row: 3;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  gap: .42rem;
-}
-
+/* Case study typography, spacing, and media */
 body[data-page="project"] .case-intro:not(:has(.case-meta)) > dl {
   display: grid;
-  gap: .65rem;
-  grid-column: 2;
-  grid-row: 3;
-  margin: 0;
 }
 
 body[data-page="project"] .case-story {
@@ -715,9 +670,7 @@ body[data-page="project"] .case-story {
 }
 
 .case-chapter-copy {
-  width: min(100%, 49rem);
   min-width: 0;
-  justify-self: center;
   display: grid;
   align-content: start;
   gap: .95rem;
@@ -735,9 +688,7 @@ body[data-page="project"] .case-story {
 }
 
 .case-media-set {
-  width: min(100%, 70rem);
   min-width: 0;
-  justify-self: center;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
   gap: clamp(1.1rem, 2.4vw, 2.2rem);
@@ -814,28 +765,4 @@ body[data-page="project"] .case-story {
   align-items: center;
   text-decoration: underline;
   text-underline-offset: .18em;
-}
-
-@media (min-width: 800px) {
-  .case-chapter--split {
-    grid-template-columns: minmax(0, .95fr) minmax(0, 1.15fr);
-    gap: clamp(2rem, 5vw, 5rem);
-    align-items: start;
-  }
-}
-
-@media (max-width: 720px) {
-  body[data-page="project"] .case-intro {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  body[data-page="project"] .case-intro > h1 {
-    margin: 0;
-  }
-
-  body[data-page="project"] .case-intro > p {
-    margin-top: .35rem;
-  }
 }
