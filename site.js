@@ -460,22 +460,51 @@ try {
   store.setItem("typed:" + page, "1");
 } catch { /* storage blocked: type every time */ }
 
-const sound = page === "home" || page === "works" ? createTypewriterSounds() : () => {};
+// Sound can be switched off with the button; the choice is remembered between visits.
+let soundMuted = false;
+let audioContext = null;
+try { soundMuted = window.localStorage.getItem("sound") === "off"; } catch { /* storage blocked */ }
+
+const usesSound = page === "home" || page === "works" || page === "project";
+const sound = usesSound ? createTypewriterSounds() : () => {};
+if (usesSound) setupSoundButton();
 let heroTyping = false;
 if (page === "home") {
   setupCat();
+  setupCatFade();
   if (typingEnabled) {
     runHeroTyping();
     includesDone.then(setupHomeTyping);
   }
 }
 if (page === "works") setupWorksTyping();
+if (page === "project") setupCardHoverTyping();
+
+// Card titles stay on one line: a title that is too wide for its card is scaled down to fit.
+function fitCardTitles() {
+  for (const title of document.querySelectorAll(".project-card-title")) {
+    title.style.fontSize = "";
+    const base = parseFloat(getComputedStyle(title).fontSize);
+    let size = base;
+    while (title.scrollWidth > title.clientWidth + 1 && size > base * .7) {
+      size -= .5;
+      title.style.fontSize = size + "px";
+    }
+  }
+}
+if (page === "works" || page === "project") {
+  fitCardTitles();
+  document.fonts?.ready.then(fitCardTitles);
+  window.addEventListener("load", fitCardTitles);
+  window.addEventListener("resize", fitCardTitles);
+}
 
 function setupCat() {
   const clips = ["assets/meow-1.wav", "assets/meow-2.wav", "assets/meow-3.wav"];
   const player = new Audio();
   let previous;
   document.getElementById("cat").addEventListener("click", () => {
+    if (soundMuted) return;
     const pool = clips.filter(clip => clip !== previous);
     previous = pool[Math.floor(Math.random() * pool.length)];
     player.pause();
@@ -489,6 +518,7 @@ function createTypewriterSounds() {
   if (!Context) return () => {};
   let context;
   try { context = new Context(); } catch { return () => {}; }
+  audioContext = context;
   function resume() {
     if (context.state === "suspended") context.resume().catch(() => {});
   }
@@ -502,7 +532,7 @@ function createTypewriterSounds() {
   for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
   let lastClick = -Infinity;
   return function sound(bell) {
-    if (context.state !== "running") return;
+    if (soundMuted || context.state !== "running") return;
     const now = context.currentTime;
     // Only some letters click, with a minimum gap, so fast typing sounds natural.
     if (!bell && (now - lastClick < .09 || Math.random() < .35)) return;
@@ -526,6 +556,56 @@ function createTypewriterSounds() {
     source.start(now);
     source.stop(now + duration);
   };
+}
+
+// Browsers often block audio until the visitor interacts with the page. The typing never waits
+// for audio: this button shows the state and lets the visitor turn sound on or off at any time.
+function setupSoundButton() {
+  if (!audioContext) return;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "sound-toggle";
+  const blocked = () => !soundMuted && audioContext.state !== "running";
+  function render() {
+    button.textContent = soundMuted ? "Sound off" : blocked() ? "Tap for sound" : "Sound on";
+    button.setAttribute("aria-pressed", String(!soundMuted && !blocked()));
+    button.setAttribute("aria-label", soundMuted ? "Sound is off. Turn sound on" : blocked() ? "Sound is waiting. Tap to enable sound" : "Sound is on. Turn sound off");
+  }
+  button.addEventListener("click", () => {
+    if (blocked()) {
+      audioContext.resume().catch(() => {});
+    } else {
+      soundMuted = !soundMuted;
+      try { window.localStorage.setItem("sound", soundMuted ? "off" : "on"); } catch { /* storage blocked */ }
+    }
+    render();
+  });
+  audioContext.addEventListener("statechange", render);
+  render();
+  document.body.append(button);
+}
+
+// The cat's lower edge is a hard cut. Once the first folder pins and the cat scrolls away from
+// it, that edge would show, so the bottom of the cat fades out as the two separate.
+function setupCatFade() {
+  const cat = document.getElementById("cat");
+  const folder = document.querySelector(".folders .folder");
+  if (!cat || !folder) return;
+  let queued = false;
+  function paint() {
+    queued = false;
+    const gap = folder.getBoundingClientRect().top - cat.getBoundingClientRect().bottom;
+    const progress = Math.min(1, Math.max(0, gap / 40));
+    cat.style.setProperty("--cat-fade", (progress * 32).toFixed(1) + "%");
+  }
+  function request() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(paint);
+  }
+  window.addEventListener("scroll", request, { passive: true });
+  window.addEventListener("resize", request);
+  paint();
 }
 
 /* ---------- Typewriter ---------- */
@@ -690,7 +770,12 @@ function setupHomeTyping() {
   setupScrollTyping(groups);
 }
 
-function setupWorksTyping() {
+// Short titles type more slowly and long titles faster, so every title takes a similar, readable time.
+function hoverSpeed(length) {
+  return Math.max(24, Math.min(120, 150 - length * 4));
+}
+
+function setupCardHoverTyping() {
   // Hovering a project types its title; moving away puts the normal title straight back.
   let hovered = null;
   let hoverToken = null;
@@ -711,13 +796,17 @@ function setupWorksTyping() {
     hoverToken = { stop: false };
     const token = hoverToken;
     const item = prepareText(title);
-    typeItem(item, 38, token).then(finished => { if (finished) sound(true); });
+    typeItem(item, hoverSpeed(item.text.length), token).then(finished => { if (finished) sound(true); });
   });
   document.addEventListener("pointerout", event => {
     const card = event.target.closest?.(".project-card");
     if (!card || card.contains(event.relatedTarget)) return;
     stopHover();
   });
+}
+
+function setupWorksTyping() {
+  setupCardHoverTyping();
 
   if (!typingEnabled) return;
   const groups = Array.from(document.querySelectorAll(".gallery-panel")).map(panel => {
@@ -746,12 +835,25 @@ async function runHeroTyping() {
       return { line, text, visible, waiting };
     });
   });
-  const loaded = document.readyState === "complete"
-    ? Promise.resolve()
-    : new Promise(resolve => window.addEventListener("load", resolve, { once: true }));
-  await Promise.all([loaded, Promise.race([document.fonts.ready, delay(1500)])]);
-  await delay(1000); // typing starts one second after the page has loaded
+  // Typing never waits for the whole page (large images) or for audio, only briefly for the fonts,
+  // and the finished text is always restored, so the hero content can never stay hidden.
+  const finishAll = () => {
+    for (const { line, text, visible, waiting } of sections.flat()) {
+      line.classList.remove("typing");
+      visible.textContent = text;
+      waiting.textContent = "";
+    }
+    heroTyping = false;
+  };
+  try {
+    await Promise.race([document.fonts?.ready, delay(1500)]);
+    await delay(700);
+    await typeHero(sections);
+  } catch { /* fall through and show the text */ }
+  finishAll();
+}
 
+async function typeHero(sections) {
   let away = false;
   for (const [index, lines] of sections.entries()) {
     for (const { line, text, visible, waiting } of lines) {
@@ -774,5 +876,4 @@ async function runHeroTyping() {
       await delay(220);
     }
   }
-  heroTyping = false;
 }
