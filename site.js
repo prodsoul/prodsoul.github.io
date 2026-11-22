@@ -293,14 +293,23 @@ function groupWorks() {
     const tab = event.target.closest(".file-tab");
     if (!tab || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    if (location.hash !== tab.hash) history.pushState(history.state, "", tab.hash);
+    if (location.hash !== tab.hash) {
+      history.pushState(history.state, "", tab.hash);
+      sound("paper", true);
+    }
     selectCategory();
   });
   tabs.style.setProperty("--tab-count", panels.length);
   list.closest(".works-index")?.classList.add("has-gallery");
   list.replaceWith(gallery);
   selectCategory();
-  window.addEventListener("hashchange", selectCategory);
+  // Arriving at (or going back to) a category must not jump down to its anchor: always start at the top.
+  const toTop = () => window.scrollTo({ top: 0, behavior: "instant" });
+  if (panels.some(({ group }) => "#" + group.id === location.hash)) {
+    toTop();
+    window.addEventListener("load", () => { toTop(); requestAnimationFrame(toTop); }, { once: true });
+  }
+  window.addEventListener("hashchange", () => { selectCategory(); requestAnimationFrame(toTop); });
 }
 
 function showProjectRecommendations() {
@@ -358,21 +367,32 @@ if (page === "resume") {
 }
 
 function setupScrollReveals() {
-  if (!("IntersectionObserver" in window)) return;
+  if (!("IntersectionObserver" in window) || reducedMotion.matches) return;
   const blocks = document.querySelectorAll(
-    ".folder-sheet > *, .about-inner > *, .case-intro, .case-story > *, .see-more, .contact-copy"
+    ".folder-sheet > *, .about-inner > *, .case-intro, .case-story > *, .see-more, .contact-copy, " +
+    ".works-index h1, .gallery-panel .project-grid li, .see-more .project-grid li"
   );
   const seen = new IntersectionObserver(entries => {
+    // Items that arrive together (a row of cards) rise one after another.
+    let order = 0;
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       seen.unobserve(entry.target);
       entry.target.animate(
-        [{ opacity: .3, transform: "translateY(30px)" }, { opacity: 1, transform: "none" }],
-        { duration: 950, easing: "cubic-bezier(.18,.7,.24,1)" }
+        [{ opacity: 0, transform: "translateY(36px)" }, { opacity: 1, transform: "none" }],
+        { duration: 1100, delay: Math.min(order++, 5) * 90, easing: "cubic-bezier(.18,.7,.24,1)", fill: "backwards" }
       );
     }
-  });
+  }, { threshold: .08 });
   blocks.forEach(block => seen.observe(block));
+}
+
+// Project and works pages ease in instead of appearing all at once.
+if ((page === "works" || page === "project") && !reducedMotion.matches) {
+  document.querySelector("main")?.animate(
+    [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }],
+    { duration: 700, easing: "cubic-bezier(.18,.7,.24,1)" }
+  );
 }
 
 function setupGentleWheel() {
@@ -412,12 +432,11 @@ function setupGentleWheel() {
     if (max <= 0) return;
     if (!frame) position = target = window.scrollY;
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
-    // From the About section down to Contact the page scrolls more gently, so a quick flick
-    // no longer outruns (and cancels) the typing there. The cap keeps even a hard flick slow.
-    const slow = aboutSection && aboutSection.getBoundingClientRect().top < window.innerHeight * .9;
-    ease = slow ? .055 : .075;
-    target += event.deltaY * unit * (slow ? .35 : .5);
-    if (slow) target = Math.max(position - 380, Math.min(position + 380, target));
+    // Every page scrolls gently and glides to a stop. The cap keeps even a hard flick slow, so a quick
+    // scroll no longer outruns (and cancels) the typing.
+    ease = .055;
+    target += event.deltaY * unit * .35;
+    target = Math.max(position - 380, Math.min(position + 380, target));
     target = Math.max(0, Math.min(max, target));
     event.preventDefault();
     if (!frame) frame = requestAnimationFrame(step);
@@ -494,6 +513,7 @@ const usesSound = page === "home" || page === "works" || page === "project";
 const sound = usesSound ? createTypewriterSounds() : () => {};
 if (usesSound) setupSoundButton();
 let heroTyping = false;
+let heroSkip = false;
 if (page === "home") {
   setupCat();
   setupCatFade();
@@ -554,7 +574,42 @@ function createTypewriterSounds() {
   const samples = noise.getChannelData(0);
   for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
   let lastClick = -Infinity;
+  // A short, soft paper rustle with a faint thump, for switching folder tabs.
+  let paperNoise;
+  function paper() {
+    const now = context.currentTime;
+    if (!paperNoise) {
+      const length = Math.floor(context.sampleRate * .2);
+      paperNoise = context.createBuffer(1, length, context.sampleRate);
+      const data = paperNoise.getChannelData(0);
+      for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+    }
+    const rustle = context.createBufferSource();
+    const band = context.createBiquadFilter();
+    const air = context.createGain();
+    rustle.buffer = paperNoise;
+    band.type = "bandpass";
+    band.Q.value = .7;
+    band.frequency.setValueAtTime(1000 + Math.random() * 400, now);
+    band.frequency.exponentialRampToValueAtTime(3400 + Math.random() * 600, now + .13);
+    air.gain.setValueAtTime(.0001, now);
+    air.gain.linearRampToValueAtTime(.06, now + .02);
+    air.gain.exponentialRampToValueAtTime(.0001, now + .17);
+    rustle.connect(band); band.connect(air); air.connect(context.destination);
+    rustle.start(now); rustle.stop(now + .2);
+    const thump = context.createBufferSource();
+    const low = context.createBiquadFilter();
+    const soft = context.createGain();
+    thump.buffer = noise;
+    low.type = "lowpass";
+    low.frequency.value = 420;
+    soft.gain.setValueAtTime(.05, now);
+    soft.gain.exponentialRampToValueAtTime(.0001, now + .05);
+    thump.connect(low); low.connect(soft); soft.connect(context.destination);
+    thump.start(now); thump.stop(now + .055);
+  }
   function play(bell, force) {
+    if (bell === "paper") { paper(); return; }
     const now = context.currentTime;
     // Only some letters click, with a minimum gap, so fast typing sounds natural.
     if (!bell && !force && (now - lastClick < .09 || Math.random() < .35)) return;
@@ -674,18 +729,26 @@ function showFull(item) {
   item.caret.style.visibility = "hidden";
 }
 
-async function typeItem(item, base, token) {
-  const { text, visible, waiting, caret } = item;
+// With "total" (hover titles) the whole title takes about that long, however long or short it is.
+async function typeItem(item, base, token, total) {
+  const { text, visible, waiting, caret, element } = item;
   caret.style.visibility = "visible";
+  item.typing = true;
+  if (item.skippable) element.style.cursor = "pointer";
+  let finished = true;
   for (let count = 1; count <= text.length; count++) {
-    if (token.stop) { showFull(item); return false; }
+    if (token.stop) { finished = false; break; }
+    if (item.skip) break; // clicked: finish the paragraph straight away
     visible.textContent = text.slice(0, count);
     waiting.textContent = text.slice(count);
     if (text[count - 1] !== " ") sound(false);
-    await delay(pace(base, text[count - 1], text[count - 2]));
+    await delay(total ? total / text.length * (.85 + Math.random() * .3) : pace(base, text[count - 1], text[count - 2]));
   }
+  item.typing = false;
+  item.skip = false;
+  element.style.cursor = "";
   showFull(item);
-  return true;
+  return finished;
 }
 
 async function runGroup(group, token) {
@@ -750,6 +813,13 @@ const onScreen = element => {
 
 function textGroup(elements, headingSpeed = 46) {
   const items = elements.map(prepareText);
+  // Clicking a paragraph while it is typing completes it. Headings are not skippable.
+  for (const item of items) {
+    if (item.element.matches("h2") || item.element.dataset.skipReady) continue;
+    item.element.dataset.skipReady = "1";
+    item.skippable = true;
+    item.element.addEventListener("click", () => { if (item.typing) item.skip = true; });
+  }
   const speeds = items.map(item => item.element.matches("h2") ? headingSpeed : item.text.length > 200 ? 11 : 18);
   return { items, speeds, state: "pending" };
 }
@@ -793,10 +863,8 @@ function setupHomeTyping() {
   setupScrollTyping(groups);
 }
 
-// Short titles type more slowly and long titles faster, so every title takes a similar, readable time.
-function hoverSpeed(length) {
-  return Math.max(20, Math.min(85, 105 - length * 3));
-}
+// Every hover title takes about as long as "Netflix Mobile Discovery" did: short titles type slower, long ones faster.
+const HOVER_TOTAL = 1050;
 
 function setupCardHoverTyping() {
   if (plainMode) return;
@@ -820,7 +888,7 @@ function setupCardHoverTyping() {
     const token = { stop: false };
     current = { card: found, title, token };
     const item = prepareText(title);
-    typeItem(item, hoverSpeed(item.text.length), token);
+    typeItem(item, 0, token, HOVER_TOTAL);
   }
   document.addEventListener("pointermove", event => {
     if (event.pointerType === "touch") return;
@@ -873,6 +941,10 @@ function prepareHero() {
       return { line, text, visible, waiting };
     });
   });
+  // Clicking the bio while it is typing finishes it (the name is not skippable).
+  const bioBox = document.getElementById("bio");
+  bioBox.style.cursor = "pointer";
+  bioBox.addEventListener("click", () => { if (heroTyping) heroSkip = true; });
   // A blinking caret waits at the start of the first line until the typing begins.
   const first = sections[0]?.[0];
   if (first) {
@@ -899,6 +971,8 @@ async function runHeroTyping(sections) {
       waiting.textContent = "";
     }
     heroTyping = false;
+    const bioBox = document.getElementById("bio");
+    if (bioBox) bioBox.style.cursor = "";
   };
   try {
     await Promise.race([document.fonts?.ready, delay(600)]);
@@ -915,7 +989,7 @@ async function typeHero(sections) {
       if (window.scrollY > window.innerHeight * .55) away = true;
       line.classList.remove("idle");
       line.classList.add("typing");
-      for (let count = 1; count <= text.length && !away; count++) {
+      for (let count = 1; count <= text.length && !away && !(index === 1 && heroSkip); count++) {
         if (window.scrollY > window.innerHeight * .55) { away = true; break; }
         visible.textContent = text.slice(0, count);
         waiting.textContent = text.slice(count);
@@ -931,8 +1005,8 @@ async function typeHero(sections) {
   }
 }
 
-// The welcome page: a working typewriter. Type START (capitals don't matter) for the interactive version,
-// or skip to a plain site. Anything typed appears on the paper; the one bell rings when START is typed.
+// The welcome page: type START (capitals don't matter) for the interactive version, or skip to a plain site.
+// The word is shown faintly; each correct letter turns solid, a wrong one turns red, and a caret leads the way.
 function setupWelcome(onStart) {
   const root = document.getElementById("welcome");
   if (!root) {
@@ -941,10 +1015,10 @@ function setupWelcome(onStart) {
     return;
   }
   const WORD = "start";
-  const MAX_SHOWN = 40; // older letters have slid out of view, so they are dropped
   const status = root.querySelector(".welcome-status");
-  const text = root.querySelector(".tw-text");
-  const bar = root.querySelector(".tw-bar");
+  const box = root.querySelector(".welcome-type");
+  const caret = root.querySelector(".wt-caret");
+  const letters = Array.from(root.querySelectorAll(".wt-letter"));
   const soundButton = root.querySelector(".welcome-sound");
   const skipButton = root.querySelector(".welcome-skip");
   let typed = "";
@@ -959,54 +1033,30 @@ function setupWelcome(onStart) {
       window.scrollTo({ top: 0, behavior: "instant" });
     }, 520);
   }
-
-  // The typebar swings up to the ribbon and back; the letter lands as it strikes.
-  function swingBar() {
-    if (reducedMotion.matches) return;
-    bar.getAnimations().forEach(animation => animation.cancel());
-    bar.animate([
-      { transform: "translateY(240px)" },
-      { transform: "translateY(58px)", offset: .4, easing: "ease-in" },
-      { transform: "translateY(58px)", offset: .55 },
-      { transform: "translateY(240px)" }
-    ], { duration: 170, easing: "ease-out" });
-  }
-
-  // The paper moves left by one letter after each strike: new text is drawn at the strike point first.
-  function print(direction) {
-    const before = text.offsetWidth;
-    text.textContent = typed.slice(-MAX_SHOWN);
-    const moved = text.offsetWidth - before;
-    text.getAnimations().forEach(animation => animation.cancel());
-    if (!reducedMotion.matches && moved) {
-      text.animate([{ transform: `translateX(${moved}px)` }, { transform: "none" }], { duration: 90, easing: "ease-out" });
-    }
-    if (direction > 0 && !finished && typed.toLowerCase().endsWith(WORD)) {
-      finished = true;
-      status.textContent = "Starting\u2026";
-      setTimeout(() => sound(true, true), 120); // the only bell on the site
-      setTimeout(() => { setMode("interactive"); onStart(hide); }, 700);
-    }
-  }
-
-  function press(character) {
-    if (finished) return;
-    typed += character;
-    sound(false, true);
-    if (character !== " ") swingBar();
-    setTimeout(() => print(1), character === " " ? 0 : 55);
+  function render() {
+    letters.forEach((letter, i) => {
+      letter.classList.toggle("typed", i < typed.length && typed[i] === WORD[i]);
+      letter.classList.toggle("wrong", i < typed.length && typed[i] !== WORD[i]);
+    });
+    box.insertBefore(caret, letters[typed.length] || null);
   }
 
   window.addEventListener("keydown", event => {
     if (finished || event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === "Backspace") {
-      if (typed) { typed = typed.slice(0, -1); sound(false, true); print(-1); }
+      if (typed) { typed = typed.slice(0, -1); render(); }
       return;
     }
-    if (event.key.length !== 1) return;
-    if (event.target.closest?.("button") && event.key === " ") return; // Space still presses a focused button
-    event.preventDefault();
-    press(event.key);
+    if (!/^[a-zA-Z]$/.test(event.key) || typed.length >= WORD.length) return;
+    typed += event.key.toLowerCase();
+    sound(false, true);
+    render();
+    if (typed === WORD) {
+      finished = true;
+      status.textContent = "Starting\u2026";
+      setTimeout(() => sound(true, true), 120); // the only bell on the site
+      setTimeout(() => { setMode("interactive"); onStart(hide); }, 600);
+    }
   });
 
   function showSound() {
@@ -1027,4 +1077,5 @@ function setupWelcome(onStart) {
     hide();
   });
   showSound();
+  render();
 }
