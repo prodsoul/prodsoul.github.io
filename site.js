@@ -354,7 +354,8 @@ async function showResume() {
       return;
     }
   }
-  pdf.src = link.href;
+  // Side thumbnails off and the page fitted to the box's width, so the whole page is visible without scrolling.
+  pdf.src = link.href + "#navpanes=0&view=FitH";
   pdf.hidden = link.hidden = false;
   pending.hidden = true;
 }
@@ -401,6 +402,14 @@ function setupGentleWheel() {
   let target = 0;
   let position = 0;
   let ease = .075;
+  // Going back up through the landing-page folders covers the same ground with a little less wheel travel.
+  // 1 = same as going down; 1.35 = about a quarter less scrolling. Raise or lower to taste.
+  const FOLDERS_UP_BOOST = 1.35;
+  function inLandingFolders() {
+    if (page !== "home" || !homeFolders) return false;
+    const box = homeFolders.getBoundingClientRect();
+    return box.top < window.innerHeight && box.bottom > window.innerHeight * .25;
+  }
 
   function stop() {
     cancelAnimationFrame(frame);
@@ -435,8 +444,9 @@ function setupGentleWheel() {
     // Every page scrolls gently and glides to a stop. The cap keeps even a hard flick slow, so a quick
     // scroll no longer outruns (and cancels) the typing.
     ease = .055;
-    target += event.deltaY * unit * .35;
-    target = Math.max(position - 380, Math.min(position + 380, target));
+    const boost = event.deltaY < 0 && inLandingFolders() ? FOLDERS_UP_BOOST : 1;
+    target += event.deltaY * unit * .35 * boost;
+    target = Math.max(position - 380 * boost, Math.min(position + 380 * boost, target));
     target = Math.max(0, Math.min(max, target));
     event.preventDefault();
     if (!frame) frame = requestAnimationFrame(step);
@@ -509,7 +519,7 @@ if (introActive) {
   try { window.localStorage.setItem("sound", "on"); } catch { /* storage blocked */ }
 }
 
-const usesSound = page === "home" || page === "works" || page === "project";
+const usesSound = page === "home" || page === "works" || page === "project" || page === "resume";
 const sound = usesSound ? createTypewriterSounds() : () => {};
 if (usesSound) setupSoundButton();
 let heroTyping = false;
@@ -521,7 +531,7 @@ if (page === "home") {
   else if (typingEnabled) startInteractiveHome();
 }
 if (page === "works") setupWorksTyping();
-if (page === "project") setupCardHoverTyping();
+if (page === "resume" && typingEnabled) setupResumeTyping();
 
 // Card titles stay on one line: a title that is too wide for its card is scaled down to fit.
 function fitCardTitles() {
@@ -570,68 +580,69 @@ function createTypewriterSounds() {
     window.addEventListener(type, resume, { passive: true });
   }
   document.addEventListener("visibilitychange", resume);
-  const noise = context.createBuffer(1, context.sampleRate * .055, context.sampleRate);
-  const samples = noise.getChannelData(0);
-  for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
-  let lastClick = -Infinity;
-  // A short, soft paper rustle with a faint thump, for switching folder tabs.
-  let paperNoise;
-  function paper() {
-    const now = context.currentTime;
-    if (!paperNoise) {
-      const length = Math.floor(context.sampleRate * .2);
-      paperNoise = context.createBuffer(1, length, context.sampleRate);
-      const data = paperNoise.getChannelData(0);
-      for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+  // Your own recordings live in the assets folder:
+  //   assets/PaperFlip.wav   - flipping between folder tabs on the works page
+  //   assets/Ding.wav        - the bell on the welcome page
+  //   assets/type/Type-1.wav ... Type-18.wav - typing
+  // Typing works like footsteps in a game: every key press picks one of the clips at random
+  // (never the same clip twice in a row). Volumes are 0 to 1; change them here if a clip is too loud or quiet.
+  const TYPE_CLIP_COUNT = 18;
+  const TYPE_VOLUME = .6;
+  const PAPER_VOLUME = .8;
+  const DING_VOLUME = .8;
+  const clipURL = name => new URL("assets/" + name, siteRoot).href;
+  const clips = {};
+  function loadClip(name) {
+    if (clips[name]) return;
+    const clip = clips[name] = { buffer: null, failed: false };
+    fetch(clipURL(name))
+      .then(response => { if (!response.ok) throw new Error(response.status); return response.arrayBuffer(); })
+      .then(data => context.decodeAudioData(data))
+      .then(buffer => { clip.buffer = buffer; })
+      .catch(() => { clip.failed = true; });
+  }
+  function playClip(name, volume) {
+    const clip = clips[name];
+    if (!clip) { loadClip(name); return; }
+    if (clip.buffer) {
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      source.buffer = clip.buffer;
+      gain.gain.value = volume;
+      source.connect(gain);
+      gain.connect(context.destination);
+      source.onended = () => { source.disconnect(); gain.disconnect(); };
+      source.start();
+    } else if (clip.failed) {
+      // Fallback (for example when the page is opened straight from a folder): play the file normally.
+      const audio = new Audio(clipURL(name));
+      audio.volume = Math.min(1, volume);
+      audio.play().catch(() => {});
     }
-    const rustle = context.createBufferSource();
-    const band = context.createBiquadFilter();
-    const air = context.createGain();
-    rustle.buffer = paperNoise;
-    band.type = "bandpass";
-    band.Q.value = .7;
-    band.frequency.setValueAtTime(1000 + Math.random() * 400, now);
-    band.frequency.exponentialRampToValueAtTime(3400 + Math.random() * 600, now + .13);
-    air.gain.setValueAtTime(.0001, now);
-    air.gain.linearRampToValueAtTime(.06, now + .02);
-    air.gain.exponentialRampToValueAtTime(.0001, now + .17);
-    rustle.connect(band); band.connect(air); air.connect(context.destination);
-    rustle.start(now); rustle.stop(now + .2);
-    const thump = context.createBufferSource();
-    const low = context.createBiquadFilter();
-    const soft = context.createGain();
-    thump.buffer = noise;
-    low.type = "lowpass";
-    low.frequency.value = 420;
-    soft.gain.setValueAtTime(.05, now);
-    soft.gain.exponentialRampToValueAtTime(.0001, now + .05);
-    thump.connect(low); low.connect(soft); soft.connect(context.destination);
-    thump.start(now); thump.stop(now + .055);
+  }
+  // Load the clips a page needs up front so the first key press already has its sound.
+  // Project pages have no typing sounds, so they load nothing.
+  if (page !== "project") {
+    for (let n = 1; n <= TYPE_CLIP_COUNT; n++) loadClip("type/Type-" + n + ".wav");
+    if (page === "home") loadClip("Ding.wav");
+    if (page === "works") loadClip("PaperFlip.wav");
+  }
+  let lastClick = -Infinity;
+  let lastType = 0;
+  function typeKey() {
+    let pick;
+    do { pick = 1 + Math.floor(Math.random() * TYPE_CLIP_COUNT); } while (pick === lastType);
+    lastType = pick;
+    playClip("type/Type-" + pick + ".wav", TYPE_VOLUME);
   }
   function play(bell, force) {
-    if (bell === "paper") { paper(); return; }
+    if (bell === "paper") { playClip("PaperFlip.wav", PAPER_VOLUME); return; }
+    if (bell) { playClip("Ding.wav", DING_VOLUME); return; }
     const now = context.currentTime;
-    // Only some letters click, with a minimum gap, so fast typing sounds natural.
-    if (!bell && !force && (now - lastClick < .09 || Math.random() < .35)) return;
-    if (!bell) lastClick = now;
-    const gain = context.createGain();
-    const duration = bell ? .46 : .032;
-    const source = bell ? context.createOscillator() : context.createBufferSource();
-    if (bell) {
-      source.frequency.value = 1568;
-      source.connect(gain);
-    } else {
-      source.buffer = noise;
-      const filter = context.createBiquadFilter();
-      filter.frequency.value = 1150;
-      source.connect(filter);
-      filter.connect(gain);
-    }
-    gain.gain.setValueAtTime(bell ? .025 : .045 + Math.random() * .03, now);
-    gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
-    gain.connect(context.destination);
-    source.start(now);
-    source.stop(now + duration);
+    // A minimum gap between clicks keeps very fast typing from turning into a buzz.
+    if (!force && now - lastClick < .09) return;
+    lastClick = now;
+    typeKey();
   }
   // "force" is used for key presses on the welcome page: they are a user gesture, so audio that the
   // browser had suspended is started right then and the very first key already clicks.
@@ -713,7 +724,12 @@ function prepareText(element) {
   full.style.cssText = SR_ONLY;
   full.textContent = text;
   // An inline (not inline-block) caret adds no line-break opportunity, so typing never re-wraps the text.
-  caret.style.cssText = "display:inline;padding-left:2px;margin-right:-2px;background:linear-gradient(currentColor,currentColor) left center/2px .82em no-repeat;visibility:hidden";
+  // The caret has no width of its own (its bar is positioned absolutely), so a word sitting right at the end of
+  // a line can never be pushed down to the next line while the caret is inside it.
+  caret.style.cssText = "display:inline;position:relative;visibility:hidden";
+  const bar = document.createElement("span");
+  bar.style.cssText = "position:absolute;left:0;top:50%;width:2px;height:.82em;transform:translateY(-50%);background:currentColor";
+  caret.append(bar);
   const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
   if (lineHeight && element.getBoundingClientRect().height < lineHeight * 1.5) element.style.whiteSpace = "nowrap";
   waiting.textContent = text;
@@ -922,6 +938,15 @@ function setupWorksTyping() {
       return group;
     });
   setupScrollTyping(groups);
+}
+
+function setupResumeTyping() {
+  const title = document.querySelector(".case-intro h1");
+  if (!title) return;
+  const group = textGroup([title]);
+  group.speeds[0] = 46; // the same pace as the other page headings
+  group.visible = () => onScreen(title);
+  setupScrollTyping([group]);
 }
 
 function prepareHero() {

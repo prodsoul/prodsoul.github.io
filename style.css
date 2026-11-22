@@ -489,3 +489,59 @@ html.intro-active .welcome {
 @media (prefers-reduced-motion: reduce) {
   .typing.idle::before, .wt-caret::before { animation: none; }
 }
+
+/* ---------- Updates ---------- */
+
+/* Contact: the intro paragraph is wide enough for two lines. It may run past the end of "CONTACT ME"
+   without widening the row of links (the negative end margin keeps it out of the box's width). */
+.contact-note {
+  width: max-content;
+  max-width: min(84ch, calc(100vw - 2 * var(--edge)));
+  margin-inline-end: -100vw;
+}
+
+/* Works page: the category tabs spring up when hovered, and dip slightly when pressed. */
+@media (hover:hover) {
+  .gallery-tabs .file-tab::before {
+    transition: top .34s cubic-bezier(.34, 1.56, .64, 1), filter .22s ease;
+  }
+  .gallery-tabs .file-tab span {
+    transition: transform .34s cubic-bezier(.34, 1.56, .64, 1), color .18s ease;
+  }
+  .gallery-tabs .file-tab:hover::before { top: -11px; filter: brightness(1.07); }
+  .gallery-tabs .file-tab:hover span { transform: translateY(-7px) scale(1.04); }
+  .gallery-tabs .file-tab:active::before { top: -5px; }
+  .gallery-tabs .file-tab:active span { transform: translateY(-2px) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery-tabs .file-tab:hover::before,.gallery-tabs .file-tab:active::before { top: 0; }
+  .gallery-tabs .file-tab:hover span,.gallery-tabs .file-tab:active span { transform: none; }
+}
+
+/* Resume page: the title sits on the left, the PDF is centred on the screen, and the box is tall enough
+   to show the whole (A4) page without scrolling inside it. --pdf-slack covers the browser's own PDF toolbar. */
+.resume-sheet {
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+  column-gap: clamp(20px,3vw,48px);
+}
+.resume-sheet .case-intro { grid-column: 1; }
+.resume-viewer {
+  grid-column: 2;
+  width: min(60rem, calc(100vw - 2 * var(--edge) - 34vw));
+  max-width: none;
+  container-type: inline-size;
+}
+.resume-pdf {
+  aspect-ratio: auto;
+  height: calc(100cqw * 1.4143 + var(--pdf-slack, 4.5rem));
+}
+.open-pdf {
+  margin-top: 1rem;
+  font-size: clamp(1.15rem,1.55vw,1.55rem);
+  text-transform: uppercase;
+  min-height: 52px;
+}
+@media (max-width: 1000px) {
+  .resume-sheet { grid-template-columns: minmax(0,1fr); }
+  .resume-viewer { grid-column: 1; width: min(100%, 60rem); justify-self: center; }
+}
