@@ -88,9 +88,10 @@ function setupContactLinks() {
 }
 
 setupContactLinks();
+let includesDone = Promise.resolve();
 if (location.protocol !== "file:") {
   const includes = Array.from(document.querySelectorAll("[data-include]"), loadSection);
-  Promise.allSettled(includes).then(() => {
+  includesDone = Promise.allSettled(includes).then(() => {
     setupContactLinks();
     setupScrollReveals();
     if (["#about", "#contact"].includes(location.hash)) {
@@ -451,7 +452,9 @@ for (const box of document.querySelectorAll("[data-youtube]")) {
 
 if (page === "home") {
   setupCat();
-  if (!reducedMotion.matches) runTypewriter();
+  const typewriterSound = createTypewriterSounds();
+  runTypewriter(typewriterSound);
+  includesDone.then(() => setupHeadingTypers(typewriterSound));
 }
 
 function setupCat() {
@@ -476,8 +479,9 @@ function createTypewriterSounds() {
     if (context.state === "suspended") context.resume().catch(() => {});
   }
   resume();
-  window.addEventListener("pointerdown", resume, { passive: true });
-  window.addEventListener("keydown", resume);
+  for (const type of ["pointerdown", "click", "touchend", "keydown"]) {
+    window.addEventListener(type, resume, { passive: true });
+  }
   const noise = context.createBuffer(1, context.sampleRate * .055, context.sampleRate);
   const samples = noise.getChannelData(0);
   for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
@@ -485,7 +489,8 @@ function createTypewriterSounds() {
   return function sound(bell) {
     if (context.state !== "running") return;
     const now = context.currentTime;
-    if (!bell && now - lastClick < .065) return;
+    // Only some letters click, with a minimum gap, so fast typing sounds natural.
+    if (!bell && (now - lastClick < .09 || Math.random() < .35)) return;
     if (!bell) lastClick = now;
     const gain = context.createGain();
     const duration = bell ? .46 : .032;
@@ -500,7 +505,7 @@ function createTypewriterSounds() {
       source.connect(filter);
       filter.connect(gain);
     }
-    gain.gain.setValueAtTime(bell ? .025 : .065, now);
+    gain.gain.setValueAtTime(bell ? .025 : .045 + Math.random() * .03, now);
     gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
     gain.connect(context.destination);
     source.start(now);
@@ -508,8 +513,7 @@ function createTypewriterSounds() {
   };
 }
 
-async function runTypewriter() {
-  const sound = createTypewriterSounds();
+async function runTypewriter(sound) {
   const sections = ["name","bio"].map(id => {
     const container = document.getElementById(id);
     const lines = Array.from(container.querySelectorAll(".typed-line"));
@@ -526,27 +530,92 @@ async function runTypewriter() {
     });
   });
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-  await Promise.race([document.fonts.ready, delay(600)]);
+  const loaded = document.readyState === "complete"
+    ? Promise.resolve()
+    : new Promise(resolve => window.addEventListener("load", resolve, { once: true }));
+  await Promise.all([loaded, Promise.race([document.fonts.ready, delay(1500)])]);
+  await delay(1000); // typing starts one second after the page has loaded
   for (const [index, lines] of sections.entries()) {
     for (const { line, text, visible, waiting } of lines) {
       line.classList.add("typing");
       for (let count = 1; count <= text.length; count++) {
-        if (reducedMotion.matches) {
-          count = text.length;
-        }
         visible.textContent = text.slice(0, count);
         waiting.textContent = text.slice(count);
         line.style.setProperty("--caret-x", visible.getBoundingClientRect().width + "px");
-        if (!reducedMotion.matches) {
-          if (text[count - 1] !== " ") sound(false);
-          await delay((index === 0 ? 67 : 17) + Math.random() * 24);
-        }
+        if (text[count - 1] !== " ") sound(false);
+        await delay((index === 0 ? 67 : 17) + Math.random() * 24);
       }
       line.classList.remove("typing");
     }
-    if (!reducedMotion.matches) {
-      sound(true);
-      await delay(220);
+    sound(true); // one bell when the whole section has finished
+    await delay(220);
+  }
+}
+
+// Folder titles, "About me" and "Contact me" type themselves when scrolled into view.
+function setupHeadingTypers(sound) {
+  if (!("IntersectionObserver" in window)) return;
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  let queue = Promise.resolve();
+
+  function prepare(heading) {
+    const text = heading.textContent.trim();
+    const visible = document.createElement("span");
+    const caret = document.createElement("span");
+    const waiting = document.createElement("span");
+    caret.style.cssText = "display:inline-block;width:0;height:.82em;border-left:2px solid currentColor;margin-right:-2px;visibility:hidden";
+    waiting.textContent = text;
+    waiting.style.visibility = "hidden"; // keeps the final layout while typing
+    visible.setAttribute("aria-hidden", "true");
+    caret.setAttribute("aria-hidden", "true");
+    waiting.setAttribute("aria-hidden", "true");
+    heading.setAttribute("aria-label", text);
+    heading.replaceChildren(visible, caret, waiting);
+    heading._typing = { text, visible, caret, waiting };
+  }
+
+  async function typeHeading(heading) {
+    const { text, visible, caret, waiting } = heading._typing;
+    caret.style.visibility = "visible";
+    for (let count = 1; count <= text.length; count++) {
+      visible.textContent = text.slice(0, count);
+      waiting.textContent = text.slice(count);
+      if (text[count - 1] !== " ") sound(false);
+      await delay(46 + Math.random() * 28);
     }
+    heading.textContent = text; // back to plain text, identical to the original
+    heading.removeAttribute("aria-label");
+    sound(true);
+    await delay(150);
+  }
+
+  const play = heading => { queue = queue.then(() => typeHeading(heading)); };
+
+  const headings = Array.from(document.querySelectorAll(".folders .folder-sheet header h2, .about-inner h2"));
+  headings.forEach(prepare);
+  const seen = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      seen.unobserve(entry.target);
+      play(entry.target);
+    }
+  }, { rootMargin: "0px 0px -18% 0px", threshold: .5 });
+  headings.forEach(heading => seen.observe(heading));
+
+  // The contact panel waits underneath the page, so it starts once the page has scrolled away from it.
+  const contact = document.querySelector(".contact-copy h2");
+  if (contact) {
+    prepare(contact);
+    const check = () => {
+      const box = contact.getBoundingClientRect();
+      const revealed = footerAnchor.getBoundingClientRect().top <= box.top + box.height * .4;
+      if (!revealed || box.top > window.innerHeight * .85) return;
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+      play(contact);
+    };
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    check();
   }
 }
