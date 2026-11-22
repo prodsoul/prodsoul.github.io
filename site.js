@@ -43,10 +43,11 @@ function updateNavigation() {
   const atContact = footerAnchor.getBoundingClientRect().top < window.innerHeight * .45;
   const atAbout = aboutSection && aboutSection.getBoundingClientRect().top < window.innerHeight * .55;
   const active = atContact ? "Contact" : atAbout ? "About" : currentPageName;
-  const hideOnHome = page === "home" && distance > 48 &&
-    homeFolders && homeFolders.getBoundingClientRect().bottom > navHeight + 2;
-  const hideOnProject = page === "project" && distance > navHeight && scrollingDown;
-  topNav.classList.toggle("fading", Boolean(hideOnHome || hideOnProject));
+  const folders = homeFolders?.getBoundingClientRect();
+  const inHomeFolders = page === "home" && folders &&
+    folders.top < navHeight && folders.bottom > navHeight + 2;
+  const hidden = distance > navHeight && (scrollingDown || inHomeFolders);
+  topNav.classList.toggle("fading", Boolean(hidden));
   for (const link of topNav.querySelectorAll("a")) {
     if (link.textContent === active) {
       link.setAttribute("aria-current", atContact || atAbout ? "location" : "page");
@@ -334,6 +335,8 @@ async function showResume() {
 
 if (page === "resume") {
   document.querySelector(".resume-tab")?.remove();
+  const back = document.querySelector(".back-link");
+  if (back) labelLink(back, "BACK", "←", true);
   showResume();
 }
 

@@ -33,9 +33,11 @@
   --slate: #92a0a4;
   --wine: #482627;
   --edge: clamp(1.25rem, 4.2vw, 5rem);
-  --nav-edge: clamp(16px,1.4vw,32px);
   --nav: clamp(62px, 8svh, 88px);
   --tab: clamp(43px, 5.2svh, 57px);
+  --folder-tab-font: clamp(.84rem, 1.15vw, 1.2rem);
+  --gallery-room: calc(100svh - var(--nav) - 1rem);
+  --gallery-rim: clamp(14px,1.45vw,28px);
   --gap: clamp(24px, 5svh, 60px);
   --peek: calc(var(--tab) + clamp(18px, 3svh, 36px));
   --cat-width: min(39vw, 55svh);
@@ -61,8 +63,8 @@ a:focus-visible,button:focus-visible { outline: 2px solid var(--red); outline-of
 main { position: relative; z-index: 1; }
 .top-nav {
   position: fixed; inset: 0 0 auto; height: var(--nav); z-index: 8;
-  display: flex; justify-content: space-between; align-items: center; padding-inline: var(--nav-edge);
-  background: transparent; pointer-events: none;
+  display: flex; justify-content: space-between; align-items: center; padding-inline: var(--edge);
+  pointer-events: none;
   transition: transform .26s ease, opacity .22s;
 }
 .top-nav, .contact-links { text-transform: uppercase; font-size: clamp(1rem, 1.95vw, 1.8rem); }
@@ -73,7 +75,7 @@ main { position: relative; z-index: 1; }
 .top-nav a { pointer-events: auto; }
 .top-nav a[aria-current] { color: var(--red); }
 /* Paper is painted behind the content at each surface, including the sticky footer. */
-main,.folder-sheet,.gallery-panel,.contact-panel {
+main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   background: linear-gradient(var(--paper-wash), var(--paper-wash)),
     var(--paper-texture) center / var(--texture-size) no-repeat fixed, var(--paper);
 }
@@ -113,7 +115,7 @@ main,.folder-sheet,.gallery-panel,.contact-panel {
 .folder:first-child { border-top-left-radius: 0; }
 .folder-tab,.all-tab {
   position: absolute; bottom: calc(100% - 1px); left: calc(var(--slot) * 24%);
-  height: var(--tab); width: 24%; font-size: clamp(.84rem, 1.15vw, 1.2rem);
+  height: var(--tab); width: 24%; font-size: var(--folder-tab-font);
 }
 .all-tab { left: auto; right: 0; width: 28%; --stock: #393933; }
 .folder-tab,.all-tab,.file-tab {
@@ -200,11 +202,12 @@ main,.folder-sheet,.gallery-panel,.contact-panel {
 }
 .contact-copy h2 { text-transform: uppercase; line-height: 1; font-size: clamp(2.8rem,8.22vw,10rem); margin-bottom: 2.6svh; }
 .contact-links { display: flex; align-items: center; justify-content: space-between; gap: 1em; }
+.contact-note,.contact-links { margin-inline-start: clamp(6px,.6vw,14px); }
 .contact-links > * { color: var(--ink); }
 .contact-links [aria-current] { color: var(--red); }
 .open-pdf:hover { color: var(--hover); }
 .works-index { min-height: 100svh; padding-top: calc(var(--nav) + 1rem); }
-.works-index.has-gallery { padding-inline: 0; }
+.works-index.has-gallery { padding-inline: 0; padding-bottom: 0; }
 .has-gallery > h1 {
   position: absolute; width: 1px; height: 1px;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap;
@@ -230,14 +233,20 @@ main,.folder-sheet,.gallery-panel,.contact-panel {
   font-size: clamp(.82rem,1.1vw,1rem);
 }
 .file-tab[aria-current] { --stock: var(--tab-active); }
-.gallery-tabs .file-tab { min-height: var(--tab); padding-left: var(--nav-edge); }
+.work-gallery { display: grid; grid-template-rows: auto 1fr; min-height: var(--gallery-room); }
+.gallery-tabs { margin-bottom: -1px; padding-top: 0; }
+.gallery-tabs .file-tab {
+  min-height: var(--tab); font-size: var(--folder-tab-font);
+  padding-inline: clamp(.35rem,1.1vw,1rem);
+}
+.gallery-tabs .file-tab::before { bottom: -1px; }
 .gallery-panels {
   display: grid; background: var(--tab-active);
-  padding: .625rem; border-radius: 0 10px 6px 6px;
+  padding: var(--gallery-rim); border-radius: 0 0 6px 6px;
 }
 .gallery-panel {
   grid-area: 1 / 1; min-width: 0; border-radius: 3px;
-  padding: clamp(22px,3vw,48px) calc(var(--nav-edge) - .625rem);
+  padding: clamp(22px,3vw,48px) var(--edge);
   scroll-margin-top: calc(var(--nav) + var(--tab) + 12px);
 }
 /* Keep the tallest panel in the layout so the folder and footer never jump between tabs. */
@@ -284,19 +293,45 @@ main,.folder-sheet,.gallery-panel,.contact-panel {
     linear-gradient(to bottom right, transparent calc(50% - .5px), #686659 50%, transparent calc(50% + .5px));
 }
 .coming-soon .project-card-title { color: var(--soft); }
-.see-more { padding: 2rem var(--nav-edge) 5rem; }
+.see-more { padding: 2rem var(--edge) 5rem; }
 @media (max-width: 1000px) {
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 500px) {
   .project-grid { grid-template-columns: minmax(0, 1fr); }
 }
+/* The six-card desktop gallery fits above Contact. Narrow and short screens can flow normally. */
+@media (min-width: 1001px) and (min-height: 640px) {
+  .work-gallery:not(:has(.project-grid > li:nth-child(7))) {
+    height: var(--gallery-room);
+    grid-template-rows: auto minmax(0,1fr);
+  }
+  .work-gallery:not(:has(.project-grid > li:nth-child(7))) .gallery-panels {
+    grid-template-rows: minmax(0,1fr);
+  }
+  .work-gallery:not(:has(.project-grid > li:nth-child(7))) .gallery-panel {
+    display: grid;
+    grid-template-rows: auto minmax(0,1fr);
+    padding-block: clamp(15px,3svh,42px);
+  }
+  .work-gallery:not(:has(.project-grid > li:nth-child(7))) .gallery-panel[hidden] { display: grid !important; }
+  .gallery-panel h2 { font-size: clamp(1.7rem,4.8svh,3.75rem); margin-bottom: .48em; }
+  .gallery-panel .project-grid {
+    grid-auto-rows: minmax(0,1fr);
+    row-gap: clamp(12px,2.4svh,32px);
+  }
+  .gallery-panel .project-card,.gallery-panel .coming-soon {
+    display: grid; grid-template-rows: minmax(0,1fr) auto; height: 100%;
+  }
+  .gallery-panel .project-card-frame { max-height: 100%; align-self: start; }
+  .gallery-panel .project-card-caption { margin-top: .4rem; }
+}
 .file-tab span { max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.12; }
 .resume-tab { display: none; }
 [hidden] { display: none !important; }
 .case-sheet {
   display: grid; grid-template-columns: minmax(0,1fr) minmax(0,2.05fr);
-  padding: clamp(32px,5vw,80px) var(--nav-edge) clamp(48px,5vw,84px);
+  padding: clamp(32px,5vw,80px) var(--edge) clamp(48px,5vw,84px);
   gap: clamp(34px,6vw,104px);
 }
 .case-intro { min-width: 0; overflow-wrap: anywhere; }
