@@ -205,6 +205,18 @@ function labelLink(link, text, arrow, before = false) {
 }
 
 function updateFeaturedFolders() {
+  // Phones show one wide project tab plus "See all works" on every folder, so each folder carries its own copy.
+  const allTab = document.querySelector(".folders .all-tab");
+  if (allTab) {
+    for (const folder of document.querySelectorAll(".folders .folder")) {
+      if (folder.querySelector(".all-tab")) continue;
+      const copy = allTab.cloneNode(true);
+      copy.classList.add("all-tab-extra");
+      copy.setAttribute("aria-hidden", "true");
+      copy.tabIndex = -1;
+      folder.querySelector(".folder-tab")?.after(copy);
+    }
+  }
   const dates = { "convex": "2026", "moustachve-been-the-wind": "2025–2026", "specimen-tool": "2026" };
   for (const folder of document.querySelectorAll(".folders .folder")) {
     const link = folder.querySelector(".view-link");
@@ -228,6 +240,9 @@ function updateFeaturedFolders() {
   }
 }
 
+// Must match the phone breakpoint in style.css.
+const phoneView = window.matchMedia("(max-width: 640px) and (orientation: portrait)");
+
 function groupWorks() {
   const list = document.querySelector(".work-list");
   if (!list) return;
@@ -247,7 +262,11 @@ function groupWorks() {
   gallery.className = "work-gallery";
   const panelStack = document.createElement("div");
   panelStack.className = "gallery-panels";
-  gallery.append(tabs, panelStack);
+  const back = document.createElement("a");
+  back.className = "back-link gallery-back";
+  back.href = location.pathname;
+  labelLink(back, "ALL CATEGORIES", "←", true);
+  gallery.append(back, tabs, panelStack);
   const panels = [];
 
   const assigned = new Set(workGroups.flatMap(group => group.works));
@@ -279,7 +298,11 @@ function groupWorks() {
   if (!panels.length) return;
 
   function selectCategory() {
-    const selected = panels.find(({ group }) => "#" + group.id === location.hash) || panels[0];
+    // On phones nothing is open until a category tab is tapped; on larger screens the first one is.
+    const selected = panels.find(({ group }) => "#" + group.id === location.hash) || (phoneView.matches ? null : panels[0]);
+    gallery.dataset.view = selected ? "category" : "index";
+    if (selected) gallery.dataset.tone = String(panels.findIndex(entry => entry === selected) + 1);
+    else delete gallery.dataset.tone;
     for (const entry of panels) {
       const inactive = entry !== selected;
       entry.panel.hidden = inactive;
@@ -298,7 +321,15 @@ function groupWorks() {
       sound("paper", true);
     }
     selectCategory();
+    if (phoneView.matches) window.scrollTo({ top: 0, behavior: "instant" });
   });
+  back.addEventListener("click", event => {
+    event.preventDefault();
+    if (location.hash) history.pushState(history.state, "", location.pathname + location.search);
+    selectCategory();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  });
+  phoneView.addEventListener("change", selectCategory);
   tabs.style.setProperty("--tab-count", panels.length);
   list.closest(".works-index")?.classList.add("has-gallery");
   list.replaceWith(gallery);
@@ -310,6 +341,35 @@ function groupWorks() {
     window.addEventListener("load", () => { toTop(); requestAnimationFrame(toTop); }, { once: true });
   }
   window.addEventListener("hashchange", () => { selectCategory(); requestAnimationFrame(toTop); });
+}
+
+// Phones show a compact details block (date, category, methods) instead of the Date / Role / Methods list.
+// It is built from the list that is already on the page, which stays in place for larger screens.
+function setupCaseMeta() {
+  const list = document.querySelector(".case-intro dl");
+  const heading = document.querySelector(".case-intro h1");
+  if (!list || !heading) return;
+  const facts = {};
+  for (const row of list.children) {
+    const key = row.querySelector("dt")?.textContent.trim().toLowerCase();
+    if (key) facts[key] = row.querySelector("dd")?.textContent.trim() || "";
+  }
+  const slug = location.pathname.split("/").pop().replace(/\.html$/, "");
+  const group = workGroups.find(entry => entry.works.includes(slug));
+  const meta = document.createElement("div");
+  meta.className = "case-meta";
+  const line = (className, text) => {
+    if (!text) return;
+    const item = document.createElement("span");
+    item.className = className;
+    item.textContent = text;
+    meta.append(item);
+  };
+  line("case-date", facts["date"]);
+  line("case-category", group?.name);
+  line("case-skills", facts["methods used"]);
+  line("case-extra", [facts["project type"], facts["my role"], facts["organisation"]].filter(Boolean).join(" · "));
+  heading.after(meta);
 }
 
 function showProjectRecommendations() {
@@ -340,7 +400,7 @@ function showProjectRecommendations() {
 
 if (page === "home") updateFeaturedFolders();
 if (page === "works") groupWorks();
-if (page === "project") showProjectRecommendations();
+if (page === "project") { setupCaseMeta(); showProjectRecommendations(); }
 
 async function showResume() {
   const pdf = document.querySelector(".resume-pdf");
@@ -519,9 +579,10 @@ if (introActive) {
   try { window.localStorage.setItem("sound", "on"); } catch { /* storage blocked */ }
 }
 
-const usesSound = page === "home" || page === "works" || page === "project" || page === "resume";
+// Phones never play any sound (typing, paper flip, meow), so no audio is set up for them.
+if (isPhone) soundMuted = true;
+const usesSound = !isPhone && (page === "home" || page === "works" || page === "project" || page === "resume");
 const sound = usesSound ? createTypewriterSounds() : () => {};
-if (usesSound) setupSoundButton();
 let heroTyping = false;
 let heroSkip = false;
 if (page === "home") {
@@ -583,10 +644,10 @@ function createTypewriterSounds() {
   // Your own recordings live in the assets folder:
   //   assets/PaperFlip.wav   - flipping between folder tabs on the works page
   //   assets/Ding.wav        - the bell on the welcome page
-  //   assets/type/Type-1.wav ... Type-18.wav - typing
+  //   assets/Type/Type-1.wav ... Type-19.wav - typing
   // Typing works like footsteps in a game: every key press picks one of the clips at random
   // (never the same clip twice in a row). Volumes are 0 to 1; change them here if a clip is too loud or quiet.
-  const TYPE_CLIP_COUNT = 18;
+  const TYPE_CLIP_COUNT = 19;
   const TYPE_VOLUME = .6;
   const PAPER_VOLUME = .8;
   const DING_VOLUME = .8;
@@ -623,7 +684,7 @@ function createTypewriterSounds() {
   // Load the clips a page needs up front so the first key press already has its sound.
   // Project pages have no typing sounds, so they load nothing.
   if (page !== "project") {
-    for (let n = 1; n <= TYPE_CLIP_COUNT; n++) loadClip("type/Type-" + n + ".wav");
+    for (let n = 1; n <= TYPE_CLIP_COUNT; n++) loadClip("Type/Type-" + n + ".wav");
     if (page === "home") loadClip("Ding.wav");
     if (page === "works") loadClip("PaperFlip.wav");
   }
@@ -633,7 +694,7 @@ function createTypewriterSounds() {
     let pick;
     do { pick = 1 + Math.floor(Math.random() * TYPE_CLIP_COUNT); } while (pick === lastType);
     lastType = pick;
-    playClip("type/Type-" + pick + ".wav", TYPE_VOLUME);
+    playClip("Type/Type-" + pick + ".wav", TYPE_VOLUME);
   }
   function play(bell, force) {
     if (bell === "paper") { playClip("PaperFlip.wav", PAPER_VOLUME); return; }
@@ -651,29 +712,6 @@ function createTypewriterSounds() {
     if (context.state === "running") { play(bell, force); return; }
     if (force) context.resume().then(() => play(bell, force)).catch(() => {});
   };
-}
-
-// Browsers often block audio until the visitor interacts with the page. The typing never waits
-// for audio: this button shows the state and lets the visitor turn sound on or off at any time.
-function setupSoundButton() {
-  if (!audioContext) return;
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "sound-toggle";
-  function render() {
-    button.textContent = soundMuted ? "Sound off" : "Sound on";
-    button.setAttribute("aria-pressed", String(!soundMuted));
-    button.setAttribute("aria-label", soundMuted ? "Sound is off. Turn sound on" : "Sound is on. Turn sound off");
-  }
-  button.addEventListener("click", () => {
-    soundMuted = !soundMuted;
-    try { window.localStorage.setItem("sound", soundMuted ? "off" : "on"); } catch { /* storage blocked */ }
-    if (!soundMuted) audioContext.resume().catch(() => {});
-    render();
-  });
-  window.addEventListener("soundchange", render);
-  render();
-  document.body.append(button);
 }
 
 // The cat's lower edge is a hard cut. Once the first folder pins and the cat scrolls away from
