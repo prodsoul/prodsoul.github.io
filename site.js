@@ -69,6 +69,12 @@ async function loadSection(container) {
 function setupContactLinks() {
   const contact = document.querySelector(".contact-copy");
   if (!contact) return;
+  if (!contact.querySelector(".contact-note")) {
+    const note = document.createElement("p");
+    note.className = "contact-note";
+    note.textContent = "Made it to the end, thank you. If anything here sparked questions or you’d like to talk about design, internships, or collaboration, I’d love to hear from you.";
+    contact.querySelector("h2")?.after(note);
+  }
   const resumePlaceholder = Array.from(contact.querySelectorAll(".contact-links span"))
     .find(span => span.textContent.trim().toLowerCase() === "resume");
   if (resumePlaceholder) {
@@ -112,7 +118,24 @@ function workSlug(link) {
   return new URL(link.href).pathname.split("/").pop().replace(/\.html$/, "");
 }
 
-function projectCard(link) {
+function cardCaption(text, number) {
+  const caption = document.createElement("div");
+  caption.className = "project-card-caption";
+  const title = document.createElement("span");
+  title.className = "project-card-title";
+  title.textContent = text;
+  caption.append(title);
+  if (number != null) {
+    const index = document.createElement("span");
+    index.className = "project-card-index";
+    index.setAttribute("aria-hidden", "true");
+    index.textContent = String(number).padStart(2, "0");
+    caption.append(index);
+  }
+  return caption;
+}
+
+function projectCard(link, number) {
   const card = document.createElement("a");
   card.className = "project-card";
   card.href = link.href;
@@ -130,22 +153,61 @@ function projectCard(link) {
     : new URL("assets/covers/" + workSlug(link) + ".jpg", siteRoot).href;
   frame.append(cover);
 
-  const title = document.createElement("span");
-  title.className = "project-card-title";
-  title.textContent = (link.querySelector(".work-name") || link).textContent.trim();
-  card.append(frame, title);
+  const title = (link.querySelector(".work-name") || link).textContent.trim();
+  card.append(frame, cardCaption(title, number));
   return card;
 }
 
-function projectGrid(links) {
+function projectGrid(links, slots = 0) {
   const grid = document.createElement("ul");
   grid.className = "project-grid";
-  for (const link of links) {
+  for (const [index, link] of links.entries()) {
     const item = document.createElement("li");
-    item.append(projectCard(link));
+    item.append(projectCard(link, slots ? index + 1 : null));
+    grid.append(item);
+  }
+  for (let index = links.length; index < slots; index++) {
+    const item = document.createElement("li");
+    item.className = "coming-soon";
+    const frame = document.createElement("div");
+    frame.className = "project-card-frame";
+    frame.setAttribute("aria-hidden", "true");
+    item.append(frame, cardCaption("Coming soon", index + 1));
     grid.append(item);
   }
   return grid;
+}
+
+function labelLink(link, text, arrow, before = false) {
+  const icon = document.createElement("span");
+  icon.className = "link-arrow";
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = arrow;
+  link.replaceChildren(...(before ? [icon, text] : [text, icon]));
+}
+
+function updateFeaturedFolders() {
+  const dates = { "convex": "2026", "moustachve-been-the-wind": "2025–2026", "specimen-tool": "2026" };
+  for (const folder of document.querySelectorAll(".folders .folder")) {
+    const link = folder.querySelector(".view-link");
+    if (!link) continue;
+    labelLink(link, "VIEW PROJECT", "→");
+    const slug = workSlug(link);
+    const group = workGroups.find(category => category.works.includes(slug));
+    const meta = folder.querySelector(".folder-sheet header > div");
+    const skills = meta?.querySelector("br")?.nextSibling?.textContent.trim();
+    if (!meta || !group || !dates[slug] || !skills) continue;
+
+    meta.classList.add("folder-meta");
+    const year = document.createElement("span");
+    year.textContent = dates[slug];
+    const category = document.createElement("span");
+    category.textContent = group.name;
+    const skillsLabel = document.createElement("span");
+    skillsLabel.className = "folder-skills";
+    skillsLabel.textContent = skills;
+    meta.replaceChildren(year, category, skillsLabel);
+  }
 }
 
 function groupWorks() {
@@ -165,12 +227,16 @@ function groupWorks() {
   tabs.setAttribute("aria-label", "Work categories");
   const gallery = document.createElement("div");
   gallery.className = "work-gallery";
-  gallery.append(tabs);
+  const panelStack = document.createElement("div");
+  panelStack.className = "gallery-panels";
+  gallery.append(tabs, panelStack);
   const panels = [];
 
   const assigned = new Set(workGroups.flatMap(group => group.works));
   const extras = links.map(workSlug).filter(slug => !assigned.has(slug));
   const groups = extras.length ? [...workGroups, { id: "other-work", name: "Other Work", works: extras }] : workGroups;
+  const longestGroup = Math.max(...groups.map(group => group.works.filter(slug => bySlug.has(slug)).length));
+  const slots = Math.max(6, Math.ceil(longestGroup / 3) * 3);
   for (const group of groups) {
     const members = group.works.map(slug => bySlug.get(slug)).filter(Boolean);
     if (!members.length) continue;
@@ -188,8 +254,8 @@ function groupWorks() {
     panel.id = group.id;
     const heading = document.createElement("h2");
     heading.textContent = group.name;
-    panel.append(heading, projectGrid(members));
-    gallery.append(panel);
+    panel.append(heading, projectGrid(members, slots));
+    panelStack.append(panel);
     panels.push({ group, tab, panel });
   }
   if (!panels.length) return;
@@ -197,7 +263,9 @@ function groupWorks() {
   function selectCategory() {
     const selected = panels.find(({ group }) => "#" + group.id === location.hash) || panels[0];
     for (const entry of panels) {
-      entry.panel.hidden = entry !== selected;
+      const inactive = entry !== selected;
+      entry.panel.hidden = inactive;
+      entry.panel.inert = inactive;
       if (entry === selected) entry.tab.setAttribute("aria-current", "location");
       else entry.tab.removeAttribute("aria-current");
     }
@@ -211,6 +279,7 @@ function groupWorks() {
     selectCategory();
   });
   tabs.style.setProperty("--tab-count", panels.length);
+  list.closest(".works-index")?.classList.add("has-gallery");
   list.replaceWith(gallery);
   selectCategory();
   window.addEventListener("hashchange", selectCategory);
@@ -226,7 +295,7 @@ function showProjectRecommendations() {
 
   const back = document.querySelector(".back-link");
   if (back) {
-    back.textContent = "BACK";
+    labelLink(back, "SEE ALL WORKS", "←", true);
     if (group) back.hash = group.id;
   }
   if (!group) return;
@@ -237,11 +306,12 @@ function showProjectRecommendations() {
   const section = document.createElement("section");
   section.className = "see-more";
   const heading = document.createElement("h2");
-  heading.textContent = "See more";
+  heading.textContent = "SEE MORE";
   section.append(heading, projectGrid(related));
   document.querySelector(".project-main").append(section);
 }
 
+if (page === "home") updateFeaturedFolders();
 if (page === "works") groupWorks();
 if (page === "project") showProjectRecommendations();
 
@@ -262,7 +332,10 @@ async function showResume() {
   pending.hidden = true;
 }
 
-if (page === "resume") showResume();
+if (page === "resume") {
+  document.querySelector(".resume-tab")?.remove();
+  showResume();
+}
 
 function setupScrollReveals() {
   if (reducedMotion.matches || !("IntersectionObserver" in window)) return;
