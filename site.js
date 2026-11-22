@@ -5,7 +5,29 @@ const page = document.body.dataset.page;
 const topNav = document.querySelector(".top-nav");
 const footerAnchor = document.getElementById("contact");
 const aboutSection = document.getElementById("about");
-const currentPageName = page === "home" ? "Home" : "Works";
+const currentPageName = page === "home" ? "Home" : page === "resume" ? "" : "Works";
+const siteRoot = new URL(".", document.currentScript.src);
+const resumeURL = new URL("resume.html", siteRoot).href;
+const isReload = performance.getEntriesByType("navigation")[0]?.type === "reload";
+
+function clearPageHash() {
+  if (location.hash) history.replaceState(history.state, "", location.pathname + location.search);
+}
+
+if (isReload) {
+  // Clear anchor jumps and override native scroll restoration for an explicit reload.
+  history.scrollRestoration = "manual";
+  clearPageHash();
+  window.scrollTo({ top: 0, behavior: "instant" });
+  window.addEventListener("pageshow", () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    // Finish after the browser's load-time anchor and focus adjustments.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      history.scrollRestoration = "auto";
+    }));
+  }, { once: true });
+}
 
 function updateNavigation() {
   const distance = window.scrollY;
@@ -30,11 +52,41 @@ updateNavigation();
 async function loadSection(container) {
   const response = await fetch(container.dataset.include);
   if (!response.ok) return;
-  container.innerHTML = await response.text();
+  if (!container.contains(document.activeElement)) container.innerHTML = await response.text();
 }
+function setupContactLinks() {
+  const contact = document.querySelector(".contact-copy");
+  if (!contact) return;
+  const resumePlaceholder = Array.from(contact.querySelectorAll(".contact-links span"))
+    .find(span => span.textContent.trim().toLowerCase() === "resume");
+  if (resumePlaceholder) {
+    const resume = document.createElement("a");
+    resume.href = resumeURL;
+    resume.textContent = resumePlaceholder.textContent;
+    if (page === "resume") resume.setAttribute("aria-current", "page");
+    resumePlaceholder.replaceWith(resume);
+  }
+
+  if (contact.querySelector(".to-top")) return;
+  const toTop = document.createElement("a");
+  toTop.className = "to-top";
+  toTop.href = "#top";
+  topNav.id ||= "top";
+  toTop.textContent = "Back to top";
+  toTop.addEventListener("click", event => {
+    event.preventDefault();
+    clearPageHash();
+    topNav.querySelector("a")?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: reducedMotion.matches ? "instant" : "smooth" });
+  });
+  contact.append(toTop);
+}
+
+setupContactLinks();
 if (location.protocol !== "file:") {
   const includes = Array.from(document.querySelectorAll("[data-include]"), loadSection);
   Promise.allSettled(includes).then(() => {
+    setupContactLinks();
     setupScrollReveals();
     if (["#about", "#contact"].includes(location.hash)) {
       document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "instant" });
@@ -50,48 +102,96 @@ document.querySelector(".contact-panel").addEventListener("focusin", event => {
   if (!event.currentTarget.contains(front)) footerAnchor.scrollIntoView({ behavior: "instant" });
 });
 
-function setupTabBar(bar) {
-  const track = bar.querySelector(".tab-track");
-  const [previous, next] = bar.querySelectorAll("button");
-  const labels = Array.from(track.querySelectorAll(".file-tab span"));
-  function sizeTabs() {
-    if (!labels.length) return;
-    const widest = Math.max(...labels.map(label => label.offsetWidth));
-    const padding = getComputedStyle(labels[0].parentElement);
-    const width = widest + parseFloat(padding.paddingLeft) + parseFloat(padding.paddingRight);
-    track.style.setProperty("--file-tab-width", Math.ceil(width) + "px");
-  }
-  function setButtons() {
-    const overflow = track.scrollWidth > bar.clientWidth + 2;
-    previous.hidden = next.hidden = !overflow;
-    previous.disabled = track.scrollLeft < 2;
-    next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
-  }
-  function revealCurrent() {
-    sizeTabs();
-    setButtons();
-    const active = track.querySelector('[aria-current="page"]');
-    if (!active) return;
-    const box = active.getBoundingClientRect();
-    const viewport = track.getBoundingClientRect();
-    if (box.right > viewport.right || box.left < viewport.left) {
-      track.scrollLeft += box.left - viewport.left - (track.clientWidth - box.width) / 2;
-    }
-    setButtons();
-  }
-  bar.addEventListener("click", event => {
-    const button = event.target.closest("button[data-pan]");
-    if (button) track.scrollBy({
-      left: Number(button.dataset.pan) * track.clientWidth * .8,
-      behavior: reducedMotion.matches ? "instant" : "smooth"
-    });
-  });
-  track.addEventListener("scroll", setButtons, { passive: true });
-  window.addEventListener("resize", revealCurrent);
-  revealCurrent();
-  document.fonts.ready.then(revealCurrent);
+// Keep the categories here so existing project HTML, media and case-study links can stay in place.
+const workGroups = [
+  { id: "product-ux", name: "Digital Product UX", works: ["convex", "netflix", "amazon", "gio"] },
+  { id: "learning-tools", name: "Learning & Design Tools", works: ["eduvision", "specimen-tool"] },
+  { id: "playtesting-analysis", name: "Playtesting & Analysis", works: ["order-kopi-lah", "stray", "order-up"] },
+  { id: "game-level-design", name: "Game & Level Design", works: ["moustachve-been-the-wind", "key-to-purrdom", "game-feel", "molten-motion"] }
+];
+
+function workSlug(link) {
+  return new URL(link.href).pathname.split("/").pop().replace(/\.html$/, "");
 }
-document.querySelectorAll(".tab-bar").forEach(setupTabBar);
+
+function groupWorks() {
+  const list = document.querySelector(".work-list");
+  const links = Array.from(list.querySelectorAll(".work-entry"));
+  // Preserve the original three featured URLs used by older bookmarks.
+  const legacy = { "#p1": "convex", "#p2": "moustachve-been-the-wind", "#p3": "specimen-tool" };
+  const bySlug = new Map(links.map(link => [workSlug(link), link]));
+  const oldLink = bySlug.get(legacy[location.hash]);
+  if (oldLink) {
+    location.replace(oldLink.href);
+    return;
+  }
+
+  for (const group of workGroups) {
+    const members = group.works.map(slug => bySlug.get(slug)).filter(Boolean);
+    if (!members.length) continue;
+    const section = document.createElement("section");
+    section.className = "works-group";
+    section.id = group.id;
+
+    const heading = document.createElement("h2");
+    const openGroup = document.createElement("a");
+    openGroup.href = members[0].href;
+    openGroup.textContent = group.name;
+    heading.append(openGroup);
+
+    const groupedList = document.createElement("ul");
+    groupedList.className = "work-list";
+    groupedList.setAttribute("aria-label", group.name);
+    groupedList.append(...members.map(link => link.closest("li")));
+    section.append(heading, groupedList);
+    list.before(section);
+  }
+  if (!list.children.length) list.remove();
+  // A direct link back to a category should land there after sections are built.
+  const category = workGroups.find(group => location.hash === "#" + group.id);
+  if (category) document.getElementById(category.id)?.scrollIntoView({ behavior: "instant" });
+}
+
+function showProjectGroup() {
+  const track = document.querySelector(".tab-track");
+  const tabs = Array.from(track.querySelectorAll(".file-tab"));
+  const active = tabs.find(tab => tab.getAttribute("aria-current") === "page");
+  const group = active && workGroups.find(group => group.works.includes(workSlug(active)));
+  if (group) {
+    const available = new Map(tabs.map(tab => [workSlug(tab), tab]));
+    const visible = group.works.map(slug => available.get(slug)).filter(Boolean);
+    track.replaceChildren(...visible);
+    track.style.setProperty("--tab-count", visible.length);
+    track.setAttribute("aria-label", group.name + " projects");
+  }
+  const back = document.querySelector(".back-link");
+  if (back) {
+    back.textContent = "BACK";
+    if (group) back.hash = group.id;
+  }
+}
+
+if (page === "works") groupWorks();
+if (page === "project") showProjectGroup();
+
+async function showResume() {
+  const pdf = document.querySelector(".resume-pdf");
+  const pending = document.querySelector(".resume-pending");
+  const link = document.querySelector(".open-pdf");
+  if (location.protocol !== "file:") {
+    try {
+      const response = await fetch(link.href, { method: "HEAD" });
+      if (!response.ok) return;
+    } catch {
+      return;
+    }
+  }
+  pdf.src = link.href;
+  pdf.hidden = link.hidden = false;
+  pending.hidden = true;
+}
+
+if (page === "resume") showResume();
 
 function setupScrollReveals() {
   if (reducedMotion.matches || !("IntersectionObserver" in window)) return;
@@ -188,12 +288,6 @@ for (const box of document.querySelectorAll("[data-youtube]")) {
   frame.referrerPolicy = "strict-origin-when-cross-origin";
   frame.src = "https://www.youtube-nocookie.com/embed/" + id;
   box.replaceChildren(frame);
-}
-
-// Old featured-project bookmarks continue to open their corresponding case study.
-if (page === "works" && /^#p[1-3]$/.test(location.hash)) {
-  const index = Number(location.hash.slice(2)) - 1;
-  location.replace(document.querySelectorAll(".work-entry")[index].href);
 }
 
 if (page === "home") {

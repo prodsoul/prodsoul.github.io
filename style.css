@@ -4,42 +4,42 @@
   font-display: swap;
 }
 :root {
-    --paper: #d8d5cb;
-    --ink: #272622;
-    --soft: #48463e;
-    --red: #783c43;
-    --hover: #901c37;
-    --tab-active: var(--kraft);
-    --tab-inactive: #c9c4b6;
-    --label-tape: #ece4ce;
-    /* Add your tileable image in assets/ and replace none with url("assets/paper-texture.jpg"). */
-    --paper-texture: url("stainedpaper.jpg");
-    --texture-opacity: .18;
-    --texture-size: 480px auto;
-    --kraft: #baac90;
-    --sage: #989b86;
-    --slate: #92a0a4;
-    --wine: #482627;
-    --edge: clamp(1.25rem, 4.2vw, 5rem);
-    --nav: clamp(62px, 8svh, 88px);
-    --tab: clamp(30px, 3.2svh, 40px);
-    --gap: clamp(24px, 5svh, 60px);
-    --peek: calc(var(--tab) + clamp(18px, 3svh, 36px));
-    --cat-width: min(39vw, 55svh);
-    font-family: "Tox Typewriter", "Courier New", monospace;
-    color: var(--ink);
-    background: var(--paper);
+  --paper: #d8d5cb;
+  --ink: #272622;
+  --soft: #48463e;
+  --red: #783c43;
+  --hover: #901c37;
+  --tab-active: var(--kraft);
+  --tab-inactive: #c9c4b6;
+  --label-tape: #ece4ce;
+  /* CSS image paths are relative to style.css, including on project pages. */
+  --paper-texture: url("assets/stainedpaper.jpg");
+  --texture-opacity: .24;
+  --texture-size: cover;
+  --kraft: #baac90;
+  --sage: #989b86;
+  --slate: #92a0a4;
+  --wine: #482627;
+  --edge: clamp(1.25rem, 4.2vw, 5rem);
+  --nav: clamp(62px, 8svh, 88px);
+  --tab: clamp(43px, 5.2svh, 57px);
+  --gap: clamp(24px, 5svh, 60px);
+  --peek: calc(var(--tab) + clamp(18px, 3svh, 36px));
+  --cat-width: min(39vw, 55svh);
+  font-family: "Tox Typewriter", "Courier New", monospace;
+  color: var(--ink);
+  background: var(--paper);
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
 body::after {
   content: "";
   position: fixed; inset: 0; z-index: 20; pointer-events: none;
-  background: var(--paper-texture) repeat top left / var(--texture-size);
+  background: var(--paper-texture) center / var(--texture-size) no-repeat;
   opacity: var(--texture-opacity);
   mix-blend-mode: multiply;
 }
-html { scroll-behavior: smooth; }
+html { overflow-anchor: none; }
 h1,h2,p,dl,dd,figure { margin: 0; }
 h1,h2 { font-weight: normal; }
 a { color: inherit; text-decoration: none; }
@@ -85,8 +85,10 @@ main { position: relative; z-index: 1; background: var(--paper); }
 .folder { position: sticky; top: calc(var(--gap) + var(--tab)); padding: 10px clamp(10px,1vw,20px) 14px;
   background: var(--stock); border-radius: 11px 11px 6px 6px; display: flex; flex-direction: column;
   min-height: calc(100svh - var(--gap) - var(--tab)); box-shadow: 0 -3px 10px #27262218; }
+/* The first tab joins the folder at the left edge, so it owns that corner. */
+.folder:first-child { border-top-left-radius: 0; }
 .folder-tab,.all-tab {
-  position: absolute; bottom: 100%; left: calc(var(--slot) * 24%);
+  position: absolute; bottom: calc(100% - 1px); left: calc(var(--slot) * 24%);
   height: var(--tab); width: 24%; font-size: clamp(.84rem, 1.15vw, 1.2rem);
 }
 .all-tab { left: auto; right: 0; width: 28%; --stock: #393933; }
@@ -116,6 +118,12 @@ main { position: relative; z-index: 1; background: var(--paper); }
 .folder-tab span,.all-tab span {
   overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 10px);
 }
+.all-tab span {
+  padding: 0;
+  color: var(--paper);
+  background: transparent;
+  box-shadow: none;
+}
 .work-name { display: inline-block; transition: transform .18s ease, color .18s ease; transform-origin: left center; }
 @media (hover:hover) {
   .folder-tab:hover::before,.all-tab:hover::before,.file-tab:hover::before {
@@ -124,6 +132,7 @@ main { position: relative; z-index: 1; background: var(--paper); }
   .folder-tab:hover span,.all-tab:hover span,.file-tab:hover span {
     transform: translateY(-4px) scale(1.025); color: var(--hover);
   }
+  .all-tab:hover span { color: #fff7e8; }
   .work-entry:hover .work-name { transform: scale(1.025); color: var(--hover); }
 }
 .folder-sheet { background: var(--paper); border-radius: 3px; padding: clamp(20px,2.7vw,46px);
@@ -145,7 +154,7 @@ main { position: relative; z-index: 1; background: var(--paper); }
 .media-box img { display:block; width: 100%; height: 100%; object-fit: contain; }
 .folder-body .media-box { background: transparent; color: var(--soft); border: 1px dashed #807c70; }
 .about-section,.works-index { padding: max(6rem,12svh) var(--edge); }
-.about-inner { width: min(55ch,100%); }
+.about-inner { width: min(100%, max(31rem, 42.5vw)); }
 .about-section h2,.works-index h1 { font-size: clamp(3rem,6.7vw,7rem); line-height: 1; margin-bottom: 1.5rem; text-transform: uppercase; }
 .about-inner p { font-size: clamp(1.1rem,1.6vw,1.5rem); line-height: 1.5; margin-top: 1em; }
 .contact-anchor { height: 0; }
@@ -157,32 +166,55 @@ main { position: relative; z-index: 1; background: var(--paper); }
 .contact-copy h2 { text-transform: uppercase; line-height: 1; font-size: clamp(2.8rem,8.22vw,10rem); margin-bottom: 2.6svh; }
 .contact-links { display: flex; align-items: center; justify-content: space-between; gap: 1em; }
 .contact-links > * { color: var(--ink); }
+.contact-links [aria-current] { color: var(--red); }
+.to-top {
+  display: inline-flex; align-items: center; min-height: 44px;
+  margin-top: .55rem; text-transform: uppercase; color: var(--soft);
+}
+.to-top:hover,.works-group h2 a:hover,.open-pdf:hover { color: var(--hover); }
 .works-index { min-height: 100svh; padding-top: calc(var(--nav) + 4rem); }
+.works-group { margin-block: 2.4rem; scroll-margin-top: 1.5rem; }
+.works-group h2 {
+  font-size: clamp(1.4rem,2.3vw,2.35rem); line-height: 1.2;
+  border-bottom: 1px solid #848174; padding-bottom: .65rem;
+}
+.works-group h2 a { display: inline-flex; align-items: center; min-height: 44px; }
 .work-list { list-style: none; padding: 0; width: 100%; margin: 0; }
 .work-list li { border-bottom: 1px dotted #848174; }
-.work-entry { padding: 1rem 0; display: flex; align-items: center; gap: clamp(16px,3vw,4rem); }
-.work-entry::before { content: ""; width: 1.3rem; height: .85rem; background: var(--tab-inactive); border-radius: 3px 4px 0 0; flex-shrink: 0; }
+.work-entry { padding: .65rem 0; display: flex; align-items: center; gap: clamp(12px,1.7vw,2rem); }
+.work-entry::before { content: ""; width: .35rem; height: .35rem; background: currentColor; border-radius: 50%; flex-shrink: 0; }
 .work-name { font-size: clamp(1.25rem,2.4vw,2.5rem); }
 .work-type { color: var(--soft); margin-left: auto; text-align: right; }
 .project-main {
   --stock: var(--tab-active);
   padding-top: calc(var(--nav) + clamp(12px,2svh,30px));
 }
-.tab-bar { display: flex; align-items: stretch; min-width: 0; }
+.tab-bar { min-width: 0; }
 .tab-track {
-  display: flex; min-width: 0; gap: 3px; padding-top: 9px;
-  overflow-x: auto; overscroll-behavior-x: contain;
-  flex: 1; scrollbar-width: thin; scrollbar-color: #9a978b var(--paper);
+  display: grid; min-width: 0; gap: 3px; padding: 8px 0 0;
+  grid-template-columns: repeat(var(--tab-count, 4), minmax(0,1fr));
 }
-.file-tab {
+.tab-bar .pan { display: none; }
+.file-tab,.resume-tab {
   --stock: var(--tab-inactive);
-  display: flex; flex: 0 0 var(--file-tab-width, 17rem); min-width: 0;
-  min-height: 47px; padding: .3rem 25px .3rem 12px;
+  min-width: 0; min-height: 34px; padding: .24rem clamp(14px,2vw,28px) .24rem .55rem;
+  font-size: clamp(.82rem,1.1vw,1rem);
 }
-.file-tab[aria-current] { --stock: var(--tab-active); }
-.file-tab span { flex: none; }
-.pan { background: transparent; cursor: pointer; border: 0; padding: 0 .5rem; min-width: 42px; font-size: 1.6rem; }
-.pan:disabled { opacity: .28; cursor: default; }
+.file-tab[aria-current],.resume-tab { --stock: var(--tab-active); }
+.file-tab span { max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.12; }
+.resume-tab {
+  position: relative; isolation: isolate; display: flex; align-items: center;
+  width: min(13rem,48%); margin-top: 8px;
+}
+.resume-tab::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--stock); border-radius: 8px 15px 0 0;
+  clip-path: shape(from 0 8px, curve to 8px 0 with 0 0,
+    line to calc(100% - 24px) 0,
+    curve to calc(100% - 15px) 6px with calc(100% - 19px) 0,
+    line to 100% 100%, line to 0 100%, close);
+}
+.resume-tab span { padding: .15em .52em; background: var(--label-tape); }
 [hidden] { display: none !important; }
 .case-sheet {
   /* Keep the folder in document flow so adding case-study content extends its border. */
@@ -206,8 +238,13 @@ main { position: relative; z-index: 1; background: var(--paper); }
 .play-mark { font-size: 2.5rem !important; line-height: 1; }
 .video-slot:has(iframe) { display: block; }
 .video-slot iframe { width: 100%; height: 100%; border: 0; }
+.resume-sheet { align-items: start; }
+.resume-viewer { width: 100%; max-width: 54rem; min-width: 0; }
+.resume-pdf { display: block; width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid #848174; background: var(--paper); }
+.resume-pending { padding: 1.5rem 0; }
+.open-pdf { display: inline-flex; align-items: center; min-height: 44px; }
 @media (max-width: 580px) {
-  .tab-bar .pan { display: none; }
+  .tab-track { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 @media (max-width: 720px) {
   .case-sheet { grid-template-columns: 1fr; }
@@ -227,7 +264,7 @@ main { position: relative; z-index: 1; background: var(--paper); }
   .intro h1 { font-size: clamp(3.3rem,12vw,5rem); line-height: 1.05; }
   .intro p { font-size: min(4vw,1.17rem); line-height: 1.35; }
   .hero-cat, .footer-cat { right: 3%; }
-  .footer-cat { bottom: 28%; }
+  .footer-cat { bottom: 35%; }
   .contact-copy h2 { font-size: 14vw; }
   .contact-links { font-size: 1.08rem; }
   .contact-content { width: 100%; }
