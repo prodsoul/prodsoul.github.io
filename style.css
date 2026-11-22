@@ -649,3 +649,21 @@ html.intro-active .welcome {
 /* While a category is still settling in, the project boxes ignore the pointer completely. */
 .work-gallery.settling .project-card-frame,
 .work-gallery.settling .project-card-caption { pointer-events: none; }
+
+/* Case studies use the same grid, with compact sections and captions for the evidence. */
+.case-section {
+  display: grid; gap: .6rem;
+}
+.case-section > h2 {
+  font-size: clamp(1.2rem, 1.9vw, 1.85rem); line-height: 1.2;
+}
+.case-section > .case-pair { margin-top: .35rem; }
+.case-visual { aspect-ratio: 16 / 9; }
+.case-placeholder {
+  background: transparent; color: var(--soft); border: 1px dashed #807c70;
+}
+.case-placeholder figcaption { padding-inline: clamp(.55rem, 2vw, 1rem); }
+.case-video figcaption a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  text-decoration: underline; text-underline-offset: .18em;
+}

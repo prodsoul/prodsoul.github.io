@@ -38,30 +38,46 @@
     <aside class="case-intro">
       <a class="back-link" href="../works.html">Back to all works</a>
       <h1>3D Specimen Adaptation Tool</h1>
-      <p>I built a tool to bring the markings from an insect photo onto a 3D specimen. The viewer can trace visible markings and inspect the result on a model.</p>
+      <p>I built a Unity developer tool that transfers colours and markings from insect photos onto prepared 3D specimens for EduVision. It grew from a ladybug proof of concept to three insect types with ten photo-mappable regions.</p>
       <dl>
-        <div><dt>Date</dt><dd>Year 3 · Trimester 1</dd></div>
+        <div><dt>Date</dt><dd>November 2026</dd></div>
         <div><dt>Project type</dt><dd>Solo project</dd></div>
         <div><dt>Organisation</dt><dd>DigiPen Institute of Technology</dd></div>
-        <div><dt>My role</dt><dd>Prototype designer and developer</dd></div>
-        <div><dt>Methods used</dt><dd>Unity, photo tracing, 3D interaction</dd></div>
+        <div><dt>My role</dt><dd>System designer and Unity prototype developer</dd></div>
+        <div><dt>Methods used</dt><dd>Unity, C#, image processing, 3D interaction, testing</dd></div>
       </dl>
     </aside>
     <div class="case-story">
-      <!-- Paste a YouTube watch, share, Shorts or embed URL between the quotes below.
-           Until then this space is a labelled placeholder. -->
-      <div class="video-slot" data-youtube="" data-video-title="3D Specimen Adaptation Tool walkthrough">
-        <span class="play-mark" aria-hidden="true">▷</span><span>YouTube walkthrough</span>
-      </div>
-      <p>[Introduce the experience shown above. Describe who it was for and what you wanted someone to be able to do.]</p>
-      <div class="case-pair">
-        <!-- To add an image, replace the figcaption inside its figure with
-             <img src="../assets/your-image.jpg" alt="Describe the screen or interaction"> -->
-        <figure class="media-box "><figcaption>Photo tracing interface</figcaption></figure>
-        <figure class="media-box "><figcaption>3D model preview</figcaption></figure>
-      </div>
-      <p>[Use these two images to explain a design decision. Describe what you tried, what you observed, and how the next version changed.]</p>
-      <p>[Close with the outcome and what you learned. Add credits for any work shown here that was created by a teammate.]</p>
+      <figure class="case-video">
+        <div class="video-slot" data-youtube="https://youtu.be/60DYkS7XbvM" data-video-title="EduVision specimen tool showcase">
+          <span>EduVision specimen tool showcase</span>
+        </div>
+        <figcaption><a href="https://youtu.be/60DYkS7XbvM">EduVision specimen tool showcase on YouTube</a></figcaption>
+      </figure>
+      <section class="case-section">
+        <h2>The production problem</h2>
+        <p>I built this desktop tool for the EduVision team so they could reuse a prepared model and adapt its appearance by body part. Developers choose a photo and a region, start from a detected outline or draw one, then correct the boundary and preview the fit before applying it.</p>
+      </section>
+      <section class="case-section">
+        <h2>Giving developers control over the fit</h2>
+        <p>Photographs introduced reflections on shells and background patches around wing edges. I added targeted glare reduction and background cleanup, and kept direct outline editing so developers could correct a poor initial fit. The tool also supports mirroring a single wing and comparing with the original model.</p>
+        <div class="case-pair">
+          <!-- To add images, remove case-placeholder and replace each figcaption with your img tag. -->
+          <!-- Add the photo fitting screen with an editable outline around a shell, wing or abdomen and the preview control visible. -->
+          <figure class="media-box case-placeholder">
+            <figcaption>Editable photo outline and preview</figcaption>
+          </figure>
+          <!-- Add a source photo and corresponding result on the 3D model, with the original appearance beside it for comparison. -->
+          <figure class="media-box case-placeholder">
+            <figcaption>Source photo and adapted model</figcaption>
+          </figure>
+        </div>
+      </section>
+      <section class="case-section">
+        <h2>What the tests showed</h2>
+        <p>All 50 automated fitting attempts completed on prepared test images. In six manual runs on my test machine, applying a specimen’s appearance took about two and a half to three and a half minutes per run.</p>
+        <p>The automatic outline missed part of one dragonfly abdomen. That helped me identify where manual correction mattered. The timings describe this prototype on one machine, with no baseline production timing available.</p>
+      </section>
     </div>
   </article>
 </main>
