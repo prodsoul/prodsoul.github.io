@@ -433,78 +433,63 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 html.intro-active body { overflow: hidden; }
 html.intro-active .welcome {
   position: fixed; inset: 0; z-index: 100; overflow: hidden;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 4rem var(--edge);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding: clamp(3.5rem, 22.5svh, 15rem) var(--edge) 2rem;
   background: linear-gradient(var(--paper-wash), var(--paper-wash)),
     var(--paper-texture) center / cover no-repeat, var(--paper);
   transition: opacity .5s ease;
 }
 .welcome.leaving { opacity: 0; pointer-events: none; }
-.welcome-top {
-  position: absolute; top: 0; left: 0; right: 0; padding: 1.4rem var(--edge) 0;
-  display: flex; justify-content: space-between; gap: 1rem;
-  font-family: var(--display-font); text-transform: uppercase; font-size: clamp(.78rem,1.1vw,1rem);
-  color: var(--soft);
+.welcome-corner {
+  position: absolute; top: clamp(1.2rem, 3.2svh, 2.2rem); right: clamp(1.5rem, 2.8vw, 3rem);
+  display: grid; justify-items: end; gap: clamp(.9rem, 2.4svh, 1.5rem); text-align: right;
 }
-.welcome-center { position: relative; z-index: 1; display: grid; justify-items: center; text-align: center; gap: 0; }
+.welcome-corner button {
+  padding: 0; background: none; border: 0; cursor: pointer; color: var(--ink);
+  font-family: var(--display-font); text-transform: uppercase; font-size: clamp(.95rem, 1.25vw, 1.2rem);
+  text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 2px;
+  transition: color .18s;
+}
+.welcome-corner button:hover { color: var(--hover); }
+.welcome-skip { display: block; }
+.welcome-note { margin: -.6rem 0 0; font-size: clamp(.78rem, .95vw, .92rem); line-height: 1.5; color: var(--soft); }
+.welcome-center { position: relative; z-index: 1; display: grid; justify-items: center; text-align: center; width: 100%; }
 .welcome-title {
-  font-size: clamp(3.2rem, 11vw, 9rem); line-height: 1; text-transform: uppercase;
+  font-size: clamp(2.2rem, 5.6vw, 5.8rem); line-height: 1; text-transform: uppercase; white-space: nowrap;
   animation: welcome-rise .7s ease both;
 }
 .welcome-sub {
-  margin-top: .9rem; font-size: clamp(1rem,1.7vw,1.5rem); color: var(--soft);
+  margin-top: clamp(.8rem, 2.2svh, 1.4rem); font-size: clamp(1rem, 1.7vw, 1.5rem); letter-spacing: .08em; color: var(--soft);
   animation: welcome-rise .7s .12s ease both;
 }
-.welcome-prompt {
-  margin-top: clamp(1.8rem, 6svh, 4rem); display: grid; justify-items: center; gap: 1.1rem;
+.welcome-status {
+  margin-top: clamp(3rem, 15svh, 9rem); min-height: 1.5em; font-size: clamp(1rem, 1.45vw, 1.35rem);
+  letter-spacing: .06em; color: var(--soft);
   animation: welcome-rise .7s .25s ease both;
 }
-.welcome-status { font-size: clamp(1rem,1.5vw,1.35rem); color: var(--ink); min-height: 1.5em; }
-.welcome-status b { font-family: var(--display-font); font-weight: 400; letter-spacing: .08em; }
-.welcome-typing { display: flex; gap: clamp(8px,1.2vw,16px); cursor: text; }
-.welcome-key {
-  position: relative; display: grid; place-items: center;
-  width: clamp(46px,6.2vw,72px); aspect-ratio: 1; border-radius: 50%;
-  font-family: var(--display-font); font-size: clamp(1.3rem,2.4vw,2.2rem); text-transform: uppercase;
-  color: var(--soft); background: var(--label-tape); border: 3px solid #686659;
-  box-shadow: 0 5px 0 #686659; transition: transform .08s ease, box-shadow .08s ease, background .12s, color .12s;
+.welcome-status b { font-weight: inherit; }
+
+/* The typewriter: a close-up of the ribbon. Letters are struck at one fixed point and the paper slides left. */
+.tw {
+  position: relative; overflow: hidden; isolation: isolate;
+  width: min(820px, 92vw); aspect-ratio: 800 / 270;
+  margin-top: clamp(1rem, 2.2svh, 1.8rem);
+  border: 1px solid #aaa79b; border-radius: 6px; box-shadow: 0 10px 28px rgba(39,38,34,.22);
+  animation: welcome-rise .7s .35s ease both;
 }
-.welcome-key.typed { transform: translateY(4px); box-shadow: 0 1px 0 #686659; background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.welcome-key.next { border-color: var(--red); color: var(--red); }
-.welcome-key.next::after {
-  content: ""; position: absolute; bottom: -18px; width: 1.2em; height: 2px; background: var(--red);
-  animation: caret-blink 1s steps(1) infinite;
+.tw-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.tw-paper {
+  position: absolute; inset: 0; pointer-events: none;
+  /* The strike point sits at x = 392 of 800 and the letters' baseline just above the ribbon (y = 146 of 270). */
 }
-.welcome-typing.shake { animation: welcome-shake .35s ease; }
-.welcome-hint { font-size: clamp(.82rem,1.05vw,1rem); color: var(--soft); max-width: 40ch; }
-.welcome-input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
-.welcome-actions {
-  margin-top: clamp(1.8rem, 6svh, 3.5rem); display: flex; gap: clamp(1.5rem,6vw,5rem); justify-content: center;
-  animation: welcome-rise .7s .4s ease both;
+.tw-text {
+  position: absolute; right: 51.5%; bottom: 46%; white-space: pre; line-height: 1;
+  font-family: var(--display-font); font-size: clamp(1.7rem, 4.2vw, 2.9rem); color: #25224a;
+  text-shadow: 0 0 1px rgba(37,34,74,.45);
 }
-.welcome-actions button {
-  min-height: 44px; padding: 0 .2rem; background: none; border: 0; cursor: pointer;
-  font-family: var(--display-font); text-transform: uppercase; font-size: clamp(1rem,1.6vw,1.4rem);
-  border-bottom: 2px solid transparent; transition: color .18s, border-color .18s;
-}
-.welcome-actions button:hover { color: var(--hover); border-bottom-color: var(--hover); }
-.welcome-note { margin-top: .4rem; font-size: clamp(.78rem,.95vw,.92rem); color: var(--soft); }
-.welcome-bottom {
-  position: absolute; bottom: 1.2rem; left: var(--edge);
-  font-size: clamp(.78rem,.95vw,.92rem); color: var(--soft);
-}
-.welcome-cat {
-  position: absolute; right: 3.5%; bottom: -12%; width: min(30vw, 46svh); height: auto;
-  pointer-events: none; animation: welcome-peek 1s .3s ease both;
-}
+.tw-bar { transform: translateY(240px); }
+
 @keyframes welcome-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes welcome-peek { from { transform: translateY(40%); } to { transform: none; } }
-@keyframes welcome-shake { 20%,60% { transform: translateX(-7px); } 40%,80% { transform: translateX(7px); } }
-@media (max-width: 640px) {
-  .welcome-top span:nth-child(2) { display: none; }
-  .welcome-cat { width: 38vw; right: -4%; }
-  .welcome-bottom { display: none; }
-}
 @media (prefers-reduced-motion: reduce) {
-  .typing.idle::before, .welcome-key.next::after { animation: none; }
+  .typing.idle::before { animation: none; }
 }
