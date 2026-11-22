@@ -29,12 +29,24 @@ if (isReload) {
   }, { once: true });
 }
 
+let lastScroll = Math.max(0, window.scrollY);
+let scrollingDown = false;
+const homeFolders = document.querySelector(".folders");
+
 function updateNavigation() {
-  const distance = window.scrollY;
+  const distance = Math.max(0, window.scrollY);
+  if (Math.abs(distance - lastScroll) >= 6) {
+    scrollingDown = distance > lastScroll;
+    lastScroll = distance;
+  }
+  const navHeight = topNav.offsetHeight;
   const atContact = footerAnchor.getBoundingClientRect().top < window.innerHeight * .45;
   const atAbout = aboutSection && aboutSection.getBoundingClientRect().top < window.innerHeight * .55;
   const active = atContact ? "Contact" : atAbout ? "About" : currentPageName;
-  topNav.classList.toggle("fading", distance > 48);
+  const hideOnHome = page === "home" && distance > 48 &&
+    homeFolders && homeFolders.getBoundingClientRect().bottom > navHeight + 2;
+  const hideOnProject = page === "project" && distance > navHeight && scrollingDown;
+  topNav.classList.toggle("fading", Boolean(hideOnHome || hideOnProject));
   for (const link of topNav.querySelectorAll("a")) {
     if (link.textContent === active) {
       link.setAttribute("aria-current", atContact || atAbout ? "location" : "page");
@@ -66,20 +78,6 @@ function setupContactLinks() {
     if (page === "resume") resume.setAttribute("aria-current", "page");
     resumePlaceholder.replaceWith(resume);
   }
-
-  if (contact.querySelector(".to-top")) return;
-  const toTop = document.createElement("a");
-  toTop.className = "to-top";
-  toTop.href = "#top";
-  topNav.id ||= "top";
-  toTop.textContent = "Back to top";
-  toTop.addEventListener("click", event => {
-    event.preventDefault();
-    clearPageHash();
-    topNav.querySelector("a")?.focus({ preventScroll: true });
-    window.scrollTo({ top: 0, behavior: reducedMotion.matches ? "instant" : "smooth" });
-  });
-  contact.append(toTop);
 }
 
 setupContactLinks();
@@ -114,65 +112,138 @@ function workSlug(link) {
   return new URL(link.href).pathname.split("/").pop().replace(/\.html$/, "");
 }
 
+function projectCard(link) {
+  const card = document.createElement("a");
+  card.className = "project-card";
+  card.href = link.href;
+
+  const frame = document.createElement("div");
+  frame.className = "project-card-frame";
+  const cover = document.createElement("img");
+  cover.alt = "";
+  cover.loading = "lazy";
+  cover.decoding = "async";
+  cover.className = "project-card-image";
+  cover.addEventListener("load", () => { cover.classList.add("loaded"); }, { once: true });
+  cover.src = link.dataset.cover
+    ? new URL(link.dataset.cover, siteRoot).href
+    : new URL("assets/covers/" + workSlug(link) + ".jpg", siteRoot).href;
+  frame.append(cover);
+
+  const title = document.createElement("span");
+  title.className = "project-card-title";
+  title.textContent = (link.querySelector(".work-name") || link).textContent.trim();
+  card.append(frame, title);
+  return card;
+}
+
+function projectGrid(links) {
+  const grid = document.createElement("ul");
+  grid.className = "project-grid";
+  for (const link of links) {
+    const item = document.createElement("li");
+    item.append(projectCard(link));
+    grid.append(item);
+  }
+  return grid;
+}
+
 function groupWorks() {
   const list = document.querySelector(".work-list");
+  if (!list) return;
   const links = Array.from(list.querySelectorAll(".work-entry"));
-  // Preserve the original three featured URLs used by older bookmarks.
-  const legacy = { "#p1": "convex", "#p2": "moustachve-been-the-wind", "#p3": "specimen-tool" };
   const bySlug = new Map(links.map(link => [workSlug(link), link]));
+  const legacy = { "#p1": "convex", "#p2": "moustachve-been-the-wind", "#p3": "specimen-tool" };
   const oldLink = bySlug.get(legacy[location.hash]);
   if (oldLink) {
     location.replace(oldLink.href);
     return;
   }
 
-  for (const group of workGroups) {
+  const tabs = document.createElement("nav");
+  tabs.className = "tab-track gallery-tabs";
+  tabs.setAttribute("aria-label", "Work categories");
+  const gallery = document.createElement("div");
+  gallery.className = "work-gallery";
+  gallery.append(tabs);
+  const panels = [];
+
+  const assigned = new Set(workGroups.flatMap(group => group.works));
+  const extras = links.map(workSlug).filter(slug => !assigned.has(slug));
+  const groups = extras.length ? [...workGroups, { id: "other-work", name: "Other Work", works: extras }] : workGroups;
+  for (const group of groups) {
     const members = group.works.map(slug => bySlug.get(slug)).filter(Boolean);
     if (!members.length) continue;
-    const section = document.createElement("section");
-    section.className = "works-group";
-    section.id = group.id;
 
+    const tab = document.createElement("a");
+    tab.className = "file-tab";
+    tab.href = "#" + group.id;
+    const label = document.createElement("span");
+    label.textContent = group.name;
+    tab.append(label);
+    tabs.append(tab);
+
+    const panel = document.createElement("section");
+    panel.className = "gallery-panel";
+    panel.id = group.id;
     const heading = document.createElement("h2");
-    const openGroup = document.createElement("a");
-    openGroup.href = members[0].href;
-    openGroup.textContent = group.name;
-    heading.append(openGroup);
-
-    const groupedList = document.createElement("ul");
-    groupedList.className = "work-list";
-    groupedList.setAttribute("aria-label", group.name);
-    groupedList.append(...members.map(link => link.closest("li")));
-    section.append(heading, groupedList);
-    list.before(section);
+    heading.textContent = group.name;
+    panel.append(heading, projectGrid(members));
+    gallery.append(panel);
+    panels.push({ group, tab, panel });
   }
-  if (!list.children.length) list.remove();
-  // A direct link back to a category should land there after sections are built.
-  const category = workGroups.find(group => location.hash === "#" + group.id);
-  if (category) document.getElementById(category.id)?.scrollIntoView({ behavior: "instant" });
+  if (!panels.length) return;
+
+  function selectCategory() {
+    const selected = panels.find(({ group }) => "#" + group.id === location.hash) || panels[0];
+    for (const entry of panels) {
+      entry.panel.hidden = entry !== selected;
+      if (entry === selected) entry.tab.setAttribute("aria-current", "location");
+      else entry.tab.removeAttribute("aria-current");
+    }
+  }
+
+  tabs.addEventListener("click", event => {
+    const tab = event.target.closest(".file-tab");
+    if (!tab || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    if (location.hash !== tab.hash) history.pushState(history.state, "", tab.hash);
+    selectCategory();
+  });
+  tabs.style.setProperty("--tab-count", panels.length);
+  list.replaceWith(gallery);
+  selectCategory();
+  window.addEventListener("hashchange", selectCategory);
 }
 
-function showProjectGroup() {
+function showProjectRecommendations() {
   const track = document.querySelector(".tab-track");
-  const tabs = Array.from(track.querySelectorAll(".file-tab"));
-  const active = tabs.find(tab => tab.getAttribute("aria-current") === "page");
-  const group = active && workGroups.find(group => group.works.includes(workSlug(active)));
-  if (group) {
-    const available = new Map(tabs.map(tab => [workSlug(tab), tab]));
-    const visible = group.works.map(slug => available.get(slug)).filter(Boolean);
-    track.replaceChildren(...visible);
-    track.style.setProperty("--tab-count", visible.length);
-    track.setAttribute("aria-label", group.name + " projects");
-  }
+  const tabs = Array.from(track?.querySelectorAll(".file-tab") || []);
+  const current = tabs.find(tab => tab.getAttribute("aria-current") === "page");
+  const slug = current ? workSlug(current) : location.pathname.split("/").pop().replace(/\.html$/, "");
+  const group = workGroups.find(group => group.works.includes(slug));
+  track?.closest(".tab-bar")?.remove();
+
   const back = document.querySelector(".back-link");
   if (back) {
     back.textContent = "BACK";
     if (group) back.hash = group.id;
   }
+  if (!group) return;
+
+  const bySlug = new Map(tabs.map(tab => [workSlug(tab), tab]));
+  const related = group.works.filter(member => member !== slug).map(member => bySlug.get(member)).filter(Boolean);
+  if (!related.length) return;
+  const section = document.createElement("section");
+  section.className = "see-more";
+  const heading = document.createElement("h2");
+  heading.textContent = "See more";
+  section.append(heading, projectGrid(related));
+  document.querySelector(".project-main").append(section);
 }
 
 if (page === "works") groupWorks();
-if (page === "project") showProjectGroup();
+if (page === "project") showProjectRecommendations();
 
 async function showResume() {
   const pdf = document.querySelector(".resume-pdf");
@@ -196,7 +267,7 @@ if (page === "resume") showResume();
 function setupScrollReveals() {
   if (reducedMotion.matches || !("IntersectionObserver" in window)) return;
   const blocks = document.querySelectorAll(
-    ".folder-sheet > *, .about-inner > *, .work-list > li, .case-intro, .case-story > *, .contact-copy"
+    ".folder-sheet > *, .about-inner > *, .case-intro, .case-story > *, .see-more, .contact-copy"
   );
   const seen = new IntersectionObserver(entries => {
     for (const entry of entries) {
