@@ -35,6 +35,7 @@ async function loadSection(container) {
 if (location.protocol !== "file:") {
   const includes = Array.from(document.querySelectorAll("[data-include]"), loadSection);
   Promise.allSettled(includes).then(() => {
+    setupScrollReveals();
     if (["#about", "#contact"].includes(location.hash)) {
       document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "instant" });
     }
@@ -52,6 +53,14 @@ document.querySelector(".contact-panel").addEventListener("focusin", event => {
 function setupTabBar(bar) {
   const track = bar.querySelector(".tab-track");
   const [previous, next] = bar.querySelectorAll("button");
+  const labels = Array.from(track.querySelectorAll(".file-tab span"));
+  function sizeTabs() {
+    if (!labels.length) return;
+    const widest = Math.max(...labels.map(label => label.offsetWidth));
+    const padding = getComputedStyle(labels[0].parentElement);
+    const width = widest + parseFloat(padding.paddingLeft) + parseFloat(padding.paddingRight);
+    track.style.setProperty("--file-tab-width", Math.ceil(width) + "px");
+  }
   function setButtons() {
     const overflow = track.scrollWidth > bar.clientWidth + 2;
     previous.hidden = next.hidden = !overflow;
@@ -59,6 +68,7 @@ function setupTabBar(bar) {
     next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
   }
   function revealCurrent() {
+    sizeTabs();
     setButtons();
     const active = track.querySelector('[aria-current="page"]');
     if (!active) return;
@@ -82,6 +92,78 @@ function setupTabBar(bar) {
   document.fonts.ready.then(revealCurrent);
 }
 document.querySelectorAll(".tab-bar").forEach(setupTabBar);
+
+function setupScrollReveals() {
+  if (reducedMotion.matches || !("IntersectionObserver" in window)) return;
+  const blocks = document.querySelectorAll(
+    ".folder-sheet > *, .about-inner > *, .work-list > li, .case-intro, .case-story > *, .contact-copy"
+  );
+  const seen = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      seen.unobserve(entry.target);
+      if (!reducedMotion.matches) {
+        entry.target.animate(
+          [{ opacity: .58, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }],
+          { duration: 590, easing: "cubic-bezier(.18,.7,.24,1)" }
+        );
+      }
+    }
+  });
+  blocks.forEach(block => seen.observe(block));
+}
+
+function setupGentleWheel() {
+  const precisePointer = matchMedia("(any-pointer: fine)");
+  let frame = 0;
+  let target = 0;
+  let position = 0;
+
+  function stop() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+  }
+
+  function step() {
+    position += (target - position) * .22;
+    if (Math.abs(target - position) < 1) {
+      position = target;
+      frame = 0;
+    } else {
+      frame = requestAnimationFrame(step);
+    }
+    window.scrollTo({ top: position, behavior: "instant" });
+  }
+
+  window.addEventListener("wheel", event => {
+    if (reducedMotion.matches || !precisePointer.matches || !event.cancelable ||
+        event.ctrlKey || event.metaKey || event.shiftKey ||
+        Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+    const element = event.target instanceof Element ? event.target : event.target.parentElement;
+    if (element?.closest(".tab-track, [contenteditable], input, textarea, select")) return;
+    for (let node = element; node && node !== document.body; node = node.parentElement) {
+      if (node.scrollHeight > node.clientHeight && /^(auto|scroll)$/.test(getComputedStyle(node).overflowY)) return;
+    }
+
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    if (max <= 0) return;
+    if (!frame) position = target = window.scrollY;
+    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
+    target = Math.max(0, Math.min(max, target + event.deltaY * unit * .74));
+    event.preventDefault();
+    if (!frame) frame = requestAnimationFrame(step);
+  }, { passive: false });
+
+  // Direct navigation, keyboard scrolling and dragging the scrollbar take priority.
+  window.addEventListener("pointerdown", stop);
+  window.addEventListener("keydown", stop);
+  window.addEventListener("hashchange", stop);
+  window.addEventListener("resize", stop);
+  reducedMotion.addEventListener("change", stop);
+}
+
+setupGentleWheel();
+if (location.protocol === "file:") setupScrollReveals();
 
 function videoId(value) {
   let url;
