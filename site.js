@@ -13,6 +13,8 @@ const isReload = performance.getEntriesByType("navigation")[0]?.type === "reload
 // Declared up here because typing starts while the script is still loading.
 // Typing waits while this time is in the future: the paper-flip sound plays in full before a title starts typing.
 let typingHoldUntil = 0;
+// Works page: true while the paper-flip sound or a category title's typing is still going.
+let worksSettling = () => false;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SR_ONLY = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap";
 
@@ -467,6 +469,8 @@ function setupGentleWheel() {
   // Going back up through the landing-page folders covers the same ground with a little less wheel travel.
   // 1 = same as going down; 1.35 = about a quarter less scrolling. Raise or lower to taste.
   const FOLDERS_UP_BOOST = 1.35;
+  // Going through the landing-page folders (either way) is a little quicker than everywhere else.
+  const FOLDERS_SPEED = 1.3;
   function inLandingFolders() {
     if (page !== "home" || !homeFolders) return false;
     const box = homeFolders.getBoundingClientRect();
@@ -505,8 +509,9 @@ function setupGentleWheel() {
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
     // Every page scrolls gently and glides to a stop. The cap keeps even a hard flick slow, so a quick
     // scroll no longer outruns (and cancels) the typing.
-    ease = .055;
-    const boost = event.deltaY < 0 && inLandingFolders() ? FOLDERS_UP_BOOST : 1;
+    const inFolders = inLandingFolders();
+    ease = inFolders ? .07 : .055;
+    const boost = (event.deltaY < 0 && inFolders ? FOLDERS_UP_BOOST : 1) * (inFolders ? FOLDERS_SPEED : 1);
     target += event.deltaY * unit * .35 * boost;
     target = Math.max(position - 380 * boost, Math.min(position + 380 * boost, target));
     target = Math.max(0, Math.min(max, target));
@@ -930,7 +935,7 @@ function setupHomeTyping() {
 const HOVER_TOTAL = 1050;
 
 function setupCardHoverTyping() {
-  if (plainMode) return;
+  if (plainMode) return () => {};
   // Typing starts only while the pointer is over the visible box or its title, and replays every time
   // the pointer enters a box (including after switching tabs). Leaving puts the normal title back.
   let current = null;
@@ -943,6 +948,7 @@ function setupCardHoverTyping() {
   }
   function update() {
     if (!last) return;
+    if (worksSettling()) { stopHover(); return; }
     const found = document.elementFromPoint(last.x, last.y)?.closest?.(".project-card");
     if (found === current?.card) return;
     stopHover();
@@ -965,10 +971,25 @@ function setupCardHoverTyping() {
   });
   document.documentElement.addEventListener("pointerleave", () => { last = null; stopHover(); });
   window.addEventListener("hashchange", () => { stopHover(); requestAnimationFrame(update); });
+  return update;
 }
 
 function setupWorksTyping() {
-  setupCardHoverTyping();
+  const refreshHover = setupCardHoverTyping();
+  let titleGroups = [];
+  worksSettling = () => performance.now() < typingHoldUntil ||
+    titleGroups.some(group => group.state === "running" || (group.state === "pending" && group.visible()));
+  const gallery = document.querySelector(".work-gallery");
+  if (gallery) {
+    let was = false;
+    setInterval(() => {
+      const now = worksSettling();
+      if (now === was) return;
+      was = now;
+      gallery.classList.toggle("settling", now);
+      if (!now) refreshHover();
+    }, 80);
+  }
 
   if (plainMode) return;
   // Each category title is remembered once it has typed, so it never replays (until the site is reloaded).
@@ -984,6 +1005,7 @@ function setupWorksTyping() {
       group.onDone = () => markTyped(panel.id);
       return group;
     });
+  titleGroups = groups;
   setupScrollTyping(groups);
 }
 

@@ -544,11 +544,25 @@ html.intro-active .welcome {
 
 @media (max-width: 640px) and (orientation: portrait) {
   /* Contact: the text sits near the top and the cat fills the bottom of the screen. */
-  .contact-panel { align-content: start; padding-top: calc(var(--nav) + 8svh); }
+  .contact-panel { align-content: start; padding-top: calc(var(--nav) + 1svh); }
+  /* The cat is pushed a little below the bottom edge, so its cut edge is never visible. */
   .footer-cat {
-    display: block; right: auto; left: 50%; bottom: 0; transform: translateX(-50%);
+    display: block; right: auto; left: 50%; bottom: 0; transform: translate(-50%, 9%);
     --cat-width: min(73vw, 33svh);
   }
+  /* dvh follows the browser bars as they slide away, so the panel always reaches the bottom of the screen. */
+  @supports (height: 100dvh) { .contact-panel { min-height: max(100dvh, 310px); } }
+
+  /* The paper texture stays on a fixed layer behind everything, so no edge of the page is ever bare. */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(var(--paper-wash), var(--paper-wash)), var(--paper-texture) center / cover no-repeat, var(--paper);
+  }
+
+  /* Landing page: no cat up top, so the intro flows from the top and the folders follow close behind. */
+  .hero-cat { display: none; }
+  .hero { height: auto; min-height: 0; padding-bottom: calc(var(--peek) + 1.5rem); }
+  .intro { position: relative; top: auto; bottom: auto; left: auto; margin-left: var(--edge); padding-top: calc(var(--nav) + 4svh); }
 
   /* Landing folders: one wide project tab plus "See all works" on every folder, and each folder
      fills the screen (lvh = the tallest the screen gets once the browser bars slide away). */
@@ -592,16 +606,17 @@ html.intro-active .welcome {
   .work-gallery[data-view="index"] .gallery-tabs .file-tab:last-child {
     margin-bottom: 0; height: calc(var(--pitch) + var(--notch) + 22px);
   }
+  .work-gallery[data-view="index"] .gallery-tabs .file-tab:last-child::before { border-radius: 12px 0 18px 18px; }
   .work-gallery[data-view="index"] .gallery-panels { display: none; }
 
   /* A category is open: its tab sits on top of the projects, with a way back to all categories. */
   .work-gallery[data-view="category"] .gallery-back { display: inline-flex; padding-inline: var(--edge); }
   .work-gallery[data-view="category"] .gallery-tabs .file-tab:not([aria-current]) { display: none; }
   .work-gallery[data-view="category"] .gallery-tabs .file-tab {
-    --pitch: 34px; --notch: 16px; --label-top: 8px;
+    --pitch: 28px; --notch: 16px; --label-top: 7px;
     margin-bottom: -1px; font-size: min(4.7vw, 1.2rem);
   }
-  .work-gallery[data-view="category"] .gallery-panels { flex: 1; border-radius: 0 6px 6px 6px; }
+  .work-gallery[data-view="category"] .gallery-panels { flex: 1; border-radius: 0 6px 18px 18px; padding-top: 8px; }
   .work-gallery[data-tone="1"] .gallery-panels { background: var(--t1); }
   .work-gallery[data-tone="2"] .gallery-panels { background: var(--t2); }
   .work-gallery[data-tone="3"] .gallery-panels { background: var(--t3); }
@@ -625,3 +640,9 @@ html.intro-active .welcome {
   }
   .case-extra { margin-top: .6rem; color: var(--soft); font-size: .95rem; line-height: 1.4; }
 }
+
+/* Works page: while a category's paper-flip sound and title typing are still going, the project boxes
+   do not react to the pointer. */
+.work-gallery.settling .project-card:hover .project-card-frame { transform: none; box-shadow: none; }
+.work-gallery.settling .project-card:hover .project-card-image { transform: none; }
+.work-gallery.settling .project-card:hover .project-card-title { color: inherit; }
