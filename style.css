@@ -540,7 +540,6 @@ html.intro-active .welcome {
 /* Copies of "See all works" that phones show on every landing folder. */
 .all-tab-extra { display: none; }
 .gallery-back { display: none; }
-.case-meta { display: none; }
 
 @media (max-width: 640px) and (orientation: portrait) {
   /* Contact: the text sits near the top and the cat fills the bottom of the screen. */
@@ -626,19 +625,6 @@ html.intro-active .welcome {
   /* More room around the project boxes. */
   .work-gallery .gallery-panel { padding: 28px 24px 36px; }
   .gallery-panel .project-grid { gap: 28px; }
-
-  /* Project pages: date, category and methods instead of the Date / Role / Methods list. */
-  .case-intro dl { display: none; }
-  .case-meta {
-    display: grid; justify-items: start; gap: .3rem;
-    margin: 0 0 1.4rem; padding-bottom: 1.1rem; border-bottom: 1px dotted #686659;
-    font-size: 1rem;
-  }
-  .case-category { text-transform: uppercase; }
-  .case-skills {
-    margin-top: .6rem; padding: .2rem .5rem; background: #27262212; text-transform: uppercase;
-  }
-  .case-extra { margin-top: .6rem; color: var(--soft); font-size: .95rem; line-height: 1.4; }
 }
 
 /* Works page: while a category's paper-flip sound and title typing are still going, the project boxes
@@ -646,3 +632,20 @@ html.intro-active .welcome {
 .work-gallery.settling .project-card:hover .project-card-frame { transform: none; box-shadow: none; }
 .work-gallery.settling .project-card:hover .project-card-image { transform: none; }
 .work-gallery.settling .project-card:hover .project-card-title { color: inherit; }
+
+/* Project pages: date, category and methods instead of the Date / Role / Methods list (all screen sizes). */
+.case-intro dl { display: none; }
+.case-meta {
+  display: grid; justify-items: start; gap: .3rem;
+  margin: 0 0 1.4rem; padding-bottom: 1.1rem; border-bottom: 1px dotted #686659;
+  font-size: clamp(1rem, 1.3vw, 1.3rem);
+}
+.case-category { text-transform: uppercase; }
+.case-skills {
+  margin-top: .6rem; padding: .2rem .5rem; background: #27262212; text-transform: uppercase;
+}
+.case-extra { margin-top: .6rem; color: var(--soft); font-size: .95em; line-height: 1.4; }
+
+/* While a category is still settling in, the project boxes ignore the pointer completely. */
+.work-gallery.settling .project-card-frame,
+.work-gallery.settling .project-card-caption { pointer-events: none; }

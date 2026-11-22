@@ -933,6 +933,8 @@ function setupHomeTyping() {
 
 // Every hover title takes about as long as "Netflix Mobile Discovery" did: short titles type slower, long ones faster.
 const HOVER_TOTAL = 1050;
+// The pointer has to rest on a box this long before its title starts typing, so just passing over is calm.
+const HOVER_DELAY = 280;
 
 function setupCardHoverTyping() {
   if (plainMode) return () => {};
@@ -940,10 +942,12 @@ function setupCardHoverTyping() {
   // the pointer enters a box (including after switching tabs). Leaving puts the normal title back.
   let current = null;
   let last = null;
+  let timer = 0;
   function stopHover() {
+    clearTimeout(timer);
     if (!current) return;
     current.token.stop = true;
-    current.title.textContent = current.title.dataset.typedText;
+    if (current.started) current.title.textContent = current.title.dataset.typedText;
     current = null;
   }
   function update() {
@@ -955,9 +959,12 @@ function setupCardHoverTyping() {
     const title = found?.querySelector(".project-card-title");
     if (!title) return;
     const token = { stop: false };
-    current = { card: found, title, token };
-    const item = prepareText(title);
-    typeItem(item, 0, token, HOVER_TOTAL);
+    const entry = current = { card: found, title, token, started: false };
+    timer = setTimeout(() => {
+      if (current !== entry || worksSettling()) return;
+      entry.started = true;
+      typeItem(prepareText(title), 0, token, HOVER_TOTAL);
+    }, HOVER_DELAY);
   }
   document.addEventListener("pointermove", event => {
     if (event.pointerType === "touch") return;
@@ -977,18 +984,24 @@ function setupCardHoverTyping() {
 function setupWorksTyping() {
   const refreshHover = setupCardHoverTyping();
   let titleGroups = [];
+  let syncNow = () => {};
   worksSettling = () => performance.now() < typingHoldUntil ||
     titleGroups.some(group => group.state === "running" || (group.state === "pending" && group.visible()));
   const gallery = document.querySelector(".work-gallery");
   if (gallery) {
     let was = false;
-    setInterval(() => {
+    const sync = () => {
       const now = worksSettling();
       if (now === was) return;
       was = now;
       gallery.classList.toggle("settling", now);
       if (!now) refreshHover();
-    }, 80);
+    };
+    // Checked right away when a tab is chosen (so nothing can slip through before the next check) and often after.
+    document.addEventListener("click", event => { if (event.target.closest?.(".file-tab")) sync(); });
+    window.addEventListener("hashchange", () => requestAnimationFrame(sync));
+    setInterval(sync, 40);
+    syncNow = sync;
   }
 
   if (plainMode) return;
@@ -1006,6 +1019,7 @@ function setupWorksTyping() {
       return group;
     });
   titleGroups = groups;
+  setTimeout(() => syncNow(), 0); // after the whole script has run (it uses helpers declared further down)
   setupScrollTyping(groups);
 }
 
