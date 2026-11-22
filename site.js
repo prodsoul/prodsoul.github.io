@@ -176,6 +176,18 @@ function projectGrid(links, slots = 0) {
     item.append(frame, cardCaption("Coming soon", index + 1));
     grid.append(item);
   }
+    if (slots > 0) {
+    const coverSizes = new ResizeObserver(entries => {
+      for (const { target: frame } of entries) {
+        const caption = frame.nextElementSibling;
+        caption.style.inlineSize = `${frame.getBoundingClientRect().width}px`;
+      }
+    });
+
+    grid.querySelectorAll(".project-card-frame").forEach(frame => {
+      coverSizes.observe(frame);
+    });
+  }
   return grid;
 }
 
