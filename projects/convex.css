@@ -56,7 +56,7 @@
 .convex-phones--pair {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   width: 66%;
-  justify-self: center;
+  justify-self: start;
 }
 
 .convex-phones figure,
@@ -72,10 +72,6 @@
   height: auto;
 }
 
-.convex-paper img {
-  border: 2px solid var(--ink, #272622);
-  border-radius: .6rem;
-}
 
 .convex-case figcaption {
   margin: .55rem 0 0;
@@ -88,13 +84,23 @@
 .convex-case .convex-prototype {
   width: fit-content;
   max-width: 100%;
-  justify-self: center;
+  justify-self: start;
   color: var(--red, #783c43);
   font-family: var(--display-font, monospace);
   font-size: clamp(1.7rem, 3.8vw, 3.9rem);
-  text-align: center;
-  text-decoration: underline;
+  text-align: left;
+  text-decoration: none;
   text-underline-offset: .13em;
+}
+
+.convex-case .convex-prototype:hover {
+  text-decoration: underline;
+}
+
+.convex-case .convex-prototype--intro {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-size: clamp(1.25rem, 2vw, 2rem);
 }
 
 @media (min-width: 721px) {
@@ -128,6 +134,10 @@
     width: min(76%, 14rem);
     margin-inline: auto;
     gap: 1rem;
+  }
+
+  .convex-phones--pair {
+    margin-inline: 0 auto;
   }
 
   .convex-case .case-chapter-copy {
