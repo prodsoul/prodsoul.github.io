@@ -21,7 +21,7 @@
     '<div class="gate" id="gate" hidden></div>' +
     '<div class="fx fx-flick"></div><div class="fx fx-roll"></div><div class="fx fx-noise"></div><div class="fx fx-scan"></div><div class="fx fx-glare"></div><div class="fx fx-vig"></div>' +
     '</div></div>' +
-    '<div class="plate"><span class="led"></span><span class="brand" id="brand">Prodsoul Terminal 29007</span><button type="button" id="b-skip" hidden>skip</button><button type="button" id="b-snd"></button><button type="button" id="b-thm"></button></div>' +
+    '<div class="plate"><button type="button" class="pwr" id="b-pwr" aria-label="Power"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button><span class="led"></span><span class="brand" id="brand">Prodsoul Terminal 29007</span><button type="button" id="b-skip" hidden>skip</button><button type="button" id="b-snd"></button><button type="button" id="b-thm"></button></div>' +
     '</div></div>';
   var keep = [].slice.call(body.querySelectorAll("script, noscript, #doc"));
   body.insertAdjacentHTML("afterbegin", h);
@@ -54,7 +54,14 @@
       var t = setTimeout(f, ms); sleepers.push(f);
     });
   }
-  function skip() { fast = true; sleepers.slice().forEach(function (f) { f(); }); }
+  var navNow = null;
+  function working() { return booting || busy || leaving; }
+  /* skip: finish typing at once, drop any half-played screen animation, and cut straight to the next page when leaving */
+  function skip() {
+    fast = true; sleepers.slice().forEach(function (f) { f(); });
+    screen.classList.remove("on", "flash", "glitch");
+    if (navNow) { screen.style.opacity = "0"; navNow(); }
+  }
 
   /* ---------- dom helpers ---------- */
   function el(tag, cls, content) {
@@ -63,7 +70,13 @@
     return e;
   }
   function scrollEnd(force) { if (force) follow = true; if (follow) scroller.scrollTop = scroller.scrollHeight; }
-  scroller.addEventListener("scroll", function () { follow = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 50; });
+  /* auto-follow stops only when the visitor scrolls up on purpose, and resumes when they reach the bottom */
+  scroller.addEventListener("scroll", function () { if (scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 50) follow = true; });
+  scroller.addEventListener("wheel", function (e) { if (e.deltaY < 0) follow = false; }, { passive: true });
+  scroller.addEventListener("touchmove", function () { follow = false; }, { passive: true });
+  scroller.addEventListener("pointerdown", function (e) { if (e.target === scroller) follow = false; });
+  document.addEventListener("keydown", function (e) { if (["PageUp", "Home"].indexOf(e.key) > -1 || (e.key === "ArrowUp" && document.activeElement !== inp)) follow = false; });
+  if (window.ResizeObserver) new ResizeObserver(function () { scrollEnd(); }).observe(out);
   function ln(content, cls) {
     var d = el("div", "ln new" + (cls ? " " + cls : ""), content == null ? "" : content); out.append(d); scrollEnd(); return d;
   }
@@ -145,7 +158,7 @@
     var cols = Math.max.apply(null, rows.map(function (r) { return r.replace(/\s+$/, "").length; })), n = rows.length;
     var svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", "0 0 " + cols + " " + (n * 2)); svg.setAttribute("preserveAspectRatio", "none");
     svg.setAttribute("role", "img"); svg.setAttribute("aria-label", o.label || "name"); svg.setAttribute("shape-rendering", "crispEdges");
-    svg.style.cssText = "display:block;width:calc(" + cols + " * .6em);max-width:100%;height:auto;aspect-ratio:" + (cols * 0.6) + " / " + n + ";color:var(--bright);fill:currentColor;filter:drop-shadow(0 0 5px rgba(var(--fg-rgb),.75));margin:.15em 0 .5em";
+    svg.style.cssText = "display:block;font-size:" + (o.fs || "1em") + ";width:calc(" + cols + " * .6em);max-width:100%;height:auto;aspect-ratio:" + (cols * 0.6) + " / " + n + ";color:var(--bright);fill:currentColor;filter:drop-shadow(0 0 5px rgba(var(--fg-rgb),.75));margin:.15em 0 .5em";
     var groups = rows.map(function (row, r) {
       var g = document.createElementNS(NS, "g"); g.style.visibility = "hidden"; var c = 0;
       while (c < row.length) {
@@ -158,8 +171,7 @@
     for (var i = 0; i < groups.length; i++) { groups[i].style.visibility = "visible"; A.tick(); scrollEnd(); await sleep(o.delay || 80); }
     return svg;
   }
-  var PAD = ["    ___________________", "   /  _                \\", "  /  | |_    (Y)  (X)   \\", " |  _| |_|    (B)  (A)   |",
-    " | |_   _|     .--.      |", " |   |_|      /    \\     |", "  \\    ______/      \\____/", "   '--'"];
+  var CAT = ["    /\\_____/\\", "   /  o   o  \\", "  ( ==  ^  == )", "   )         (", "  (           )", " ( (  )   (  ) )", "(__(__)___(__)__)"];
 
   /* ---------- works, figures, video ---------- */
   function findWork(q) {
@@ -239,7 +251,11 @@
     var kids = [].slice.call(doc.children);
     for (var i = 0; i < kids.length; i++) {
       var n = kids[i], tag = n.tagName.toLowerCase(), cls = n.className;
-      if (tag === "h1") { var h1 = el("h1", "t ln new"); out.append(h1); await typeInto(h1, n.textContent, 55); }
+      if (tag === "h1") {
+        var rowsT = window.JB_TITLES && window.JB_TITLES[SLUG];
+        if (rowsT) { var hw = el("div", "ptitle"); out.append(hw); await blockArt(rowsT, { delay: 55, label: n.textContent, into: hw, fs: "1.1em" }); }
+        else { var h1 = el("h1", "t ln new"); out.append(h1); await typeInto(h1, n.textContent, 55); }
+      }
       else if (cls === "meta") {
         var m = el("div", "meta"); out.append(m);
         [].slice.call(n.children).forEach(function (li) { var r = el("div", "ln new"); r.append(el("span", "", li.dataset.k), el("span", "bright", li.textContent)); m.append(r); A.tick(); });
@@ -271,14 +287,15 @@
   async function go(file) {
     if (leaving) return; leaving = true; busy = true; pw.hidden = true; dock.hidden = true;
     if (/^https?:/.test(file) || /^mailto:/.test(file)) { location.href = file; return; }
+    var done = false, target = href(file);
+    navNow = function () { if (done) return; done = true; location.href = target; };
     A.seek(5);
     var d = ln("", "dim"); d.textContent = "connecting to " + file.replace(/^projects\//, "").replace(/^index.html\?home$/, "home") + " ..."; scrollEnd(true);
-    await new Promise(function (r) { setTimeout(r, 750); });
-    A.whoosh(); screen.classList.remove("on"); screen.classList.add("off"); A.powerOff();
-    setTimeout(function () { location.href = href(file); }, 1000);
+    setTimeout(function () { if (done) return; A.whoosh(); screen.classList.remove("on"); screen.classList.add("off"); A.powerOff(); }, 750);
+    setTimeout(navNow, 1750);
   }
   addEventListener("pageshow", function (e) {
-    if (e.persisted) { leaving = false; busy = false; screen.classList.remove("off"); screen.classList.add("on"); pw.hidden = false; dock.hidden = false; focusInput(); }
+    if (e.persisted) { leaving = false; navNow = null; busy = false; screen.style.opacity = ""; screen.classList.remove("off"); screen.classList.add("on"); pw.hidden = false; dock.hidden = false; focusInput(); }
   });
 
   /* ---------- prompt ---------- */
@@ -304,7 +321,7 @@
 
   var HOME = "index.html?home";
   var CMDS = [
-    ["navigate", [["home", "back to the home screen with my name"], ["works", "every project, with previews"], ["about", "who I am"], ["contact", "email and LinkedIn"],
+    ["navigate", [["home", "back to the home screen with my name"], ["projects", "the three showcase projects"], ["works", "every project, with previews"], ["about", "who I am"], ["contact", "email and LinkedIn"],
       ["resume", "read my resume"], ["open <name>", "open a project, e.g. open convex"], ["next / prev", "move between projects"], ["back", "go up one level"],
       ["cd <place>", "works, about, contact, resume, ~ or .."], ["ls [works]", "list projects"], ["pwd", "show where you are"]]],
     ["info", [["whoami", "one-line profile"], ["skills", "tools and methods"], ["neofetch", "system info"], ["top", "running processes"],
@@ -317,7 +334,7 @@
 
   def("help ?", async function () {
     var g = el("div", "help ln new"), rows = [
-      ["home", "back to the home screen"], ["works", "all projects with previews"], ["about", "who is Joann?"], ["open <name>", "open a project (try: open convex)"],
+      ["home", "back to the home screen"], ["projects", "the three showcase projects"], ["works", "all projects with previews"], ["about", "who is Joann?"], ["open <name>", "open a project (try: open convex)"],
       ["contact · resume", "reach me, read my resume"], ["theme <name>", "green · amber · blue · ice"], ["sound on|off", "clicks and beeps"],
       ["shutdown", "power off, back to the start"]
     ];
@@ -347,7 +364,8 @@
       out.append(d);
     } else ln("ls: cannot access '" + rest + "': No such file or directory", "warn");
   });
-  def("works projects", async function () { await workCards(WORKS); ln("open <name> to read a case study, e.g. open " + WORKS[0].alias, "dim"); });
+  def("works", async function () { await workCards(WORKS); ln("open <name> to read a case study, e.g. open " + WORKS[0].alias, "dim"); });
+  def("projects", async function () { await workCards(WORKS.filter(function (w) { return w.featured; })); ln("3 of " + WORKS.length + " shown. type `works` to see them all", "dim"); });
   def("cd", async function (arg) {
     arg = (arg || "~").replace(/\/$/, "");
     var map = { "~": HOME, "": HOME, "..": PAGE === "project" ? "works.html" : HOME, works: "works.html", about: "about.html", contact: "contact.html", resume: "resume.html" };
@@ -357,7 +375,7 @@
   });
   def("pwd", async function () { ln("/home/guest/" + cwd().replace(/^~\/?/, "")); });
   /* secret: plain `cat` shows the cat */
-  def("cat more less", async function (arg) {
+  def("cat sergio more less", async function (arg) {
     var a = (arg || "").toLowerCase();
     if (!a) return catPhoto();
     if (a === "about.txt") return C.about();
@@ -366,7 +384,7 @@
     if (a === ".tetris") return ln("cat: .tetris: binary file. run it with ./tetris", "warn");
     var w = findWork(a); if (w) return go("projects/" + w.slug + ".html");
     ln("cat: " + arg + ": No such file or directory", "warn");
-  }, false);
+  }, true);
   async function catPhoto() {
     var wrap = el("div", "shot cat-pic pend"), im = new Image(); im.src = href("assets/images/sergio.png"); im.alt = "My cat"; wrap.append(im);
     wrap.title = "click to toggle the screen filter"; wrap.addEventListener("click", function () { wrap.classList.toggle("clear"); });
@@ -375,7 +393,7 @@
   }
   def("neofetch", async function () {
     var box = el("div", "nf ln new"); out.append(box); var holder = el("div"); box.append(holder);
-    await art(PAD, { delay: 40, label: "ASCII game controller", into: holder });
+    await art(CAT, { delay: 70, label: "ASCII cat", into: holder });
     var info = el("div"); box.append(info);
     var up = Math.max(1, Math.round((Date.now() - t0) / 1000));
     var rows = [["guest@joann", null], ["-----------", null], ["OS", "PortfolioOS 1.0"], ["Role", "UX & Game Design student"], ["Location", "Singapore"],
@@ -452,8 +470,9 @@
     if (leaving) return; leaving = true; busy = true; pw.hidden = true; dock.hidden = true;
     ln("Broadcast message: the system is going down for power-off NOW.", "warn"); A.seek(4); await sleep(500);
     ln("Stopping services ... done", "dim"); await new Promise(function (r) { setTimeout(r, 750); });
+    var gone = false; navNow = function () { if (gone) return; gone = true; if (PAGE === "home" && !location.search) location.reload(); else location.href = href("index.html"); };
     A.whoosh(); screen.classList.remove("on"); screen.classList.add("off"); A.powerOff(); monitor.classList.remove("on-air");
-    setTimeout(function () { if (PAGE === "home" && !location.search) location.reload(); else location.href = href("index.html"); }, 1100);
+    setTimeout(navNow, 1100);
   }
 
   function loadScript(src) {
@@ -535,7 +554,7 @@
     if (inGame || !gate.hidden) return;
     konami(e);
     if (e.__unlockOnly) return;
-    if (booting || busy) {
+    if (working()) {
       if (e.metaKey || e.altKey) return;
       if (e.ctrlKey && e.key !== "c") return;
       if (["Shift", "Control", "Alt", "Meta", "Tab"].indexOf(e.key) > -1) return;
@@ -566,7 +585,7 @@
   });
   /* tap or click anywhere while something is typing: finish it instantly */
   screen.addEventListener("pointerdown", function (e) {
-    if (e.__unlockOnly || !(booting || busy) || inGame || !gate.hidden) return;
+    if (e.__unlockOnly || !working() || inGame || !gate.hidden) return;
     if (e.target.closest("a, button, iframe, .vid")) return;
     skip();
   });
@@ -593,7 +612,7 @@
   buildDock();
 
   /* ---------- boot and page intros ---------- */
-  setInterval(function () { var v = (booting || busy) && !inGame && !leaving && gate.hidden; bSkip.hidden = !v; mSkip.hidden = !v; }, 120);
+  setInterval(function () { var v = working() && !inGame && gate.hidden; bSkip.hidden = !v; mSkip.hidden = !v; }, 120);
   bSkip.addEventListener("click", skip); mSkip.addEventListener("click", skip);
 
   var W = 40;
@@ -616,23 +635,25 @@
   }
   function lightUp() { monitor.classList.add("on-air"); screen.classList.remove("off"); void screen.offsetWidth; screen.classList.add("on"); }
 
-  /* power-on screen: the one place a visitor picks sound, the plain site or the full experience */
+  /* power-on screen: a real power button, plus the plain-site and sound choices */
+  function doPowerOn() { if (gate.hidden) return; A.unlock(); gate.hidden = true; gate.innerHTML = ""; lightUp(); boot(); }
   function showGate() {
     busy = true; gate.hidden = false;
     gate.innerHTML = '<div class="gate-box"><div class="gate-title">PRODSOUL TERMINAL 29007</div><div class="gate-sub">standby</div>' +
-      '<button type="button" class="gbtn main" id="g-power">[ POWER ON ]</button>' +
-      '<a class="gbtn" id="g-plain" href="plain.html">[ PLAIN SITE ]</a>' +
-      '<div class="gate-snd">sound: <button type="button" class="gbtn sm" id="g-snd"></button></div>' +
+      '<button type="button" class="pbtn" id="g-power" aria-label="Power on"><span class="ring"></span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button>' +
+      '<div class="gate-hint">press the button to power on</div>' +
+      '<div class="gate-opts"><a class="gbtn" id="g-plain" href="plain.html">plain site</a>' +
+      '<div class="sw"><span>sound</span><button type="button" class="swb" id="g-snd" role="switch"><i></i></button></div></div>' +
       '<div class="gate-hint">power on starts the full terminal experience.<br>the plain site is a simple, easy-to-read version.</div></div>';
     var gs = gate.querySelector("#g-snd"), gp = gate.querySelector("#g-power");
-    function paintG() { gs.textContent = A.isOn() ? "[ ON ]" : "[ OFF ]"; }
+    function paintG() { gs.setAttribute("aria-checked", String(A.isOn())); gs.classList.toggle("on", A.isOn()); }
     paintG(); A.onChange(paintG);
     gs.addEventListener("click", function () { A.unlock(); A.setOn(!A.isOn()); if (A.isOn()) A.ok(); paintG(); paintSound(); });
-    gp.addEventListener("click", function () {
-      A.unlock(); gate.hidden = true; gate.innerHTML = ""; lightUp(); boot();
-    });
+    gp.addEventListener("click", doPowerOn);
     setTimeout(function () { try { gp.focus(); } catch (e) {} }, 50);
   }
+  /* the button on the monitor does the same thing: powers on from standby, shuts down otherwise */
+  $("#b-pwr").addEventListener("click", function () { if (!gate.hidden) doPowerOn(); else shutdown(); });
 
   async function boot() {
     booting = true; busy = true; pw.hidden = true; dock.hidden = true; fast = false;
@@ -642,7 +663,7 @@
     ln("UX-CORE(tm) 8 CORES @ 4.20GHz"); await sleep(150);
     await counter("MEMORY TEST  ", 65536, 4096, "OK"); await sleep(140); gap();
     ln("Detecting devices ...", "dim"); await sleep(240);
-    var devs = [["/dev/figma", "OK"], ["/dev/unity", "OK"], ["/dev/playtest", "OK"], ["/dev/kopi", "OK"], ["/dev/coffee", "ZZZ", "warn"]];
+    var devs = [["/dev/figma", "OK"], ["/dev/unity", "OK"], ["/dev/playtest", "OK"], ["/dev/kopi", "OK"], ["/dev/sergio", "ZZZ", "warn"]];
     for (var i = 0; i < devs.length; i++) { statusLine(devs[i][0], devs[i][1], devs[i][2]); A.seek(3); scrollEnd(); await sleep(200); }
     gap(); await sleep(140);
     ln("Loading kernel: PORTFOLIO_OS 1.0", "bright"); await progress(""); await sleep(120);
@@ -665,7 +686,7 @@
     ln("PORTFOLIO_OS 1.0   //   UX & GAME DESIGN   //   SINGAPORE", "dim"); await sleep(450); gap();
     await autoType("whoami"); await sleep(220); gap();
     await autoType("about"); await sleep(160);
-    await autoType("projects"); await sleep(120); gap();
+    await autoType("ls projects"); await sleep(120); gap();
     var hint = ln("", "dim"); await typeInto(hint, "Type `help` for commands, `commands` for the full list, or tap a shortcut below. Something is hiding in here. Try `ls -a`.", 110);
     finishIntro();
   }

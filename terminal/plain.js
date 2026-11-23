@@ -19,35 +19,38 @@
     a.append(th, tx); return rv(a, i);
   }
 
+  function aboutSection() {
+    var sec = el("section", "home-sec"); sec.id = "about";
+    sec.append(rv(el("div", "prompt", "guest@joann:~$ about")), rv(el("h2", "", "About me"), 1));
+    JB.about.forEach(function (t, i) { sec.append(rv(el("p", i ? "" : "lede", t), 2 + i)); });
+    var dl = el("dl", "skills"); JB.skills.forEach(function (s) { dl.append(el("dt", "", s[0]), el("dd", "", s[1])); }); sec.append(rv(dl, 4));
+    return sec;
+  }
+  function contactSection() {
+    var sec = el("section", "home-sec"); sec.id = "contact";
+    sec.append(rv(el("div", "prompt", "guest@joann:~$ contact")), rv(el("h2", "", "Contact me"), 1));
+    sec.append(rv(el("p", "lede dim", "Open to conversations about design, internships and collaboration."), 2));
+    var b = el("div", "big-links");
+    [["Email", JB.email, JB.links.email, 0], ["LinkedIn", "linkedin.com/in/joannbisseling", JB.links.linkedin, 1], ["Resume", "view the PDF", "#/resume", 0]].forEach(function (r, i) {
+      var a = link("", r[2], "", r[3]); a.append(el("b", "", r[0]), el("span", "", r[1])); a.firstChild.style.fontWeight = "normal"; b.append(rv(a, 3 + i));
+    }); sec.append(b); return sec;
+  }
   var views = {
     home: function () {
-      var f = document.createDocumentFragment();
-      f.append(rv(el("div", "prompt", "guest@joann:~$ whoami")), rv(el("h1", "", "Joann Bisseling"), 1));
-      f.append(rv(el("p", "lede dim", "UX & Game Design student · Singapore · open to internships"), 2));
-      JB.about.forEach(function (t, i) { f.append(rv(el("p", "", t), 3 + i)); });
-      var b = el("div", "btns"); b.append(link("View works", "#/works", "btn"), link("Contact", "#/contact", "btn"), link("Resume", "#/resume", "btn")); f.append(rv(b, 5));
+      var f = document.createDocumentFragment(), hero = el("section", "hero"); hero.id = "top-sec";
+      hero.append(rv(el("div", "prompt", "guest@joann:~$ whoami")), rv(el("h1", "", "Joann Bisseling"), 1));
+      hero.append(rv(el("p", "lede dim", "UX & Game Design student · Singapore · open to internships"), 2));
+      var b = el("div", "btns"); b.append(link("View works", "#/works", "btn"), link("About me", "#/about", "btn"), link("Contact", "#/contact", "btn"), link("Resume", "#/resume", "btn")); hero.append(rv(b, 3));
+      f.append(hero);
       var sh = el("div", "sec-head"); sh.append(el("h2", "", "Featured projects"), link("All works →", "#/works")); f.append(rv(sh));
       var g = el("div", "grid"); W.filter(function (w) { return w.featured; }).forEach(function (w, i) { g.append(card(w, i)); }); f.append(g);
+      f.append(aboutSection(), contactSection());
       return f;
     },
     works: function () {
       var f = document.createDocumentFragment(); f.append(rv(el("div", "prompt", "guest@joann:~/works$ ls")), rv(el("h1", "", "All works"), 1));
       f.append(rv(el("p", "lede dim", W.length + " projects across UX and game design."), 2));
       var g = el("div", "grid"); W.forEach(function (w, i) { g.append(card(w, i % 3)); }); f.append(g); return f;
-    },
-    about: function () {
-      var f = document.createDocumentFragment(); f.append(rv(el("div", "prompt", "guest@joann:~$ about")), rv(el("h1", "", "About"), 1));
-      JB.about.forEach(function (t, i) { f.append(rv(el("p", i ? "" : "lede", t), 2 + i)); });
-      f.append(rv(el("h2", "", "Skills")));
-      var dl = el("dl", "skills"); JB.skills.forEach(function (s) { dl.append(el("dt", "", s[0]), el("dd", "", s[1])); }); f.append(rv(dl, 1)); return f;
-    },
-    contact: function () {
-      var f = document.createDocumentFragment(); f.append(rv(el("div", "prompt", "guest@joann:~$ contact")), rv(el("h1", "", "Contact"), 1));
-      f.append(rv(el("p", "lede dim", "Open to conversations about design, internships and collaboration."), 2));
-      var b = el("div", "big-links");
-      [["Email", JB.email, JB.links.email, 0], ["LinkedIn", "linkedin.com/in/joannbisseling", JB.links.linkedin, 1], ["Resume", "view the PDF", "#/resume", 0]].forEach(function (r, i) {
-        var a = link("", r[2], "", r[3]); a.append(el("b", "", r[0]), el("span", "", r[1])); a.firstChild.style.fontWeight = "normal"; b.append(rv(a, 3 + i));
-      }); f.append(b); return f;
     },
     resume: function () {
       var f = document.createDocumentFragment(); f.append(rv(el("div", "prompt", "guest@joann:~$ resume")), rv(el("h1", "", "Resume"), 1));
@@ -108,16 +111,25 @@
     return f;
   }
 
-  var token = 0;
+  var token = 0, current = null;
+  function scrollToSection(sec) {
+    var t = sec ? document.getElementById(sec) : null;
+    if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); else window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  function setNav(name) { [].slice.call(document.querySelectorAll("#nav a")).forEach(function (a) { a.classList.toggle("on", a.dataset.r === name); }); }
   async function route() {
-    var h = location.hash.replace(/^#\/?/, ""), parts = h.split("/"), name = parts[0] || "home", my = ++token;
+    var h = location.hash.replace(/^#\/?/, ""), parts = h.split("/"), name = parts[0] || "home", my = ++token, section = null;
+    if (name === "about" || name === "contact") { section = name; name = "home"; }
+    if (name === "home" && current === "home") { scrollToSection(section); setNav(section || "home"); return; }
     main.replaceChildren(el("p", "loading", "loading ...")); window.scrollTo({ top: 0, behavior: "auto" });
     var content = name === "work" ? await project(parts[1]) : (views[name] || views.home)();
     if (my !== token) return;
+    current = name === "work" || views[name] ? name : "home";
     main.replaceChildren(content); main.classList.remove("swap"); void main.offsetWidth; main.classList.add("swap");
     document.title = (name === "work" ? ((findWork(parts[1]) || {}).title || "Project") : name === "home" ? "Joann Bisseling" : name.charAt(0).toUpperCase() + name.slice(1)) + " | Joann Bisseling";
-    [].slice.call(document.querySelectorAll("#nav a")).forEach(function (a) { a.classList.toggle("on", a.dataset.r === (name === "work" ? "works" : name)); });
+    setNav(section || (name === "work" ? "works" : name));
     [].slice.call(main.querySelectorAll(".rv")).forEach(function (n) { if (io) io.observe(n); else n.classList.add("in"); });
+    if (section) setTimeout(function () { scrollToSection(section); }, 350);
   }
   addEventListener("hashchange", route); route();
 
@@ -125,5 +137,10 @@
     var h = document.documentElement; top.classList.toggle("stuck", scrollY > 8);
     prog.style.width = (h.scrollHeight - innerHeight > 0 ? (scrollY / (h.scrollHeight - innerHeight)) * 100 : 0) + "%";
   }
-  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+  function spy() {
+    if (current !== "home") return; var line = innerHeight * 0.4, name = "home";
+    ["about", "contact"].forEach(function (id) { var t = document.getElementById(id); if (t && t.getBoundingClientRect().top <= line) name = id; });
+    setNav(name);
+  }
+  addEventListener("scroll", function () { onScroll(); spy(); }, { passive: true }); onScroll();
 })();
