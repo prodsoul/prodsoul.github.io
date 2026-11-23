@@ -592,8 +592,8 @@ const usesSound = !isPhone && (page === "home" || page === "works" || page === "
 const sound = usesSound ? createTypewriterSounds() : () => {};
 let heroTyping = false;
 let heroSkip = false;
+setupCat();
 if (page === "home") {
-  setupCat();
   setupCatFade();
   if (introActive) setupWelcome(hide => startInteractiveHome(hide));
   else if (typingEnabled) startInteractiveHome();
@@ -621,17 +621,38 @@ if (page === "works" || page === "project") {
 }
 
 function setupCat() {
-  const clips = ["assets/audio/meow/meow-1.wav", "assets/audio/meow/meow-2.wav", "assets/audio/meow/meow-3.wav"];
+  if (isPhone) return;
+  const cats = document.querySelectorAll("#cat, .contact-panel img.footer-cat");
+  if (!cats.length) return;
+
+  const clips = [1, 2, 3].map(number =>
+    new URL(`assets/audio/meow/meow-${number}.wav`, siteRoot).href
+  );
   const player = new Audio();
   let previous;
-  document.getElementById("cat").addEventListener("click", () => {
+
+  function meow() {
     if (soundMuted) return;
     const pool = clips.filter(clip => clip !== previous);
     previous = pool[Math.floor(Math.random() * pool.length)];
     player.pause();
     player.src = previous;
     player.play().catch(() => {});
-  });
+  }
+
+  for (const cat of cats) {
+    cat.addEventListener("click", meow);
+    if (cat.matches("img.footer-cat")) {
+      cat.setAttribute("role", "button");
+      cat.setAttribute("aria-label", "Make the cat meow");
+      cat.tabIndex = 0;
+      cat.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        if (!event.repeat) meow();
+      });
+    }
+  }
 }
 
 function createTypewriterSounds() {

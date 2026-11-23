@@ -25,7 +25,7 @@
   --tab-inactive: #c9c4b6;
   --label-tape: #ece4ce;
   /* CSS image paths are relative to style.css, including on project pages. */
-  --paper-texture: url("assets/images/background-texture.png");
+  --paper-texture: url("assets/images/background-texture.jpg");
   --texture-opacity: .24;
   --texture-size: cover;
   --kraft: #baac90;
@@ -201,6 +201,8 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   min-height: max(100svh,310px); display: grid; align-content: end; justify-items: start; isolation: isolate;
   overflow: hidden; padding: 0 var(--edge) max(8.8svh,env(safe-area-inset-bottom)); }
 .footer-cat { position: absolute; right: 3.5%; bottom: 0; z-index: -1; }
+.footer-cat[role="button"] { pointer-events: auto; cursor: pointer; }
+.footer-cat[role="button"]:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; }
 .contact-content { width: max-content; max-width: min(54vw,55rem); }
 .contact-note {
   max-width: 58ch; margin-bottom: clamp(18px,4.5svh,56px);
