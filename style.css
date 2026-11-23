@@ -555,30 +555,34 @@ html.intro-active .welcome {
   .resume-viewer { grid-column: 1; width: min(100%, 60rem); justify-self: center; }
 }
 
-/* Featured gameplay video */
-body[data-page="home"] #p2 .folder-body {
+/* Featured project videos */
+body[data-page="home"] :is(#p2, #p3) .folder-sheet > header {
+  align-items: center;
+}
+body[data-page="home"] :is(#p2, #p3) .folder-body {
   grid-template-columns: minmax(0, 1fr) minmax(0, 3.8fr);
 }
 
-body[data-page="home"] #p2 .folder-video {
+body[data-page="home"] :is(#p2, #p3) .folder-video {
   grid-column: 2 / -1;
   padding: 0;
   place-items: start;
 }
 
-/* Round the gameplay and trailer players */
-#p2 .folder-video-player,
-.wind-case .wind-player {
+/* Round the featured and case study video players. */
+.folders :is(#p2, #p3) .folder-video-player,
+.wind-case .wind-player,
+.specimen-player {
   border-radius: 8px;
   clip-path: inset(0 round 8px);
 }
 
 @media (max-width: 720px) {
-  body[data-page="home"] #p2 .folder-body {
+  body[data-page="home"] :is(#p2, #p3) .folder-body {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  body[data-page="home"] #p2 .folder-video {
+  body[data-page="home"] :is(#p2, #p3) .folder-video {
     grid-column: 1 / -1;
   }
 }
@@ -607,11 +611,18 @@ body[data-page="home"] #p2 .folder-video {
 .gallery-back { display: none; }
 
 @media (max-width: 640px) and (orientation: portrait) {
-  /* Contact: the text sits near the top and the cat fills the bottom of the screen. */
-  .contact-panel { align-content: start; padding-top: calc(var(--nav) + 1svh); }
-  /* The cat is pushed a little below the bottom edge, so its cut edge is never visible. */
+  /* Keep the contact information just above the cat, with both in the layout flow. */
+  .contact-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: clamp(1.5rem, 5svh, 2.5rem);
+    padding-block: calc(var(--nav) + 1svh) 0;
+  }
   .footer-cat {
-    display: block; right: auto; left: 50%; bottom: 0; transform: translate(-50%, 9%);
+    position: static;
+    align-self: center;
+    order: 1;
     --cat-width: min(73vw, 33svh);
   }
   /* dvh follows the browser bars as they slide away, so the panel always reaches the bottom of the screen. */
