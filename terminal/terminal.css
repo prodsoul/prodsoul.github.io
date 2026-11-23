@@ -278,3 +278,9 @@ body.mobile .gate-title { font-size: 1.05em; }
 /* project title art */
 .ptitle { margin: .5em 0 1.2em; }
 .ptitle svg { margin: .3em 0 0; }
+#monitor.nofx .fx-scan, #monitor.nofx .fx-noise, #monitor.nofx .fx-roll, #monitor.nofx .fx-flick { opacity: 0; }
+.fx { transition: opacity .35s; }
+.screen.on.settled:not(.flash):not(.glitch) { animation: none; }
+.vid-in .shot { animation: raster 1.2s steps(22) both; }
+.vid-in .vid-cap { animation: fadeup .9s .5s both; }
+@keyframes fadeup { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

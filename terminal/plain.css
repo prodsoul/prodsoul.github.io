@@ -2,7 +2,7 @@
 :root { --bg: #0b0e0f; --fg: #e8f0f3; --dim: #98a8ae; --line: rgba(255,255,255,.14); --card: rgba(255,255,255,.04); --bright: #ffffff;
   --head: "Departure Mono", ui-monospace, Menlo, Consolas, monospace; --body: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; --ease: cubic-bezier(.2,.7,.2,1); }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; background: var(--bg); }
+html { scroll-behavior: auto; background: var(--bg); }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 16.5px/1.85 var(--body); -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; }
 a { color: var(--bright); text-decoration: underline; text-decoration-color: rgba(255,255,255,.35); text-underline-offset: 4px; transition: text-decoration-color .2s, color .2s; }
 a:hover { text-decoration-color: var(--bright); }
@@ -79,7 +79,7 @@ figcaption { color: var(--dim); font-size: 14px; margin-top: .7em; text-align: c
 .lb { position: fixed; inset: 0; z-index: 90; background: rgba(5,7,8,.94); display: grid; place-items: center; padding: 3vh 3vw; cursor: zoom-out; animation: swap .3s var(--ease); }
 .lb img { max-width: 100%; max-height: 94vh; border: 1px solid var(--line); }
 
-.rv { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease), transform .8s var(--ease); transition-delay: var(--d, 0s); }
+.rv { opacity: 0; transform: translateY(26px); transition: opacity 1s var(--ease), transform 1s var(--ease); transition-delay: var(--d, 0s); }
 .rv.in { opacity: 1; transform: none; }
 .loading { color: var(--dim); font-family: var(--head); }
 @media (max-width: 760px) { body { font-size: 16px; } .gallery.n2, .gallery.n3 { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; padding-bottom: 8px; }

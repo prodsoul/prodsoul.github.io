@@ -3,7 +3,7 @@
   "use strict";
   var JB = window.JB, W = JB.works, main = document.getElementById("main"), top = document.getElementById("top"), prog = document.getElementById("prog");
   var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function (es) {
-    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    es.forEach(function (e) { e.target.classList.toggle("in", e.isIntersecting); });
   }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }) : null;
 
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -112,16 +112,32 @@
   }
 
   var token = 0, current = null;
+  /* slow, eased scrolling so content is easier to follow */
+  var tgt = null, raf = 0, slow = !matchMedia("(prefers-reduced-motion: reduce)").matches && !matchMedia("(pointer: coarse)").matches;
+  function maxY() { return document.documentElement.scrollHeight - innerHeight; }
+  function glide() {
+    var y = scrollY, d = tgt - y;
+    if (Math.abs(d) < 0.6) { window.scrollTo(0, tgt); tgt = null; raf = 0; return; }
+    window.scrollTo(0, y + d * 0.07); raf = requestAnimationFrame(glide);
+  }
+  function glideTo(y) { tgt = Math.max(0, Math.min(maxY(), y)); if (!raf) raf = requestAnimationFrame(glide); }
+  if (slow) addEventListener("wheel", function (e) {
+    if (e.ctrlKey || e.defaultPrevented || document.querySelector(".lb")) return;
+    e.preventDefault();
+    var dy = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY;
+    glideTo((tgt == null ? scrollY : tgt) + dy * 0.55);
+  }, { passive: false });
+  addEventListener("keydown", function (e) { if (tgt != null && /^(ArrowUp|ArrowDown|PageUp|PageDown|Home|End| )$/.test(e.key)) { tgt = null; } });
   function scrollToSection(sec) {
-    var t = sec ? document.getElementById(sec) : null;
-    if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); else window.scrollTo({ top: 0, behavior: "smooth" });
+    var t = sec ? document.getElementById(sec) : null, y = t ? t.getBoundingClientRect().top + scrollY - 78 : 0;
+    if (slow) glideTo(y); else window.scrollTo({ top: y, behavior: "smooth" });
   }
   function setNav(name) { [].slice.call(document.querySelectorAll("#nav a")).forEach(function (a) { a.classList.toggle("on", a.dataset.r === name); }); }
   async function route() {
     var h = location.hash.replace(/^#\/?/, ""), parts = h.split("/"), name = parts[0] || "home", my = ++token, section = null;
     if (name === "about" || name === "contact") { section = name; name = "home"; }
     if (name === "home" && current === "home") { scrollToSection(section); setNav(section || "home"); return; }
-    main.replaceChildren(el("p", "loading", "loading ...")); window.scrollTo({ top: 0, behavior: "auto" });
+    main.replaceChildren(el("p", "loading", "loading ...")); tgt = null; window.scrollTo({ top: 0, behavior: "auto" });
     var content = name === "work" ? await project(parts[1]) : (views[name] || views.home)();
     if (my !== token) return;
     current = name === "work" || views[name] ? name : "home";

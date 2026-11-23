@@ -55,6 +55,8 @@
     });
   }
   var navNow = null;
+  function syncFx() { monitor.classList.toggle("nofx", !!screen.querySelector(".shot.clear")); }
+  new MutationObserver(syncFx).observe(screen, { subtree: true, attributes: true, attributeFilter: ["class"] });
   function working() { return booting || busy || leaving; }
   /* skip: finish typing at once, drop any half-played screen animation, and cut straight to the next page when leaving */
   function skip() {
@@ -224,9 +226,9 @@
     });
     scrollEnd(); await sleep(450 + n * 160);
   }
-  function video(node) {
+  async function video(node) {
     var id = node.dataset.yt, title = node.dataset.title || "video";
-    var wrap = el("div", "vid-wrap"), shot = el("div", "shot"), v = el("div", "vid");
+    var wrap = el("div", "vid-wrap vid-in"), shot = el("div", "shot"), v = el("div", "vid");
     var poster = el("div", "poster"); poster.style.backgroundImage = "url(https://i.ytimg.com/vi/" + id + "/hqdefault.jpg)";
     var pb = el("button", "play", "> PLAY"); pb.type = "button"; pb.setAttribute("aria-label", "Play video: " + title);
     v.append(poster, pb); shot.append(v); wrap.append(shot, el("div", "vid-cap", title));
@@ -235,7 +237,7 @@
       f.title = title; f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true; f.referrerPolicy = "strict-origin-when-cross-origin";
       v.classList.add("playing"); shot.classList.add("clear"); poster.remove(); v.append(f); A.beep(700, .05);
     }
-    v.addEventListener("click", play); out.append(wrap); A.seek(3); scrollEnd();
+    v.addEventListener("click", play); var vp = ln("", "dim"); for (var q = 0; q <= 10; q++) { vp.textContent = "rx video stream  [" + "#".repeat(q) + ".".repeat(10 - q) + "]"; if (q % 2 === 0) A.tick(); scrollEnd(); await sleep(fast ? 0 : 55); } vp.remove(); out.append(wrap); A.seek(3); scrollEnd(); if (!fast) await sleep(700);
   }
 
   function pdfBlock(src, name) {
@@ -271,7 +273,7 @@
       else if (tag === "h2") { var hh = el("h2", "h ln new"); out.append(hh); A.seek(2); await typeInto(hh, n.textContent, 90); }
       else if (tag === "p") { var pp = el("p", "p ln new"); out.append(pp); await typeInto(pp, n.textContent, 400); }
       else if (cls.indexOf("gallery") === 0) await gallery(n);
-      else if (cls === "video") video(n);
+      else if (cls === "video") await video(n);
       else if (cls === "pdf") { gap(); var pc = ln("", "dim"); await typeInto(pc, "report: " + n.dataset.name, 90); pdfBlock(n.dataset.src, n.dataset.name); }
     }
     gap(); ln("-- end of file --", "dim");
@@ -295,7 +297,7 @@
     setTimeout(navNow, 1750);
   }
   addEventListener("pageshow", function (e) {
-    if (e.persisted) { leaving = false; navNow = null; busy = false; screen.style.opacity = ""; screen.classList.remove("off"); screen.classList.add("on"); pw.hidden = false; dock.hidden = false; focusInput(); }
+    if (e.persisted) { leaving = false; navNow = null; busy = false; screen.style.opacity = ""; screen.classList.remove("off"); screen.classList.add("on", "settled"); pw.hidden = false; dock.hidden = false; focusInput(); }
   });
 
   /* ---------- prompt ---------- */
@@ -406,7 +408,7 @@
   });
   def("top", async function () {
     var pre = el("pre", "art ln new"); out.append(pre); pre.style.lineHeight = "1.5";
-    var procs = [["figma", "S", 34], ["unity", "R", 28], ["playtest", "S", 9], ["kopi.service", "S", 4], ["coffee", "R", 2], ["tetris", "T", 0]];
+    var procs = [["figma", "S", 34], ["unity", "R", 28], ["playtest", "S", 9], ["digipen.service", "S", 4], ["coffee", "R", 2], ["tetris", "T", 0]];
     for (var f = 0; f < 5; f++) {
       var s = "top - " + new Date().toTimeString().slice(0, 8) + " up " + Math.max(1, Math.round((Date.now() - t0) / 60000)) + " min,  1 user,  load: " + (0.4 + Math.random()).toFixed(2) + "\n" +
         "Tasks: " + procs.length + " total   Cpu(s): " + (20 + Math.random() * 60 | 0) + "% us   Mem: 640K used (it is enough)\n\n  PID  USER   S  %CPU  COMMAND\n";
@@ -633,7 +635,7 @@
     var prev = null; try { prev = localStorage.getItem("jb-last"); localStorage.setItem("jb-last", new Date().toString().slice(0, 24)); } catch (e) {}
     return prev ? "Last login: " + prev + " on tty1" : "Welcome, new user. This is your first login.";
   }
-  function lightUp() { monitor.classList.add("on-air"); screen.classList.remove("off"); void screen.offsetWidth; screen.classList.add("on"); }
+  function lightUp() { monitor.classList.add("on-air"); screen.classList.remove("off", "settled"); void screen.offsetWidth; screen.classList.add("on"); setTimeout(function () { screen.classList.add("settled"); }, 1500); }
 
   /* power-on screen: a real power button, plus the plain-site and sound choices */
   function doPowerOn() { if (gate.hidden) return; A.unlock(); gate.hidden = true; gate.innerHTML = ""; lightUp(); boot(); }
@@ -663,7 +665,7 @@
     ln("UX-CORE(tm) 8 CORES @ 4.20GHz"); await sleep(150);
     await counter("MEMORY TEST  ", 65536, 4096, "OK"); await sleep(140); gap();
     ln("Detecting devices ...", "dim"); await sleep(240);
-    var devs = [["/dev/figma", "OK"], ["/dev/unity", "OK"], ["/dev/playtest", "OK"], ["/dev/kopi", "OK"], ["/dev/sergio", "ZZZ", "warn"]];
+    var devs = [["/dev/figma", "OK"], ["/dev/unity", "OK"], ["/dev/playtest", "OK"], ["/dev/digipen", "OK"], ["/dev/sergio", "ZZZ", "warn"]];
     for (var i = 0; i < devs.length; i++) { statusLine(devs[i][0], devs[i][1], devs[i][2]); A.seek(3); scrollEnd(); await sleep(200); }
     gap(); await sleep(140);
     ln("Loading kernel: PORTFOLIO_OS 1.0", "bright"); await progress(""); await sleep(120);
@@ -679,7 +681,7 @@
   /* home screen: name banner, then a few commands typed for the visitor. Also used by the `home` command (no boot). */
   async function intro() {
     booting = true; busy = true; pw.hidden = true; dock.hidden = true;
-    screen.classList.add("flash"); A.whoosh(); out.replaceChildren(); await sleep(200);
+    A.whoosh(); out.replaceChildren(); await sleep(200);
     var wrap = el("div", "banner"); out.append(wrap);
     await blockArt(NAME1, { delay: 90, label: "Joann", into: wrap });
     await blockArt(NAME2, { delay: 90, label: "Bisseling", into: wrap });
@@ -690,7 +692,7 @@
     var hint = ln("", "dim"); await typeInto(hint, "Type `help` for commands, `commands` for the full list, or tap a shortcut below. Something is hiding in here. Try `ls -a`.", 110);
     finishIntro();
   }
-  function finishIntro() { booting = false; fast = false; busy = false; A.hum(false); showPrompt(); setTimeout(function () { screen.classList.remove("flash"); }, 900); }
+  function finishIntro() { booting = false; fast = false; busy = false; A.hum(false); showPrompt(); }
   async function pageIntro() {
     booting = true; busy = true; lightUp(); A.powerOn(); A.seek(4); out.replaceChildren(); await sleep(700);
     var l1 = ln("", "dim"); await typeInto(l1, "link up ... 9600 baud ... " + lastLogin(), 160); gap();

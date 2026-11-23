@@ -18,7 +18,7 @@
     ".pdfv-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.5em 1em;margin-top:.8em;font-size:.9em}" +
     ".pdfv-bar button{font:inherit;color:inherit;background:transparent;border:1px solid currentColor;padding:.15em .8em;cursor:pointer;opacity:.9}" +
     ".pdfv-bar button:disabled{opacity:.3;cursor:default}.pdfv-bar button:hover:not(:disabled){background:currentColor}.pdfv-bar button:hover:not(:disabled) span{color:var(--bg,#000)}" +
-    ".pdfv-bar .sp{flex:1}.pdfv-hint{margin-top:.5em;opacity:.6;font-size:.82em}";
+    ".pdfv-bar .sp{flex:1}.pdfv-hint{margin-top:.5em;opacity:.6;font-size:.82em}.pdfv-one button,.pdfv-one .pdfv-n,.pdfv-one .pdfv-hint{display:none}";
   document.head.appendChild(css);
 
   function mount(host, o) {
@@ -64,7 +64,7 @@
     var rt; addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { render(cur); }, 200); });
     lib().then(function (L) {
       return L.getDocument({ url: o.src }).promise;
-    }).then(function (p) { pdf = p; total = p.numPages; render(1); }).catch(function () {
+    }).then(function (p) { pdf = p; total = p.numPages; if (total < 2) root.classList.add("pdfv-one"); render(1); }).catch(function () {
       root.innerHTML = '<iframe title="report" src="' + o.src + '#view=Fit" style="width:100%;height:' + fitH + 'px;border:0;background:#fff"></iframe>';
     });
     return { root: root };
