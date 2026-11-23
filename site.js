@@ -205,7 +205,13 @@ function labelLink(link, text, arrow, before = false) {
   icon.className = "link-arrow";
   icon.setAttribute("aria-hidden", "true");
   icon.textContent = arrow;
-  link.replaceChildren(...(before ? [icon, text] : [text, icon]));
+  const label = document.createElement("span");
+  label.className = "link-label";
+  label.dataset.label = text;
+  const visibleLabel = document.createElement("span");
+  visibleLabel.textContent = text;
+  label.append(visibleLabel);
+  link.replaceChildren(...(before ? [icon, label] : [label, icon]));
 }
 
 function updateFeaturedFolders() {
@@ -586,8 +592,7 @@ if (introActive) {
   try { window.localStorage.setItem("sound", "on"); } catch { /* storage blocked */ }
 }
 
-// Phones never play any sound (typing, paper flip, meow), so no audio is set up for them.
-if (isPhone) soundMuted = true;
+// Phones skip typing and paper-flip audio. The cats can meow in response to an explicit tap.
 const usesSound = !isPhone && (page === "home" || page === "works" || page === "project" || page === "resume");
 const sound = usesSound ? createTypewriterSounds() : () => {};
 let heroTyping = false;
@@ -621,7 +626,6 @@ if (page === "works" || page === "project") {
 }
 
 function setupCat() {
-  if (isPhone) return;
   const cats = document.querySelectorAll("#cat, .contact-panel img.footer-cat");
   if (!cats.length) return;
 
