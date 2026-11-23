@@ -916,3 +916,9 @@ body[data-page="project"] .case-story {
   }
   .convex-showcase .media-box:has(img) figcaption { font-size: .65rem; line-height: 1.15; }
 }
+
+/* A cover in the background colour hides a video until it is revealed; the video itself is never faded. */
+.video-cover { position: absolute; inset: 0; z-index: 3; background: var(--paper); }
+
+/* The folder that carries the "See all works" tab joins it square at the top right, with no rounded corner. */
+.folder:has(> .all-tab:not(.all-tab-extra)) { border-top-right-radius: 0; }

@@ -455,27 +455,115 @@ if (page === "resume") {
   showResume();
 }
 
+// Videos (YouTube iframes) are never faded or moved themselves: hiding or transforming an iframe can leave
+// YouTube's preview at its low-resolution size. A cover in the page's background colour sits over the video
+// and fades away instead, so the video itself stays fully rendered the whole time.
+function makeVideoCover(box) {
+  const existing = box.querySelector(":scope > .video-cover");
+  if (existing) return existing;
+  let color = "";
+  for (let element = box.parentElement; element; element = element.parentElement) {
+    const value = getComputedStyle(element).backgroundColor;
+    if (value && value !== "rgba(0, 0, 0, 0)" && value !== "transparent") { color = value; break; }
+  }
+  if (getComputedStyle(box).position === "static") box.style.position = "relative";
+  const cover = document.createElement("div");
+  cover.className = "video-cover";
+  cover.setAttribute("aria-hidden", "true");
+  if (color) cover.style.background = color;
+  box.append(cover);
+  return cover;
+}
+
+function fadeVideoCover(cover, { delay = 0, duration = 900, instant = false } = {}) {
+  if (!cover || !cover.isConnected) return;
+  if (instant) { cover.remove(); return; }
+  const done = () => cover.remove();
+  cover.animate([{ opacity: 1 }, { opacity: 0 }], { duration, delay, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })
+    .finished.then(done, done);
+}
+
 function setupScrollReveals() {
   if (!("IntersectionObserver" in window) || reducedMotion.matches) return;
+  const onProject = page === "project";
   const blocks = document.querySelectorAll(
-    ".folder-sheet > *, .about-inner > *, .case-intro, .case-story > *, .see-more, .contact-copy, " +
-    ".works-index h1, .gallery-panel .project-grid li, .see-more .project-grid li"
+    ".folder-sheet > *, .about-inner > *, .see-more, .contact-copy, " +
+    ".works-index h1, .gallery-panel .project-grid li, .see-more .project-grid li, " +
+    // Project pages reveal piece by piece (each heading, paragraph and image), not a whole chapter at once.
+    (onProject ? ".case-intro > *, .case-chapter-copy > *, .case-chapter > :not(.case-chapter-copy)" : ".case-intro, .case-story > *")
   );
+
+  // Anything holding a video is split: its other parts rise normally, the video fades in under a cover.
+  const moving = new Set();
+  const videos = new Map();
+  function sort(block) {
+    if (!block.querySelector("iframe") && !block.matches("iframe")) { moving.add(block); return; }
+    if (block.matches(".folder-video, .video-slot, [data-youtube], iframe") || !block.children.length) {
+      const box = block.matches("iframe") ? block.parentElement : block;
+      videos.set(box, makeVideoCover(box));
+      return;
+    }
+    for (const child of block.children) sort(child);
+  }
+  blocks.forEach(sort);
+
+  const inInteractiveFolders = element =>
+    document.documentElement.classList.contains("folder-reveals") && element.closest(".folders .folder-sheet");
   const seen = new IntersectionObserver(entries => {
     // Items that arrive together (a row of cards) rise one after another.
     let order = 0;
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       seen.unobserve(entry.target);
+      const delay = Math.min(order++, 5) * 90;
       // Landing folders in the interactive version reveal in step with their typing instead (setupFolderReveal).
-      if (document.documentElement.classList.contains("folder-reveals") && entry.target.closest(".folders .folder-sheet")) continue;
+      if (inInteractiveFolders(entry.target)) continue;
+      if (videos.has(entry.target)) {
+        fadeVideoCover(videos.get(entry.target), { delay: delay + 150, duration: 1000 });
+        continue;
+      }
+      // Pictures ease up and settle in; text just rises and fades.
+      const media = onProject && !entry.target.closest(".case-chapter-copy, .case-intro");
       entry.target.animate(
-        [{ opacity: 0, transform: "translateY(36px)" }, { opacity: 1, transform: "none" }],
-        { duration: 1100, delay: Math.min(order++, 5) * 90, easing: "cubic-bezier(.18,.7,.24,1)", fill: "backwards" }
+        [{ opacity: 0, transform: `translateY(${media ? 40 : 30}px)${media ? " scale(.985)" : ""}` }, { opacity: 1, transform: "none" }],
+        { duration: 1100, delay, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }
       );
     }
   }, { threshold: .08 });
-  blocks.forEach(block => seen.observe(block));
+  moving.forEach(block => seen.observe(block));
+  videos.forEach((cover, box) => seen.observe(box));
+
+  if (onProject) setupLeaveFade([...moving]);
+}
+
+// Project pages: as a piece of content scrolls out through the top of the screen it eases out (and eases back
+// in when scrolling up), instead of being cut off by the edge.
+function setupLeaveFade(items) {
+  const targets = items.filter(element => !element.querySelector("iframe"));
+  if (!targets.length) return;
+  let queued = false;
+  function update() {
+    queued = false;
+    const viewport = window.innerHeight;
+    const zone = viewport * .2; // the top fifth of the screen
+    for (const element of targets) {
+      const box = element.getBoundingClientRect();
+      if (box.top > viewport || box.bottom > zone) {
+        if (element.style.opacity) element.style.opacity = "";
+        continue;
+      }
+      const progress = Math.max(0, box.bottom / zone);
+      const eased = progress * progress * (3 - 2 * progress); // ease in and out
+      element.style.opacity = (.08 + .92 * eased).toFixed(3);
+    }
+  }
+  function request() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  }
+  window.addEventListener("scroll", request, { passive: true });
+  window.addEventListener("resize", request);
 }
 
 // Project and works pages ease in instead of appearing all at once.
@@ -950,7 +1038,9 @@ function setupFolderReveal(folder, group) {
   const meta = !metaBox ? [] : metaBox.classList.contains("folder-meta") ? [...metaBox.children] : [metaBox];
   const screens = [...sheet.querySelectorAll(".convex-showcase-screens > img")];
   const video = sheet.querySelector(".folder-video");
-  const media = screens.length ? screens : video ? [video] : [];
+  const media = screens; // the video is revealed by fading a cover (see makeVideoCover), never by hiding it
+  let videoCover = video ? makeVideoCover(video) : null;
+  const revealVideo = options => { const cover = videoCover; videoCover = null; fadeVideoCover(cover, options); };
   const link = sheet.querySelector(".view-link");
 
   const waiting = new Set([...meta, ...media, ...(link ? [link] : [])]);
@@ -976,12 +1066,14 @@ function setupFolderReveal(folder, group) {
   group.onStart = () => {
     reveal(meta, { delay: 350, stagger: 90, duration: 800 });
     reveal(media, { delay: 700, stagger: 110, duration: 1000, rise: 28 });
+    revealVideo({ delay: 700, duration: 1000 });
   };
   group.onDone = () => {
     reveal([...meta, ...media], { duration: 500 });
+    revealVideo({ duration: 500 });
     if (link) reveal([link], { delay: 150, duration: 800, rise: 10 });
   };
-  group.onFinish = () => reveal(all, { instant: true });
+  group.onFinish = () => { reveal(all, { instant: true }); revealVideo({ instant: true }); };
 }
 
 function setupHomeTyping() {
