@@ -145,6 +145,23 @@ function cardCaption(text, number) {
   return caption;
 }
 
+// These filenames are shared by the All Works gallery and project recommendations.
+const projectCovers = {
+  convex: "convex.webp",
+  "moustachve-been-the-wind": "moustachvebeenthewind.webp",
+  "specimen-tool": "3dadaptationtool.webp",
+  eduvision: "eduvision.webp",
+  "order-kopi-lah": "orderkopilah.webp",
+  netflix: "netflix.webp",
+  amazon: "amazon.webp",
+  gio: "gio.webp",
+  "key-to-purrdom": "keytopurrdom.webp",
+  "order-up": "orderup.webp",
+  stray: "stray.webp",
+  "game-feel": "gamefeel.webp",
+  "molten-motion": "moltenmotion.webp",
+};
+
 function projectCard(link, number) {
   const card = document.createElement("a");
   card.className = "project-card";
@@ -158,38 +175,31 @@ function projectCard(link, number) {
   cover.decoding = "async";
   cover.className = "project-card-image";
   cover.addEventListener("load", () => { cover.classList.add("loaded"); }, { once: true });
-  cover.src = link.dataset.cover
-    ? new URL(link.dataset.cover, siteRoot).href
-    : new URL("assets/covers/" + workSlug(link) + ".jpg", siteRoot).href;
-  frame.append(cover);
+  const filename = projectCovers[workSlug(link)];
+  const coverPath = link.dataset.cover || (filename && `assets/thumbnails/${filename}`);
+  if (coverPath) {
+    cover.src = new URL(coverPath, siteRoot).href;
+    frame.append(cover);
+  }
 
   const title = (link.querySelector(".work-name") || link).textContent.trim();
   card.append(frame, cardCaption(title, number));
   return card;
 }
 
-function projectGrid(links, slots = 0) {
+function projectGrid(links, numbered = false) {
   const grid = document.createElement("ul");
   grid.className = "project-grid";
   for (const [index, link] of links.entries()) {
     const item = document.createElement("li");
-    item.append(projectCard(link, slots ? index + 1 : null));
+    item.append(projectCard(link, numbered ? index + 1 : null));
     grid.append(item);
   }
-  for (let index = links.length; index < slots; index++) {
-    const item = document.createElement("li");
-    item.className = "coming-soon";
-    const frame = document.createElement("div");
-    frame.className = "project-card-frame";
-    frame.setAttribute("aria-hidden", "true");
-    item.append(frame, cardCaption("Coming soon", index + 1));
-    grid.append(item);
-  }
-    if (slots > 0) {
+
+  if (numbered) {
     const coverSizes = new ResizeObserver(entries => {
       for (const { target: frame } of entries) {
-        const caption = frame.nextElementSibling;
-        caption.style.inlineSize = `${frame.getBoundingClientRect().width}px`;
+        frame.nextElementSibling.style.inlineSize = `${frame.getBoundingClientRect().width}px`;
       }
     });
 
@@ -282,8 +292,6 @@ function groupWorks() {
   const assigned = new Set(workGroups.flatMap(group => group.works));
   const extras = links.map(workSlug).filter(slug => !assigned.has(slug));
   const groups = extras.length ? [...workGroups, { id: "other-work", name: "Other Work", works: extras }] : workGroups;
-  const longestGroup = Math.max(...groups.map(group => group.works.filter(slug => bySlug.has(slug)).length));
-  const slots = Math.max(6, Math.ceil(longestGroup / 3) * 3);
   for (const group of groups) {
     const members = group.works.map(slug => bySlug.get(slug)).filter(Boolean);
     if (!members.length) continue;
@@ -301,7 +309,7 @@ function groupWorks() {
     panel.id = group.id;
     const heading = document.createElement("h2");
     heading.textContent = group.name;
-    panel.append(heading, projectGrid(members, slots));
+    panel.append(heading, projectGrid(members, true));
     panelStack.append(panel);
     panels.push({ group, tab, panel });
   }

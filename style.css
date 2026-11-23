@@ -287,16 +287,14 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
 /* Only the visible box and its title react to the pointer, not the empty space beside them. */
 .project-card { pointer-events: none; }
 .project-card-frame, .project-card-caption { pointer-events: auto; }
-.project-card .project-card-frame { transition: transform .24s ease, box-shadow .24s ease; }
+.project-card .project-card-frame { transition: transform .24s ease; }
 @media (hover:hover) {
   .project-card:hover .project-card-frame {
     transform: translateY(-5px);
-    box-shadow: 0 7px 15px #27262235;
   }
 }
 .project-card-frame {
   aspect-ratio: 16 / 9;
-  background: var(--wine);
   position: relative; overflow: hidden;
 }
 .project-card-image {
@@ -317,12 +315,6 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .project-card:hover .project-card-title { color: var(--hover); }
-.coming-soon .project-card-frame {
-  border: 1px solid #686659; background:
-    linear-gradient(to top right, transparent calc(50% - .5px), #686659 50%, transparent calc(50% + .5px)),
-    linear-gradient(to bottom right, transparent calc(50% - .5px), #686659 50%, transparent calc(50% + .5px));
-}
-.coming-soon .project-card-title { color: var(--soft); }
 .see-more { padding: 2rem var(--edge) 5rem; }
 @media (max-width: 1000px) {
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -350,7 +342,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
     grid-auto-rows: minmax(0,1fr);
     row-gap: clamp(12px,2.4svh,32px);
   }
-  .gallery-panel .project-card,.gallery-panel .coming-soon {
+  .gallery-panel .project-card {
     display: grid; grid-template-rows: minmax(0,1fr) auto; height: 100%;
   }
   .gallery-panel .project-card-frame { max-height: 100%; align-self: start; }
@@ -585,23 +577,6 @@ body[data-page="home"] :is(#p2, #p3) .folder-video {
   body[data-page="home"] :is(#p2, #p3) .folder-video {
     grid-column: 1 / -1;
   }
-}
-
-/* Let these covers show their own rounded corners */
-.project-card:is(
-  [href$="convex.html"],
-  [href$="specimen-tool.html"],
-  [href$="moustachve-been-the-wind.html"]
-) .project-card-frame {
-  background: transparent;
-}
-
-.project-card:is(
-  [href$="convex.html"],
-  [href$="specimen-tool.html"],
-  [href$="moustachve-been-the-wind.html"]
-):hover .project-card-frame {
-  box-shadow: none;
 }
 
 /* ---------- Phone layout ---------- */
