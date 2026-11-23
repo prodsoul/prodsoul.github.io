@@ -1,169 +1,43 @@
 <!doctype html>
-<html lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CONVEX | Joann Bisseling</title>
+<meta name="description" content="I designed the organiser experience for CONVEX, a mobile platform for conventions and markets. My work focused on helping organisers monitor event performance, find the event they need, and review ven">
+<meta name="theme-color" content="#050805">
 <link rel="icon" type="image/svg+xml" href="../assets/icons/websitelogo.svg">
-<link rel="stylesheet" href="../style.css">
-<link rel="stylesheet" href="project-case-study.css">
-<script defer src="../site.js"></script>
+<link rel="stylesheet" href="../terminal/terminal.css">
 </head>
-<body data-page="project">
-<nav class="top-nav" aria-label="Main navigation">
-  <a href="../index.html">Home</a>
-  <a href="../works.html" aria-current="page">Works</a>
-  <a href="../index.html#about">About</a>
-  <a href="#contact">Contact</a>
-</nav>
-<main class="project-main kraft">
-<div class="tab-bar">
-  <button class="pan" type="button" data-pan="-1" aria-label="Scroll to earlier projects" hidden>‹</button>
-  <nav class="tab-track" aria-label="Project folders">
-    <a class="file-tab kraft" href="convex.html" aria-current="page"><span>CONVEX</span></a>
-    <a class="file-tab sage" href="moustachve-been-the-wind.html"><span>Moustach’ve Been the Wind</span></a>
-    <a class="file-tab slate" href="specimen-tool.html"><span>3D Specimen Tool</span></a>
-    <a class="file-tab kraft" href="eduvision.html"><span>EduVision</span></a>
-    <a class="file-tab sage" href="order-kopi-lah.html"><span>Order Kopi Lah!</span></a>
-    <a class="file-tab slate" href="netflix.html"><span>Netflix</span></a>
-    <a class="file-tab kraft" href="amazon.html"><span>Amazon</span></a>
-    <a class="file-tab sage" href="gio.html"><span>GIO</span></a>
-    <a class="file-tab slate" href="key-to-purrdom.html"><span>Key to Purrdom</span></a>
-    <a class="file-tab kraft" href="order-up.html"><span>Order Up!</span></a>
-    <a class="file-tab sage" href="stray.html"><span>Stray</span></a>
-    <a class="file-tab slate" href="game-feel.html"><span>Game Feel</span></a>
-    <a class="file-tab kraft" href="molten-motion.html"><span>Molten Motion</span></a>
-  </nav>
-  <button class="pan" type="button" data-pan="1" aria-label="Scroll to later projects" hidden>›</button>
-</div>
-  <article class="case-sheet convex-case">
-    <aside class="case-intro">
-      <a class="back-link convex-back" href="../works.html"><span class="link-arrow" aria-hidden="true">←</span> See all works</a>
-      <h1>CONVEX</h1>
-      <div class="case-meta">
-        <time datetime="2026-09">September 2026</time>
-        <span class="case-category">Digital Product UX</span>
-        <span class="case-skills">Paper prototypes, usability testing, Figma</span>
-        <span class="case-extra">Team project · Organiser-side UX designer</span>
-      </div>
-      <p>I designed the organiser experience for CONVEX, a mobile platform for conventions and markets. My work focused on helping organisers monitor event performance, find the event they need, and review vendor applications.</p>
-      <a class="convex-prototype convex-prototype--intro" href="https://www.figma.com/proto/HBZtUCvonhK6MibvOLveIU/UXG3570?node-id=1013-14712&amp;viewport=4676%2C1723%2C0.36&amp;t=qGlr46x3LBeEWchb-0&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=1013%3A14712&amp;show-proto-sidebar=1">View Prototype Here</a>
-    </aside>
-
-    <div class="case-story convex-story">
-      <div class="convex-phones">
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Overview-1.webp" width="766" height="1570" loading="eager" decoding="async" alt="Final organiser dashboard with event counts, ticket sales and sales revenue"></div>
-          
-        </figure>
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Overview-2.webp" width="766" height="1570" loading="eager" decoding="async" alt="Final Your Events screen with search, filters and event cards"></div>
-          
-        </figure>
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Overview-3.webp" width="766" height="1570" loading="eager" decoding="async" alt="Final vendor application showing the requested booth and vendor catalogue"></div>
-          
-        </figure>
-      </div>
-
-      <section class="case-chapter">
-        <div class="case-chapter-copy">
-          <h2>What organisers need to do between events</h2>
-          <p>CONVEX was designed around three roles: attendees, vendors and organisers. My teammates designed the attendee and vendor experiences, and I designed the organiser interface. On a phone, that meant supporting two different jobs: checking performance at a glance and following up on a specific event or application.</p>
-        </div>
-        <figure class="convex-paper">
-          <img src="../assets/projects/convex/Paper-Prototype.webp"
-               onerror="if (this.getAttribute('src').endsWith('.webp')) {
-                 this.src = '../assets/projects/convex/Paper-Prototype.png';
-               } else {
-                 this.onerror = null;
-                 this.src = '../assets/projects/convex/paper-prototype.jpg';
-               }" width="1566" height="1080" loading="lazy" decoding="async" alt="Three paper prototype screens showing the dashboard, events list and individual event overview">
-          <figcaption>Paper prototype V3</figcaption>
-        </figure>
-        <p>The team tested organiser tasks such as reviewing a booth application, assigning a booth number and finding an event’s revenue. I used the early paper rounds to refine how people moved between those tasks and what each screen needed to show.</p>
-      </section>
-
-      <section class="case-chapter">
-        <div class="case-chapter-copy">
-          <h2>From weekly arrows to a calendar picker</h2>
-          <p>The earliest wireframe showed the reporting period as a date label. In low-fi V1, I added left and right arrows so organisers could move the reporting window one week at a time. That works for checking nearby weeks, but reaching a date further away takes repeated taps.</p>
-        </div>
-      <div class="convex-phones">
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Dashboard-1.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Early dashboard with a date range label beneath the heading"></div>
-          <figcaption>Early wireframe</figcaption>
-        </figure>
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Dashboard-2.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Dashboard with previous and next arrows beside the date range"></div>
-          <figcaption>V1 · Weekly arrows</figcaption>
-        </figure>
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Dashboard-3.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Dashboard with a calendar button at the top right"></div>
-          <figcaption>V2 · Calendar picker</figcaption>
-        </figure>
-      </div>
-        <p>In low-fi V2, I replaced the arrows with a calendar button so organisers could pick a date range directly. The selected range stayed visible below the dashboard title so organisers could see which period the figures referred to.</p>
-      </section>
-
-      <section class="case-chapter">
-        <div class="case-chapter-copy">
-          <h2>Show what makes up the total</h2>
-          <p>The first event overview showed a single revenue figure. Testers could find the total, but they couldn’t see which sources contributed to it. I added an expandable breakdown on the same screen and grouped tickets sold and booths rented into separate cards. Organisers could check the total at a glance, then open the breakdown when they needed more detail.</p>
-        </div>
-      <div class="convex-phones">
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Event-1.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Initial event overview with a total revenue figure"></div>
-          <figcaption>Early wireframe</figcaption>
-        </figure>
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Event-2.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Event overview with the revenue breakdown collapsed"></div>
-          <figcaption>Collapsed</figcaption>
-        </figure>
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Event-3.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Event overview with the revenue breakdown expanded below the total"></div>
-          <figcaption>Expanded</figcaption>
-        </figure>
-      </div>
-      </section>
-
-      <section class="case-chapter">
-        <div class="case-chapter-copy">
-          <h2>Give upcoming and past events different priorities</h2>
-          <p>The same event overview was doing two jobs. Testers couldn’t always tell whether an event was upcoming or completed, and the ticket and booth counts lacked capacity for comparison.</p>
-        </div>
-      <div class="convex-phones convex-phones--pair">
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Future-Event.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Upcoming event overview with a countdown and editing tools"></div>
-          <figcaption>Upcoming event</figcaption>
-        </figure>
-        <figure>
-          <div class="convex-device"><img src="../assets/projects/convex/Past-Event.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Past event overview with event dates, revenue and a foot traffic chart"></div>
-          <figcaption>Past event</figcaption>
-        </figure>
-      </div>
-        <p>I added a countdown and grouped editing tools on upcoming events. For past events, I displayed the event dates and a foot traffic chart. I also showed total capacity alongside the ticket and booth counts so organisers could see how much availability remained.</p>
-      </section>
-
-      <section class="case-chapter">
-        <div class="case-chapter-copy">
-          <h2>What I took into the final prototype</h2>
-          <p>The final Figma prototype connects the organiser dashboard, event overview and application review. The date control taught me to design around how someone searches. Arrows work for browsing nearby weeks, while a calendar lets organisers jump to the exact period they need.</p>
-          <p>If I tested the prototype again, I’d ask organisers to find revenue for a named event and date range, then observe where they pause or ask for help.</p>
-        </div>
-      </section>
-    </div>
-  </article>
-</main>
-<div class="contact-anchor" id="contact"></div>
-<footer class="contact-panel" aria-label="Contact me">
-  <img class="cat-art footer-cat" src="../assets/images/sergio.png" width="1042" height="1562" alt="">
-  <div class="contact-content" data-include="../sections/contact.html"><div class="contact-copy">
-  <h2>Contact me</h2>
-  <nav class="contact-links" aria-label="Get in touch">
-    <a href="mailto:j29bisseling@gmail.com">Email</a>
-    <a href="https://www.linkedin.com/in/joannbisseling/">LinkedIn</a>
-    <span>Resume</span>
-  </nav>
-</div></div>
-</footer>
-</body></html>
+<body data-page="project" data-slug="convex" data-root="../">
+<article id="doc" hidden>
+<h1>CONVEX</h1>
+<ul class="meta"><li data-k="date">September 2026</li><li data-k="category">Digital Product UX</li><li data-k="skills">Paper prototypes, usability testing, Figma</li><li data-k="role">Team project · Organiser-side UX designer</li></ul>
+<p class="intro">I designed the organiser experience for CONVEX, a mobile platform for conventions and markets. My work focused on helping organisers monitor event performance, find the event they need, and review vendor applications.</p>
+<p class="actions"><a href="https://www.figma.com/proto/HBZtUCvonhK6MibvOLveIU/UXG3570?node-id=1013-14712&amp;viewport=4676%2C1723%2C0.36&amp;t=qGlr46x3LBeEWchb-0&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=1013%3A14712&amp;show-proto-sidebar=1">View Prototype Here</a></p>
+<div class="gallery n3"><figure><img src="../assets/projects/convex/Overview-1.webp" width="766" height="1570" alt="Final organiser dashboard with event counts, ticket sales and sales revenue" loading="lazy"></figure><figure><img src="../assets/projects/convex/Overview-2.webp" width="766" height="1570" alt="Final Your Events screen with search, filters and event cards" loading="lazy"></figure><figure><img src="../assets/projects/convex/Overview-3.webp" width="766" height="1570" alt="Final vendor application showing the requested booth and vendor catalogue" loading="lazy"></figure></div>
+<h2>What organisers need to do between events</h2>
+<p>CONVEX was designed around three roles: attendees, vendors and organisers. My teammates designed the attendee and vendor experiences, and I designed the organiser interface. On a phone, that meant supporting two different jobs: checking performance at a glance and following up on a specific event or application.</p>
+<div class="gallery n1"><figure><img src="../assets/projects/convex/Paper-Prototype.webp" width="1566" height="1080" alt="Three paper prototype screens showing the dashboard, events list and individual event overview" loading="lazy"><figcaption>Paper prototype V3</figcaption></figure></div>
+<p>The team tested organiser tasks such as reviewing a booth application, assigning a booth number and finding an event’s revenue. I used the early paper rounds to refine how people moved between those tasks and what each screen needed to show.</p>
+<h2>From weekly arrows to a calendar picker</h2>
+<p>The earliest wireframe showed the reporting period as a date label. In low-fi V1, I added left and right arrows so organisers could move the reporting window one week at a time. That works for checking nearby weeks, but reaching a date further away takes repeated taps.</p>
+<div class="gallery n3"><figure><img src="../assets/projects/convex/Dashboard-1.webp" width="766" height="1570" alt="Early dashboard with a date range label beneath the heading" loading="lazy"><figcaption>Early wireframe</figcaption></figure><figure><img src="../assets/projects/convex/Dashboard-2.webp" width="766" height="1570" alt="Dashboard with previous and next arrows beside the date range" loading="lazy"><figcaption>V1 · Weekly arrows</figcaption></figure><figure><img src="../assets/projects/convex/Dashboard-3.webp" width="766" height="1570" alt="Dashboard with a calendar button at the top right" loading="lazy"><figcaption>V2 · Calendar picker</figcaption></figure></div>
+<p>In low-fi V2, I replaced the arrows with a calendar button so organisers could pick a date range directly. The selected range stayed visible below the dashboard title so organisers could see which period the figures referred to.</p>
+<h2>Show what makes up the total</h2>
+<p>The first event overview showed a single revenue figure. Testers could find the total, but they couldn’t see which sources contributed to it. I added an expandable breakdown on the same screen and grouped tickets sold and booths rented into separate cards. Organisers could check the total at a glance, then open the breakdown when they needed more detail.</p>
+<div class="gallery n3"><figure><img src="../assets/projects/convex/Event-1.webp" width="766" height="1570" alt="Initial event overview with a total revenue figure" loading="lazy"><figcaption>Early wireframe</figcaption></figure><figure><img src="../assets/projects/convex/Event-2.webp" width="766" height="1570" alt="Event overview with the revenue breakdown collapsed" loading="lazy"><figcaption>Collapsed</figcaption></figure><figure><img src="../assets/projects/convex/Event-3.webp" width="766" height="1570" alt="Event overview with the revenue breakdown expanded below the total" loading="lazy"><figcaption>Expanded</figcaption></figure></div>
+<h2>Give upcoming and past events different priorities</h2>
+<p>The same event overview was doing two jobs. Testers couldn’t always tell whether an event was upcoming or completed, and the ticket and booth counts lacked capacity for comparison.</p>
+<div class="gallery n2"><figure><img src="../assets/projects/convex/Future-Event.webp" width="766" height="1570" alt="Upcoming event overview with a countdown and editing tools" loading="lazy"><figcaption>Upcoming event</figcaption></figure><figure><img src="../assets/projects/convex/Past-Event.webp" width="766" height="1570" alt="Past event overview with event dates, revenue and a foot traffic chart" loading="lazy"><figcaption>Past event</figcaption></figure></div>
+<p>I added a countdown and grouped editing tools on upcoming events. For past events, I displayed the event dates and a foot traffic chart. I also showed total capacity alongside the ticket and booth counts so organisers could see how much availability remained.</p>
+<h2>What I took into the final prototype</h2>
+<p>The final Figma prototype connects the organiser dashboard, event overview and application review. The date control taught me to design around how someone searches. Arrows work for browsing nearby weeks, while a calendar lets organisers jump to the exact period they need.</p>
+<p>If I tested the prototype again, I’d ask organisers to find revenue for a named event and date range, then observe where they pause or ask for help.</p>
+</article>
+<noscript><p>This site is a terminal. Please enable JavaScript, or open <a href="../works.html">works</a>.</p></noscript>
+<script src="../terminal/data.js"></script>
+<script src="../terminal/audio.js"></script>
+<script src="../terminal/terminal.js"></script>
+</body>
+</html>
