@@ -621,7 +621,7 @@ if (page === "works" || page === "project") {
 }
 
 function setupCat() {
-  const clips = ["assets/meow-1.wav", "assets/meow-2.wav", "assets/meow-3.wav"];
+  const clips = ["assets/audio/meow/meow-1.wav", "assets/audio/meow/meow-2.wav", "assets/audio/meow/meow-3.wav"];
   const player = new Audio();
   let previous;
   document.getElementById("cat").addEventListener("click", () => {
@@ -649,16 +649,16 @@ function createTypewriterSounds() {
   }
   document.addEventListener("visibilitychange", resume);
   // Your own recordings live in the assets folder:
-  //   assets/PaperFlip.wav   - flipping between folder tabs on the works page
-  //   assets/Ding.wav        - the bell on the welcome page
-  //   assets/Type/Type-1.wav ... Type-19.wav - typing
+  //   assets/audio/paper-flip.wav   - flipping between folder tabs on the works page
+  //   assets/audio/ding.wav        - the bell on the welcome page
+  //   assets/audio/type/type-1.wav ... type-19.wav - typing
   // Typing works like footsteps in a game: every key press picks one of the clips at random
   // (never the same clip twice in a row). Volumes are 0 to 1; change them here if a clip is too loud or quiet.
   const TYPE_CLIP_COUNT = 19;
   const TYPE_VOLUME = .6;
   const PAPER_VOLUME = .8;
   const DING_VOLUME = .8;
-  const clipURL = name => new URL("assets/" + name, siteRoot).href;
+  const clipURL = name => new URL("assets/audio/" + name, siteRoot).href;
   const clips = {};
   function loadClip(name) {
     if (clips[name]) return;
@@ -682,12 +682,12 @@ function createTypewriterSounds() {
       gain.connect(context.destination);
       source.onended = () => { source.disconnect(); gain.disconnect(); };
       source.start();
-      if (name === "PaperFlip.wav") typingHoldUntil = Math.max(typingHoldUntil, performance.now() + buffer_duration(clip));
+      if (name === "paper-flip.wav") typingHoldUntil = Math.max(typingHoldUntil, performance.now() + buffer_duration(clip));
     } else if (clip.failed) {
       // Fallback (for example when the page is opened straight from a folder): play the file normally.
       const audio = new Audio(clipURL(name));
       audio.volume = Math.min(1, volume);
-      const paper = name === "PaperFlip.wav";
+      const paper = name === "paper-flip.wav";
       if (paper) {
         typingHoldUntil = Infinity;
         audio.addEventListener("ended", () => { typingHoldUntil = 0; });
@@ -698,9 +698,9 @@ function createTypewriterSounds() {
   // Load the clips a page needs up front so the first key press already has its sound.
   // Project pages have no typing sounds, so they load nothing.
   if (page !== "project") {
-    for (let n = 1; n <= TYPE_CLIP_COUNT; n++) loadClip("Type/Type-" + n + ".wav");
-    if (page === "home") loadClip("Ding.wav");
-    if (page === "works") loadClip("PaperFlip.wav");
+    for (let n = 1; n <= TYPE_CLIP_COUNT; n++) loadClip("type/type-" + n + ".wav");
+    if (page === "home") loadClip("ding.wav");
+    if (page === "works") loadClip("paper-flip.wav");
   }
   let lastClick = -Infinity;
   let lastType = 0;
@@ -708,11 +708,11 @@ function createTypewriterSounds() {
     let pick;
     do { pick = 1 + Math.floor(Math.random() * TYPE_CLIP_COUNT); } while (pick === lastType);
     lastType = pick;
-    playClip("Type/Type-" + pick + ".wav", TYPE_VOLUME);
+    playClip("type/type-" + pick + ".wav", TYPE_VOLUME);
   }
   function play(bell, force) {
-    if (bell === "paper") { playClip("PaperFlip.wav", PAPER_VOLUME); return; }
-    if (bell) { playClip("Ding.wav", DING_VOLUME); return; }
+    if (bell === "paper") { playClip("paper-flip.wav", PAPER_VOLUME); return; }
+    if (bell) { playClip("ding.wav", DING_VOLUME); return; }
     const now = context.currentTime;
     // A minimum gap between clicks keeps very fast typing from turning into a buzz.
     if (!force && now - lastClick < .09) return;

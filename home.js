@@ -155,9 +155,9 @@
 
   function setupMeows(cat) {
     const clips = [
-      "assets/meow-1.wav",
-      "assets/meow-2.wav",
-      "assets/meow-3.wav"
+      "assets/audio/meow/meow-1.wav",
+      "assets/audio/meow/meow-2.wav",
+      "assets/audio/meow/meow-3.wav"
     ];
 
     const player = new Audio();
