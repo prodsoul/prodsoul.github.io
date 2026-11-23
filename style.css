@@ -922,3 +922,6 @@ body[data-page="project"] .case-story {
 
 /* The folder that carries the "See all works" tab joins it square at the top right, with no rounded corner. */
 .folder:has(> .all-tab:not(.all-tab-extra)) { border-top-right-radius: 0; }
+
+/* Frames ignore the pointer (so the wheel scrolls the page) until clicked; see gateFrames in site.js. */
+.frame-gated:not(.frame-live) { pointer-events: none; }

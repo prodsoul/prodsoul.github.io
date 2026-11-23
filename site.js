@@ -484,7 +484,9 @@ function fadeVideoCover(cover, { delay = 0, duration = 900, instant = false } = 
 }
 
 function setupScrollReveals() {
-  if (!("IntersectionObserver" in window) || reducedMotion.matches) return;
+  if (!("IntersectionObserver" in window)) return;
+  // With "reduce motion" on, things still fade in as you scroll, they just do not move.
+  const still = reducedMotion.matches;
   const onProject = page === "project";
   const blocks = document.querySelectorAll(
     ".folder-sheet > *, .about-inner > *, .see-more, .contact-copy, " +
@@ -525,7 +527,7 @@ function setupScrollReveals() {
       // Pictures ease up and settle in; text just rises and fades.
       const media = onProject && !entry.target.closest(".case-chapter-copy, .case-intro");
       entry.target.animate(
-        [{ opacity: 0, transform: `translateY(${media ? 40 : 30}px)${media ? " scale(.985)" : ""}` }, { opacity: 1, transform: "none" }],
+        [{ opacity: 0, transform: still ? "none" : `translateY(${media ? 40 : 30}px)${media ? " scale(.985)" : ""}` }, { opacity: 1, transform: "none" }],
         { duration: 1100, delay, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }
       );
     }
@@ -567,9 +569,9 @@ function setupLeaveFade(items) {
 }
 
 // Project and works pages ease in instead of appearing all at once.
-if ((page === "works" || page === "project") && !reducedMotion.matches) {
+if (page === "works" || page === "project") {
   document.querySelector("main")?.animate(
-    [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }],
+    [{ opacity: 0, transform: reducedMotion.matches ? "none" : "translateY(14px)" }, { opacity: 1, transform: "none" }],
     { duration: 700, easing: "cubic-bezier(.18,.7,.24,1)" }
   );
 }
@@ -1373,3 +1375,33 @@ function setupWelcome(onStart) {
   showSound();
   render();
 }
+
+// Embedded frames (YouTube, the resume PDF) swallow the mouse wheel, so scrolling over them stopped the page.
+// They ignore the pointer until you click them; the wheel then reaches the page as normal. Leaving the box
+// (or clicking anywhere else) hands the wheel back to the page.
+const gatedFrames = new WeakSet();
+function gateFrames() {
+  let live = null;
+  const release = () => { if (live) { live.classList.remove("frame-live"); live = null; } };
+  for (const frame of document.querySelectorAll("iframe")) {
+    if (gatedFrames.has(frame)) continue;
+    gatedFrames.add(frame);
+    frame.classList.add("frame-gated");
+    const box = frame.parentElement;
+    box.addEventListener("pointerdown", () => {
+      if (live === frame) return;
+      release();
+      frame.classList.add("frame-live");
+      live = frame;
+    });
+    box.addEventListener("pointerleave", event => { if (event.pointerType === "mouse" && live === frame) release(); });
+  }
+  if (!gateFrames.bound) {
+    gateFrames.bound = true;
+    document.addEventListener("pointerdown", event => {
+      if (live && !live.parentElement.contains(event.target)) release();
+    }, true);
+  }
+}
+gateFrames();
+if (typeof includesDone !== "undefined") includesDone.then(gateFrames);
