@@ -555,6 +555,51 @@ html.intro-active .welcome {
   .resume-viewer { grid-column: 1; width: min(100%, 60rem); justify-self: center; }
 }
 
+/* Featured gameplay video */
+body[data-page="home"] #p2 .folder-body {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3.8fr);
+}
+
+body[data-page="home"] #p2 .folder-video {
+  grid-column: 2 / -1;
+  padding: 0;
+  place-items: start;
+}
+
+/* Round the gameplay and trailer players */
+#p2 .folder-video-player,
+.wind-case .wind-player {
+  border-radius: 8px;
+  clip-path: inset(0 round 8px);
+}
+
+@media (max-width: 720px) {
+  body[data-page="home"] #p2 .folder-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body[data-page="home"] #p2 .folder-video {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Let these covers show their own rounded corners */
+.project-card:is(
+  [href$="convex.html"],
+  [href$="specimen-tool.html"],
+  [href$="moustachve-been-the-wind.html"]
+) .project-card-frame {
+  background: transparent;
+}
+
+.project-card:is(
+  [href$="convex.html"],
+  [href$="specimen-tool.html"],
+  [href$="moustachve-been-the-wind.html"]
+):hover .project-card-frame {
+  box-shadow: none;
+}
+
 /* ---------- Phone layout ---------- */
 
 /* Copies of "See all works" that phones show on every landing folder. */
