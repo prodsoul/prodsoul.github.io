@@ -5,6 +5,12 @@
 <title>Moustach’ve Been the Wind | Joann Bisseling</title>
 <link rel="icon" type="image/svg+xml" href="../assets/icons/websitelogo.svg">
 <link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="convex.css">
+<style>
+.wind-case .case-intro h1 { text-transform: none; overflow-wrap: break-word; }
+.wind-case .wind-player { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; }
+.wind-case .wind-download { padding: 0; border: 0; background: transparent; cursor: default; }
+</style>
 <script defer src="../site.js"></script>
 </head>
 <body data-page="project">
@@ -34,78 +40,65 @@
   </nav>
   <button class="pan" type="button" data-pan="1" aria-label="Scroll to later projects" hidden>›</button>
 </div>
-  <article class="case-sheet">
+  <article class="case-sheet convex-case wind-case">
     <aside class="case-intro">
-      <a class="back-link" href="../works.html">Back to all works</a>
+      <a class="back-link convex-back" href="../works.html#game-level-design"><span class="link-arrow" aria-hidden="true">←</span> See all works</a>
       <h1>Moustach’ve Been the Wind</h1>
-      <p>I led an eight-person team building Moustach’ve Been the Wind, a 2D speedrunning platformer about an octopus barber racing the clock. I worked on movement, level design and the handoff from Unity to our custom engine.</p>
-      <dl>
-        <div><dt>Date</dt><dd>September 2025 – April 2026</dd></div>
-        <div><dt>Project type</dt><dd>Team project</dd></div>
-        <div><dt>My role</dt><dd>Project manager and game designer</dd></div>
-        <div><dt>Methods used</dt><dd>Movement prototyping, Unity, level design, playtesting</dd></div>
-      </dl>
+      <div class="case-meta">
+        <span class="case-date">September 2025 – April 2026</span>
+        <span class="case-category">Game &amp; Level Design</span>
+        <span class="case-skills">PROTOTYPING, UNITY, LEVEL DESIGN, PLAYTESTING</span>
+        <span class="case-extra">Team project · Project manager &amp; Game designer</span>
+      </div>
+      <p>I led an eight-person team building Moustach’ve Been the Wind, a 2D speedrunning platformer. I worked with a programmer to prototype and playtest movement in Unity, built early level blockouts, and made a tool to transfer tested layouts into our custom C++ engine.</p>
+      <button class="convex-prototype wind-download convex-prototype--intro" type="button" aria-disabled="true">Download Game Here</button>
     </aside>
-    <div class="case-story">
+
+    <div class="case-story convex-story">
+      <iframe class="wind-player" src="https://www.youtube-nocookie.com/embed/vwtYvPyHy-I" title="Moustach’ve Been the Wind trailer" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Game trailer</h2>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="video">
-            <div class="video-slot" data-youtube="https://youtu.be/vwtYvPyHy-I" data-video-title="Moustach’ve Been the Wind trailer">
-              <span>Moustach’ve Been the Wind trailer</span>
-            </div>
-            <figcaption><a href="https://youtu.be/vwtYvPyHy-I">Watch Moustach’ve Been the Wind trailer on YouTube</a></figcaption>
-          </figure>
+          <h2>Make a run worth repeating</h2>
+          <p>Each run starts in a safe zone. Once the player leaves it, the clock starts and they have to reach the exit before time runs out. On a first attempt, the goal is to make it through. On another run, the same stretch becomes a chance to build speed earlier, land a jump more cleanly, or decide whether a shell is worth the detour.</p>
+          <p>We wanted the game to feel good in those few seconds between obstacles. That meant thinking about what happened after each move as much as how the move itself felt.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Designing routes that reward momentum</h2>
-          <p>Skid turns, wall kicks and a ground pound that carries into a roll give the player ways to redirect speed. Running also slows the clock’s drain. I prototyped and tested movement in Unity with a programmer and documented the inputs and level requirements.</p>
-          <p>In a blockout, I could check where the player had room to build speed and where a turn or landing would interrupt a run. The routes gave those movement decisions a place to matter.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="wide">
-            <!-- Image to add: Use an annotated blockout showing a build-up, a turn and a landing or recovery point. -->
-            <div class="case-visual-frame"><span>A route built for speed</span></div>
-          </figure>
-        </div>
-      </section>
-
-      <section class="case-chapter case-chapter--split">
-        <div class="case-chapter-copy">
-          <h2>Moving tested levels into the custom engine</h2>
-          <p>I built a JSON export workflow that carried the tested tile layouts, layers and collision from Unity into the custom engine. That preserved the routes we had already tested and let us compare the same stretch of level before and after the transition.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="screen">
-            <!-- Image to add: Show the tile layers or collision for one representative room. -->
-            <div class="case-visual-frame"><span>Unity route blockout</span></div>
-          </figure>
-          <figure class="case-evidence" data-format="screen">
-            <!-- Image to add: Match the earlier view so the handoff is easy to see. -->
-            <div class="case-visual-frame"><span>The same route in the final game</span></div>
-          </figure>
+          <h2>Carry momentum into the next move</h2>
+          <p>I worked with a programmer on the early movement prototype in Unity. One question we kept coming back to was what the player could do immediately after landing or leaving a wall. A move could feel good on its own and still interrupt the run if it left the player having to build speed again.</p>
+          <p>In the final build, a ground pound leads straight into a roll, carrying the player forward as soon as they land. After a wall kick, the character turns to face the new direction, so the player can keep holding run. Both decisions helped moves connect across a route.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>The final gameplay</h2>
-          <p>I managed milestones and coordinated level and audio decisions. The programmers developed the custom engine and our art teammate created the trailer. The gameplay shows the final movement and routes together.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="video">
-            <div class="video-slot" data-youtube="https://youtu.be/YOvzr7nXfZU" data-video-title="Moustach’ve Been the Wind gameplay">
-              <span>Moustach’ve Been the Wind gameplay</span>
-            </div>
-            <figcaption><a href="https://youtu.be/YOvzr7nXfZU">Watch Moustach’ve Been the Wind gameplay on YouTube</a></figcaption>
-          </figure>
+          <h2>Let the level teach the movement</h2>
+          <p>We gave the first level wide platforms and used coins to draw players forward. The first gap that needs extra speed comes after a stretch where they can build it. That gives the player room to get used to running before the route asks them to judge a jump at speed.</p>
+          <p>The layout also gives experienced players a reason to look beyond the main path. Shells sit on detours, so players can choose between a quicker finish and a more demanding route. In later levels, we ask for more deliberate run-ups and use vertical sections to put wall slides and wall kicks to work.</p>
         </div>
       </section>
+
+      <section class="case-chapter">
+        <div class="case-chapter-copy">
+          <h2>Bring tested layouts into the custom engine</h2>
+          <p>Unity gave me a quick way to block out routes and try changes to platform spacing. The final game ran in our custom C++ engine, so we needed a way to carry those layouts over without rebuilding each one by hand.</p>
+          <p>I built a JSON export tool that transferred tile layers and collision data from Unity. That let the team bring the layout we had tested into the custom engine and continue working on it there.</p>
+        </div>
+      </section>
+
+      <section class="case-chapter">
+        <div class="case-chapter-copy">
+          <h2>What I took into the final build</h2>
+          <p>I led the team through six milestones, from the Unity prototype to the final custom-engine build. The project taught me to think about movement and level layout together. A jump’s reach only matters if the player has enough room to build speed before it, and a good landing should set up whatever comes next.</p>
+          <p>If I tested the game again, I’d watch first-time players on the first speed-dependent gap, then have them replay the same stretch. I’d look at where they start running and whether they can find a cleaner route on their own.</p>
+        </div>
+      </section>
+
+      <iframe class="wind-player" src="https://www.youtube-nocookie.com/embed/YOvzr7nXfZU" title="Moustach’ve Been the Wind gameplay" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+      <button class="convex-prototype wind-download" type="button" aria-disabled="true">Download Game Here</button>
     </div>
   </article>
 </main>
