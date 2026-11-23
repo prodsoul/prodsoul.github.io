@@ -144,6 +144,28 @@
   .folders .folder-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .folders .view-link { min-height: 36px; }
 }
+/* Let the gameplay player use the two media columns without stretching the folder. */
+#p2 .folder-video {
+  grid-column: 2 / -1;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(.45rem, 1.2vw, 1.25rem);
+  display: grid;
+  place-items: center;
+  container-type: size;
+}
+
+#p2 .folder-video-player {
+  display: block;
+  width: 100%;
+  width: min(100%, calc(100cqh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
+@media (max-width: 720px) {
+  #p2 .folder-video { grid-column: 1 / -1; }
+}
 </style>
 <script defer src="site.js"></script>
 </head>
@@ -205,9 +227,15 @@
     <a class="folder-tab" href="projects/moustachve-been-the-wind.html"><span>Moustach’ve Been the Wind</span></a>
     
     <div class="folder-sheet">
-      <header><h2>Moustach’ve Been the Wind</h2><div>Team project<br>Unity, level design, playtesting</div></header>
-      <div class="folder-body"><div><p>I led an eight-person team building a 2D speedrunning platformer. I prototyped movement in Unity and built a JSON export workflow to move our tested level layouts into the custom C++ engine.</p><a class="view-link" href="projects/moustachve-been-the-wind.html">View project</a></div>
-        <figure class="media-box "><figcaption>Speedrunning gameplay</figcaption></figure><div class="details"><figure class="media-box "><figcaption>Unity route blockout</figcaption></figure><figure class="media-box "><figcaption>The same route in the custom engine</figcaption></figure></div>
+      <header><h2>Moustach’ve Been the Wind</h2><div>Team project<br>PROTOTYPING, UNITY, LEVEL DESIGN, PLAYTESTING</div></header>
+      <div class="folder-body">
+        <div>
+          <p>I led an eight-person team building a 2D speedrunning platformer. I prototyped and playtested movement in Unity, then built a JSON export tool that moved tested level layouts into our custom C++ engine.</p>
+          <a class="view-link" href="projects/moustachve-been-the-wind.html">View project</a>
+        </div>
+        <div class="folder-video">
+          <iframe class="folder-video-player" src="https://www.youtube-nocookie.com/embed/YOvzr7nXfZU" title="Moustach’ve Been the Wind gameplay" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+        </div>
       </div>
     </div>
   </article>
