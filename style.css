@@ -764,3 +764,57 @@ body[data-page="project"] .case-story {
   text-decoration: underline;
   text-underline-offset: .18em;
 }
+
+
+/* Keep the featured CONVEX screenshots inside the homepage folder. */
+.convex-showcase {
+  --showcase-image-height: clamp(18rem, 48svh, 34rem);
+}
+
+.convex-showcase .folder-body {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+}
+
+.convex-showcase .folder-body > figure,
+.convex-showcase .details {
+  height: var(--showcase-image-height);
+}
+
+.convex-showcase .details {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: .85rem;
+}
+
+.convex-showcase figure.media-box {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+}
+
+.convex-showcase-screens {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(.35rem, 1vw, 1rem);
+  min-height: 0;
+}
+
+.convex-showcase .media-box img {
+  min-height: 0;
+}
+
+.convex-showcase .media-box figcaption {
+  padding: .5rem .2rem 0;
+  font-size: clamp(.8rem, 1.1vw, 1rem);
+}
+
+@media (max-width: 720px) {
+  .convex-showcase {
+    --showcase-image-height: clamp(13rem, 36svh, 19rem);
+  }
+
+  .convex-showcase .folder-body {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
