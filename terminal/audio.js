@@ -29,13 +29,13 @@
   A.ready = ready;
   A.unlock = function () {
     var c = ensure(); if (!c) return false;
-    if (c.state === "running") { if (on) A.hum(true); emit(); return true; }
-    c.resume && c.resume().then(function () { if (on) A.hum(true); emit(); }, function () {});
+    if (c.state === "running") { startHum(); emit(); return true; }
+    c.resume && c.resume().then(function () { startHum(); emit(); }, function () {});
     return false;
   };
   A.setOn = function (v) {
     on = !!v; try { localStorage.setItem("jb-sound", on ? "on" : "off"); } catch (e) {}
-    if (on) { ensure(); A.hum(true); } else A.hum(false);
+    if (on) { ensure(); startHum(); } else stopHum();
     emit();
   };
 
@@ -104,20 +104,21 @@
     })(i);
   };
   A.whoosh = function () { if (ready()) noise(ctx.currentTime, 0.35, "bandpass", 1200, 0.6, 0.1); };
-  /* quiet mains hum plus faint hiss */
-  A.hum = function (v) {
-    if (!ctx) return;
-    if (v && !humNodes && ready()) {
-      var o = ctx.createOscillator(); o.type = "sawtooth"; o.frequency.value = 50;
-      var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 180;
-      var g = ctx.createGain(); g.gain.value = 0.006;
-      var s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
-      var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 5000;
-      var g2 = ctx.createGain(); g2.gain.value = 0.004;
-      o.connect(lp); lp.connect(g); g.connect(master); s.connect(hp); hp.connect(g2); g2.connect(master);
-      o.start(); s.start(); humNodes = [o, s];
-    } else if (!v && humNodes) { humNodes.forEach(function (n) { try { n.stop(); } catch (e) {} }); humNodes = null; }
-  };
+  /* quiet mains hum plus faint hiss: only wanted during power-on and boot */
+  var wantHum = false;
+  function startHum() {
+    if (!wantHum || humNodes || !ready()) return;
+    var o = ctx.createOscillator(); o.type = "sawtooth"; o.frequency.value = 50;
+    var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 180;
+    var g = ctx.createGain(); g.gain.value = 0.006;
+    var s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+    var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 5000;
+    var g2 = ctx.createGain(); g2.gain.value = 0.004;
+    o.connect(lp); lp.connect(g); g.connect(master); s.connect(hp); hp.connect(g2); g2.connect(master);
+    o.start(); s.start(); humNodes = [o, s];
+  }
+  function stopHum() { if (humNodes) { humNodes.forEach(function (n) { try { n.stop(); } catch (e) {} }); humNodes = null; } }
+  A.hum = function (v) { wantHum = !!v; if (v) startHum(); else stopHum(); };
 
   /* Tetris effects */
   A.t = {

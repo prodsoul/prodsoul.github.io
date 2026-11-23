@@ -11,24 +11,24 @@
   var t0 = Date.now();
 
   /* ---------- build the monitor ---------- */
-  var h = '<div class="stage" id="stage"><div class="monitor on-air" id="monitor"><div class="crt" id="crt">' +
-    '<div class="screen on" id="screen">' +
-    '<div class="mtop"><span>JB-TERM</span><span class="sp2"></span><button type="button" id="m-snd"></button><button type="button" id="m-thm"></button></div>' +
+  var h = '<div class="stage" id="stage"><div class="monitor" id="monitor"><div class="crt" id="crt">' +
+    '<div class="screen" id="screen">' +
+    '<div class="mtop"><span>JB-TERM</span><span class="sp2"></span><button type="button" id="m-skip" hidden>skip</button><button type="button" id="m-snd"></button><button type="button" id="m-thm"></button></div>' +
     '<div class="scroll" id="scroll"><div class="term" id="term"><div id="out" role="log" aria-live="off"></div>' +
     '<label id="promptwrap" hidden><span class="prompt" id="ps"></span><span id="line"><span id="cpre"></span><span class="cursor" id="ccur">&nbsp;</span><span id="cpost"></span></span>' +
     '<input id="inp" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="terminal input"></label></div></div>' +
     '<div class="dock" id="dock" hidden></div>' +
-    '<div class="skiphint" id="skiphint" hidden></div>' +
+    '<div class="gate" id="gate" hidden></div>' +
     '<div class="fx fx-flick"></div><div class="fx fx-roll"></div><div class="fx fx-noise"></div><div class="fx fx-scan"></div><div class="fx fx-glare"></div><div class="fx fx-vig"></div>' +
     '</div></div>' +
-    '<div class="plate"><span class="led"></span><span class="brand" id="brand">Prodsoul Terminal 4000</span><button type="button" id="b-snd"></button><button type="button" id="b-thm"></button></div>' +
+    '<div class="plate"><span class="led"></span><span class="brand" id="brand">Prodsoul Terminal 29007</span><button type="button" id="b-skip" hidden>skip</button><button type="button" id="b-snd"></button><button type="button" id="b-thm"></button></div>' +
     '</div></div>';
   var keep = [].slice.call(body.querySelectorAll("script, noscript, #doc"));
   body.insertAdjacentHTML("afterbegin", h);
   var $ = function (s) { return document.querySelector(s); };
   var screen = $("#screen"), scroller = $("#scroll"), out = $("#out"), pw = $("#promptwrap"), psEl = $("#ps"), inp = $("#inp");
-  var cpre = $("#cpre"), ccur = $("#ccur"), cpost = $("#cpost"), dock = $("#dock"), skipHint = $("#skiphint");
-  var bSnd = $("#b-snd"), bThm = $("#b-thm"), mSnd = $("#m-snd"), mThm = $("#m-thm");
+  var cpre = $("#cpre"), ccur = $("#ccur"), cpost = $("#cpost"), dock = $("#dock"), gate = $("#gate"), monitor = $("#monitor");
+  var bSnd = $("#b-snd"), bThm = $("#b-thm"), mSnd = $("#m-snd"), mThm = $("#m-thm"), bSkip = $("#b-skip"), mSkip = $("#m-skip");
 
   /* ---------- sizing: a fixed 4:3 monitor on desktop, full screen on phones ---------- */
   var mobile = false;
@@ -37,7 +37,7 @@
     mobile = (coarse && Math.min(vw, vh) < 900) || vw < 760;
     body.classList.toggle("mobile", mobile);
     if (!mobile) {
-      var s = Math.min((vw - 16) / 1048, (vh - 16) / 832, 1.25);
+      var s = Math.min((vw - 16) / 1048, (vh - 16) / 848, 1.25);
       document.documentElement.style.setProperty("--s", Math.max(0.35, s).toFixed(4));
     }
   }
@@ -105,9 +105,8 @@
   var themeSaved = "green"; try { themeSaved = localStorage.getItem("jb-theme") || "green"; } catch (e) {}
   setTheme(themeSaved);
   function paintSound() {
-    var on = A.isOn(), tx = "sound: " + (on ? (A.ready() ? "on" : "tap") : "off");
+    var on = A.isOn(), tx = "sound: " + (on ? "on" : "off");
     bSnd.textContent = tx; mSnd.textContent = on ? "snd on" : "snd off"; bSnd.setAttribute("aria-pressed", String(on));
-    if (booting) paintSkipHint();
   }
   A.onChange(paintSound); paintSound();
   function toggleSound() { A.unlock(); A.setOn(!A.isOn()); if (A.isOn()) A.ok(); paintSound(); }
@@ -120,7 +119,7 @@
   function gesture(e) {
     var wasReady = A.ready();
     if (!wasReady) { A.unlock(); }
-    if (firstGesture) { firstGesture = false; if (!wasReady && A.isOn() && booting) { e.__unlockOnly = true; } }
+    firstGesture = false;
   }
   ["pointerdown", "keydown", "touchend"].forEach(function (ev) { addEventListener(ev, gesture, true); });
 
@@ -137,18 +136,28 @@
     for (var i = 0; i < rows.length; i++) { p.append(document.createTextNode(rows[i] + "\n")); fitArt(p); A.tick(); scrollEnd(); await sleep(o.delay || 45); }
     return p;
   }
-  var GL = {
-    J: ["..###", "...#.", "...#.", "#..#.", ".##.."], O: [".###.", "#...#", "#...#", "#...#", ".###."], A: [".###.", "#...#", "#####", "#...#", "#...#"],
-    N: ["#...#", "##..#", "#.#.#", "#..##", "#...#"], B: ["####.", "#...#", "####.", "#...#", "####."], I: ["#####", "..#..", "..#..", "..#..", "#####"],
-    S: [".####", "#....", ".###.", "....#", "####."], E: ["#####", "#....", "####.", "#....", "#####"], L: ["#....", "#....", "#....", "#....", "#####"],
-    G: [".####", "#....", "#..##", "#...#", ".###."]
-  };
-  function bannerRows(word) {
-    var rows = [];
-    for (var r = 0; r < 5; r++) rows.push(word.split("").map(function (ch) { return GL[ch][r].replace(/\./g, " "); }).join(" ").replace(/\s+$/, ""));
-    return rows;
+  /* Name banner drawn from block characters as SVG rectangles, so it looks the same on every device and font. */
+  var NAME1 = ["     ▄▄▄", "     ███", "     ███ ▄███▄  ▀▀█▄ ████▄ ████▄", "▄▄▄  ███ ██ ██ ▄█▀██ ██ ██ ██ ██", " ▀████▀  ▀███▀ ▀█▄██ ██ ██ ██ ██"];
+  var NAME2 = ["▄▄▄▄▄▄▄                         ▄▄", "███▀▀███▄ ▀▀                    ██ ▀▀", "███▄▄███▀ ██  ▄█▀▀▀ ▄█▀▀▀ ▄█▀█▄ ██ ██  ████▄ ▄████",
+    "███  ███▄ ██  ▀███▄ ▀███▄ ██▄█▀ ██ ██  ██ ██ ██ ██", "████████▀ ██▄ ▄▄▄█▀ ▄▄▄█▀ ▀█▄▄▄ ██ ██▄ ██ ██ ▀████", "                                                ██", "                                              ▀▀▀"];
+  async function blockArt(rows, o) {
+    o = o || {}; var NS = "http://www.w3.org/2000/svg";
+    var cols = Math.max.apply(null, rows.map(function (r) { return r.replace(/\s+$/, "").length; })), n = rows.length;
+    var svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", "0 0 " + cols + " " + (n * 2)); svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", o.label || "name"); svg.setAttribute("shape-rendering", "crispEdges");
+    svg.style.cssText = "display:block;width:calc(" + cols + " * .6em);max-width:100%;height:auto;aspect-ratio:" + (cols * 0.6) + " / " + n + ";color:var(--bright);fill:currentColor;filter:drop-shadow(0 0 5px rgba(var(--fg-rgb),.75));margin:.15em 0 .5em";
+    var groups = rows.map(function (row, r) {
+      var g = document.createElementNS(NS, "g"); g.style.visibility = "hidden"; var c = 0;
+      while (c < row.length) {
+        var ch = row[c]; if (ch === " ") { c++; continue; } var e = c; while (e < row.length && row[e] === ch) e++;
+        var rect = document.createElementNS(NS, "rect"); rect.setAttribute("x", c); rect.setAttribute("width", e - c);
+        rect.setAttribute("y", ch === "▄" ? r * 2 + 1 : r * 2); rect.setAttribute("height", ch === "█" ? 2 : 1); g.appendChild(rect); c = e;
+      } svg.appendChild(g); return g;
+    });
+    (o.into || out).append(svg);
+    for (var i = 0; i < groups.length; i++) { groups[i].style.visibility = "visible"; A.tick(); scrollEnd(); await sleep(o.delay || 80); }
+    return svg;
   }
-  var CAT = ["   /\\___/\\", "  (  o o  )   zzZ", "  (  =^=  )", "   )     (", "  (  )_(  )__", "   \\_/ \\_/ (__)"];
   var PAD = ["    ___________________", "   /  _                \\", "  /  | |_    (Y)  (X)   \\", " |  _| |_|    (B)  (A)   |",
     " | |_   _|     .--.      |", " |   |_|      /    \\     |", "  \\    ______/      \\____/", "   '--'"];
 
@@ -195,7 +204,8 @@
     figs.forEach(function (f, k) {
       var src = f.querySelector("img"), fig = el("figure"), shot = el("div", "shot pend");
       var im = new Image(); im.alt = src.getAttribute("alt") || ""; im.src = href(src.getAttribute("src").replace(/^\.\.\//, "")); im.decoding = "async";
-      shot.append(im); fig.append(shot);
+      shot.append(im); fig.append(shot); shot.title = "click to toggle the screen filter";
+      shot.addEventListener("click", function () { shot.classList.toggle("clear"); });
       var cap = f.querySelector("figcaption"); if (cap) fig.append(el("figcaption", "", cap.textContent));
       wrap.append(fig);
       setTimeout(function () { shot.classList.remove("pend"); shot.classList.add("reveal"); A.seek(2); scrollEnd(); }, fast ? 0 : k * 220);
@@ -211,9 +221,16 @@
     function play() {
       var f = document.createElement("iframe"); f.src = "https://www.youtube-nocookie.com/embed/" + id + "?autoplay=1&rel=0&modestbranding=1";
       f.title = title; f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true; f.referrerPolicy = "strict-origin-when-cross-origin";
-      v.classList.add("playing"); poster.remove(); v.append(f); A.hum(false); A.beep(700, .05);
+      v.classList.add("playing"); shot.classList.add("clear"); poster.remove(); v.append(f); A.beep(700, .05);
     }
     v.addEventListener("click", play); out.append(wrap); A.seek(3); scrollEnd();
+  }
+
+  function pdfBlock(src, name) {
+    var cap = ln("", "dim"); cap.textContent = "loading " + (name || "report.pdf") + " ...";
+    var shot = el("div", "shot pdfshot"); out.append(shot); var fitH = mobile ? Math.max(220, innerHeight - 230) : 400;
+    window.JBPdf.mount(shot, { src: href(src), fitH: fitH, name: name, onNav: function () { shot.classList.add("clear"); } });
+    cap.remove(); A.seek(4); scrollEnd();
   }
 
   /* case study renderer: reads the hidden #doc article */
@@ -239,6 +256,7 @@
       else if (tag === "p") { var pp = el("p", "p ln new"); out.append(pp); await typeInto(pp, n.textContent, 400); }
       else if (cls.indexOf("gallery") === 0) await gallery(n);
       else if (cls === "video") video(n);
+      else if (cls === "pdf") { gap(); var pc = ln("", "dim"); await typeInto(pc, "report: " + n.dataset.name, 90); pdfBlock(n.dataset.src, n.dataset.name); }
     }
     gap(); ln("-- end of file --", "dim");
     var idx = WORKS.indexOf(findWork(SLUG)), prev = WORKS[idx - 1], next = WORKS[idx + 1];
@@ -253,11 +271,11 @@
   async function go(file) {
     if (leaving) return; leaving = true; busy = true; pw.hidden = true; dock.hidden = true;
     if (/^https?:/.test(file) || /^mailto:/.test(file)) { location.href = file; return; }
-    A.seek(5); A.whoosh();
-    var d = ln("", "dim"); d.textContent = "connecting to " + file.replace(/^projects\//, "") + " ..."; scrollEnd(true);
-    await new Promise(function (r) { setTimeout(r, 380); });
-    screen.classList.remove("on"); screen.classList.add("off"); A.powerOff();
-    setTimeout(function () { location.href = href(file); }, 430);
+    A.seek(5);
+    var d = ln("", "dim"); d.textContent = "connecting to " + file.replace(/^projects\//, "").replace(/^index.html\?home$/, "home") + " ..."; scrollEnd(true);
+    await new Promise(function (r) { setTimeout(r, 750); });
+    A.whoosh(); screen.classList.remove("on"); screen.classList.add("off"); A.powerOff();
+    setTimeout(function () { location.href = href(file); }, 1000);
   }
   addEventListener("pageshow", function (e) {
     if (e.persisted) { leaving = false; busy = false; screen.classList.remove("off"); screen.classList.add("on"); pw.hidden = false; dock.hidden = false; focusInput(); }
@@ -284,16 +302,35 @@
   var C = {}, SECRET = {};
   function def(names, fn, secret) { names.split(" ").forEach(function (n) { C[n] = fn; if (secret) SECRET[n] = 1; }); }
 
+  var HOME = "index.html?home";
+  var CMDS = [
+    ["navigate", [["home", "back to the home screen with my name"], ["works", "every project, with previews"], ["about", "who I am"], ["contact", "email and LinkedIn"],
+      ["resume", "read my resume"], ["open <name>", "open a project, e.g. open convex"], ["next / prev", "move between projects"], ["back", "go up one level"],
+      ["cd <place>", "works, about, contact, resume, ~ or .."], ["ls [works]", "list projects"], ["pwd", "show where you are"]]],
+    ["info", [["whoami", "one-line profile"], ["skills", "tools and methods"], ["neofetch", "system info"], ["top", "running processes"],
+      ["date", "current date and time"], ["uname", "system name"], ["ping", "test the connection"], ["history", "commands you typed so far"], ["echo <text>", "repeat some text"]]],
+    ["display and sound", [["theme <name>", "green, amber, blue or ice"], ["sound on|off", "key clicks, beeps and effects"], ["clear", "wipe the screen"],
+      ["plain", "switch to the plain, easy-to-read site"]]],
+    ["system", [["help", "short help"], ["commands", "this list"], ["shutdown", "power off, back to the power-on screen"], ["restart", "same as shutdown"], ["exit", "try it"]]],
+    ["extras", [["matrix", "digital rain (any key stops it)"], ["hire", "a good decision"], ["sudo", "ask nicely"], ["rm", "please do not"], ["man", "the manual"]]]
+  ];
+
   def("help ?", async function () {
     var g = el("div", "help ln new"), rows = [
-      ["about", "who is Joann?"], ["works", "all projects with previews"], ["open <name>", "open a project (try: open convex)"],
-      ["ls [works]", "list projects, quick view"], ["cat <file>", "about.txt · sergio.png · resume.pdf"],
-      ["skills", "tools and methods"], ["contact · resume", "reach me, see my resume"], ["neofetch · top", "system info"],
-      ["theme <name>", "green · amber · blue · ice"], ["sound on|off", "typing clicks and beeps"],
-      ["clear · reboot", "wipe the screen · restart"]
+      ["home", "back to the home screen"], ["works", "all projects with previews"], ["about", "who is Joann?"], ["open <name>", "open a project (try: open convex)"],
+      ["contact · resume", "reach me, read my resume"], ["theme <name>", "green · amber · blue · ice"], ["sound on|off", "clicks and beeps"],
+      ["shutdown", "power off, back to the start"]
     ];
     rows.forEach(function (r) { g.append(el("b", "", r[0]), el("span", "dim", r[1])); }); out.append(g);
-    ln("tab: autocomplete   up/down: history   or tap a shortcut below", "dim");
+    ln("type `commands` for the full list.   tab: autocomplete   up/down: history", "dim");
+  });
+  def("commands", async function () {
+    for (var i = 0; i < CMDS.length; i++) {
+      var h2 = el("div", "ln new bright", "[ " + CMDS[i][0] + " ]"); h2.style.marginTop = i ? "1.1em" : ".3em"; out.append(h2);
+      var g = el("div", "help tight ln new"); CMDS[i][1].forEach(function (r) { g.append(el("b", "", r[0]), el("span", "dim", r[1])); }); out.append(g);
+      A.tick(); scrollEnd(); await sleep(140);
+    }
+    ln("a few commands are not listed. keep poking around.", "dim");
   });
   def("about", async function () { for (var i = 0; i < JB.about.length; i++) { var p = el("p", "p ln new"); out.append(p); await typeInto(p, JB.about[i], 170); } });
   def("whoami", async function () { await typeLn("Joann Bisseling | UX & Game Design | Singapore", "bright", 70); ln("status: open to internships", "dim"); });
@@ -301,54 +338,48 @@
     var g = el("div", "help tight ln new"); JB.skills.forEach(function (s) { g.append(el("b", "", s[0]), el("span", "", s[1])); }); out.append(g); A.tick();
   });
   def("ls dir", async function (arg) {
-    arg = (arg || "").replace(/^-\w+\s*/, function (m) { return m; });
     var flags = (arg.match(/^-\w+/) || [""])[0], rest = arg.replace(/^-\w+\s*/, "").replace(/\/$/, "");
     if (rest === "works" || rest === "all") { if (flags === "-l") { await workCards(WORKS); } else { workRows(WORKS); ln("tip: open <name>, e.g. open " + WORKS[0].alias, "dim"); } }
     else if (rest === "projects") { await workCards(WORKS.filter(function (w) { return w.featured; })); ln("3 of " + WORKS.length + " shown. type `works` to see them all", "dim"); }
     else if (!rest) {
-      var d = el("div", "ln new"); d.append(el("span", "bright", "works/  "), "about.txt  contact.txt  resume.pdf  sergio.png  sergio.asc  README.md" + (flags.indexOf("a") > -1 ? "  " : ""));
-      if (flags.indexOf("a") > -1) d.append(el("span", "warn", ".tetris"));
+      var d = el("div", "ln new"); d.append(el("span", "bright", "works/  "), "about  contact  resume");
+      if (flags.indexOf("a") > -1) { d.append("  "); d.append(el("span", "warn", ".tetris")); }
       out.append(d);
-    } else ln("ls: cannot access '" + rest + "': No such file or directory");
+    } else ln("ls: cannot access '" + rest + "': No such file or directory", "warn");
   });
   def("works projects", async function () { await workCards(WORKS); ln("open <name> to read a case study, e.g. open " + WORKS[0].alias, "dim"); });
   def("cd", async function (arg) {
     arg = (arg || "~").replace(/\/$/, "");
-    var map = { "~": "index.html", "": "index.html", "..": PAGE === "project" ? "works.html" : "index.html", works: "works.html", about: "about.html", contact: "contact.html", resume: "resume.html" };
+    var map = { "~": HOME, "": HOME, "..": PAGE === "project" ? "works.html" : HOME, works: "works.html", about: "about.html", contact: "contact.html", resume: "resume.html" };
     if (map[arg]) return go(map[arg]);
     var w = findWork(arg); if (w) return go("projects/" + w.slug + ".html");
     ln("cd: " + arg + ": No such file or directory", "warn");
   });
   def("pwd", async function () { ln("/home/guest/" + cwd().replace(/^~\/?/, "")); });
-  def("cat more less", async function (arg, raw) {
+  /* secret: plain `cat` shows the cat */
+  def("cat more less", async function (arg) {
     var a = (arg || "").toLowerCase();
-    if (!a) return ln("cat: missing file operand. try `cat about.txt`", "warn");
+    if (!a) return catPhoto();
     if (a === "about.txt") return C.about();
     if (a === "contact.txt") return C.contact();
-    if (a === "readme.md") { await typeLn("This portfolio is a terminal. Type `help` to look around.", "", 90); ln("hint: there is a hidden file. `ls -a` shows it.", "dim"); return; }
     if (a === "resume.pdf") return C.resume();
-    if (a === "sergio.asc") return C.sergio();
-    if (a === "sergio.png") return catPhoto();
     if (a === ".tetris") return ln("cat: .tetris: binary file. run it with ./tetris", "warn");
     var w = findWork(a); if (w) return go("projects/" + w.slug + ".html");
     ln("cat: " + arg + ": No such file or directory", "warn");
-  });
+  }, false);
   async function catPhoto() {
-    var wrap = el("div", "shot cat-pic pend"), im = new Image(); im.src = href("assets/images/sergio.png"); im.alt = "Sergio, the cat"; wrap.append(im);
+    var wrap = el("div", "shot cat-pic pend"), im = new Image(); im.src = href("assets/images/sergio.png"); im.alt = "My cat"; wrap.append(im);
+    wrap.title = "click to toggle the screen filter"; wrap.addEventListener("click", function () { wrap.classList.toggle("clear"); });
     await loadImg(im.src); out.append(wrap); await sleep(60); wrap.classList.remove("pend"); wrap.classList.add("reveal"); A.seek(4); A.meow(); scrollEnd();
-    await sleep(900); ln("SERGIO.PNG   status: unbothered   mood: judging your UI", "dim");
+    await sleep(900); await typeLn("meow.", "dim", 20);
   }
-  def("sergio", async function () {
-    await art(CAT, { delay: 90, label: "ASCII cat named Sergio" }); A.meow();
-    ln("SERGIO.EXE   status: unbothered   mood: judging your UI", "dim");
-  });
   def("neofetch", async function () {
     var box = el("div", "nf ln new"); out.append(box); var holder = el("div"); box.append(holder);
     await art(PAD, { delay: 40, label: "ASCII game controller", into: holder });
     var info = el("div"); box.append(info);
     var up = Math.max(1, Math.round((Date.now() - t0) / 1000));
     var rows = [["guest@joann", null], ["-----------", null], ["OS", "PortfolioOS 1.0"], ["Role", "UX & Game Design student"], ["Location", "Singapore"],
-      ["Tools", "Figma, Unity"], ["Background", "Big Data Analytics"], ["Mascot", "Sergio (cat)"], ["Status", "open to internships"], ["Uptime", up + "s"],
+      ["Tools", "Figma, Unity"], ["Background", "Big Data Analytics"], ["Status", "open to internships"], ["Uptime", up + "s"],
       ["Theme", document.documentElement.dataset.theme], ["Secrets", "1 (hint: ls -a)"]];
     for (var i = 0; i < rows.length; i++) {
       var d = el("div"), r = rows[i]; if (r[1] == null) d.append(el("span", "bright", r[0])); else d.append(el("span", "k", r[0] + ": "), r[1]);
@@ -357,24 +388,19 @@
   });
   def("top", async function () {
     var pre = el("pre", "art ln new"); out.append(pre); pre.style.lineHeight = "1.5";
-    var procs = [["figma", "S", 34], ["unity", "R", 28], ["playtest", "S", 9], ["kopi.service", "S", 4], ["sergio", "Z", 0], ["coffee", "R", 2], ["tetris", "T", 0]];
+    var procs = [["figma", "S", 34], ["unity", "R", 28], ["playtest", "S", 9], ["kopi.service", "S", 4], ["coffee", "R", 2], ["tetris", "T", 0]];
     for (var f = 0; f < 5; f++) {
       var s = "top - " + new Date().toTimeString().slice(0, 8) + " up " + Math.max(1, Math.round((Date.now() - t0) / 60000)) + " min,  1 user,  load: " + (0.4 + Math.random()).toFixed(2) + "\n" +
         "Tasks: " + procs.length + " total   Cpu(s): " + (20 + Math.random() * 60 | 0) + "% us   Mem: 640K used (it is enough)\n\n  PID  USER   S  %CPU  COMMAND\n";
-      procs.forEach(function (p, i) { s += String(1001 + i * 7).padStart(5) + "  guest  " + p[1] + "  " + String(Math.max(0, p[2] + (Math.random() * 10 - 5)) .toFixed(1)).padStart(4) + "  " + p[0] + "\n"; });
+      procs.forEach(function (p, i) { s += String(1001 + i * 7).padStart(5) + "  guest  " + p[1] + "  " + String(Math.max(0, p[2] + (Math.random() * 10 - 5)).toFixed(1)).padStart(4) + "  " + p[0] + "\n"; });
       pre.textContent = s; A.tick(); scrollEnd(); await sleep(520);
     }
-    ln("(sergio has been asleep since boot)", "dim");
   });
   def("resume", async function () {
-    var pdf = href(JB.links.resumePdf);
-    await typeLn("resume.pdf   (30 KB)", "bright", 80);
-    var ac = el("div", "actions ln new"), a = el("a", "", "[ open pdf ]"); a.href = pdf; a.target = "_blank"; a.rel = "noopener";
-    var d = el("a", "", "[ download ]"); d.href = pdf; d.setAttribute("download", "JoannBisseling_Resume.pdf"); ac.append(a, d); out.append(ac); A.ok();
-    if (!mobile) {
-      var shot = el("div", "shot pend"), fr = document.createElement("iframe"); fr.className = "pdf-frame"; fr.title = "Joann Bisseling resume"; fr.src = pdf;
-      shot.append(fr); out.append(shot); await sleep(120); shot.classList.remove("pend"); A.seek(4); scrollEnd();
-    }
+    var pdf = JB.links.resumePdf;
+    await typeLn("resume.pdf", "bright", 80);
+    var shot = el("div", "shot pdfshot"); out.append(shot); var fitH = mobile ? Math.max(220, innerHeight - 230) : 400;
+    window.JBPdf.mount(shot, { src: href(pdf), fitH: fitH, name: "JoannBisseling_Resume.pdf", onNav: function () { shot.classList.add("clear"); } }); A.seek(4); scrollEnd();
   });
   def("contact", async function () {
     var r1 = ln("", ""), r2 = ln("", ""), r3 = ln("", "");
@@ -386,14 +412,15 @@
   def("linkedin", async function () { await typeLn("opening linkedin ...", "dim", 60); await sleep(300); window.open(JB.links.linkedin, "_blank", "noopener"); });
   def("open", async function (arg) {
     if (!arg) return ln("usage: open <name>   e.g. open convex · open resume", "warn");
-    var map = { resume: "resume.html", works: "works.html", about: "about.html", contact: "contact.html", home: "index.html" };
+    var map = { resume: "resume.html", works: "works.html", about: "about.html", contact: "contact.html", home: HOME };
     if (arg === "email") return C.email(); if (arg === "linkedin") return C.linkedin();
     if (map[arg]) return go(map[arg]);
     var w = findWork(arg); if (!w) return ln("open: '" + arg + "' not found. type `works` to see the names.", "warn");
     await typeLn("opening " + w.title + " ...", "dim", 60); await go("projects/" + w.slug + ".html");
   });
-  def("home", async function () { return go("index.html"); });
-  def("back", async function () { return go(PAGE === "project" ? "works.html" : "index.html"); });
+  def("home", async function () { return go(HOME); });
+  def("back", async function () { return go(PAGE === "project" ? "works.html" : HOME); });
+  def("plain", async function () { await typeLn("switching to the plain site ...", "dim", 60); await go("plain.html"); });
   def("next prev", async function (arg, raw) {
     var dir = raw.toLowerCase().indexOf("prev") === 0 ? -1 : 1, i = WORKS.indexOf(findWork(SLUG));
     if (PAGE !== "project" || i < 0) return ln("nothing open. try `open " + WORKS[0].alias + "` first.", "warn");
@@ -407,19 +434,27 @@
     if (arg === "on" || arg === "off") { A.unlock(); A.setOn(arg === "on"); if (arg === "on") A.ok(); paintSound(); ln("sound " + arg + ".", "dim"); } else ln("usage: sound on|off");
   });
   def("clear cls", async function () { out.replaceChildren(); });
-  def("reboot restart", async function () { if (PAGE === "home") await powerCycle(); else await go("index.html"); });
+  def("shutdown restart reboot poweroff", async function () { await shutdown(); });
   def("date", async function () { ln(new Date().toString()); });
   def("echo", async function (a, raw) { ln(raw.replace(/^echo\s*/i, "")); });
   def("history", async function () { history.forEach(function (x, i) { ln(String(i + 1).padStart(3) + "  " + x); }); });
   def("uname", async function () { ln("PortfolioOS 1.0 joann x86_16 CRT"); });
   def("ping", async function () { for (var i = 0; i < 3; i++) { ln("64 bytes from joann: icmp_seq=" + i + " time=" + (8 + Math.random() * 20).toFixed(1) + " ms"); A.tick(); await sleep(380); } });
-  def("sudo", async function () { A.error(); ln("guest is not in the sudoers file. This incident will be reported to Sergio.", "warn"); });
+  def("sudo", async function () { A.error(); ln("guest is not in the sudoers file. This incident will be reported.", "warn"); });
   def("rm", async function () { A.error(); ln("rm: permission denied. nice try.", "warn"); });
-  def("exit logout", async function () { ln("There is no escape. Try `reboot` instead.", "dim"); });
+  def("exit logout", async function () { ln("There is no escape. Try `shutdown` instead.", "dim"); });
   def("hire", async function () { await typeLn("Excellent decision.", "bright", 40); await C.contact(); });
-  def("man", async function () { ln("What manual? Try `help`.", "dim"); });
+  def("man", async function () { ln("What manual? Try `commands`.", "dim"); });
   def("matrix", async function () { await matrix(); });
   def("tetris ./tetris .tetris ./.tetris", async function () { await playTetris(); }, true);
+  /* shutdown: screen collapses, then the page reloads on the power-on screen */
+  async function shutdown() {
+    if (leaving) return; leaving = true; busy = true; pw.hidden = true; dock.hidden = true;
+    ln("Broadcast message: the system is going down for power-off NOW.", "warn"); A.seek(4); await sleep(500);
+    ln("Stopping services ... done", "dim"); await new Promise(function (r) { setTimeout(r, 750); });
+    A.whoosh(); screen.classList.remove("on"); screen.classList.add("off"); A.powerOff(); monitor.classList.remove("on-air");
+    setTimeout(function () { if (PAGE === "home" && !location.search) location.reload(); else location.href = href("index.html"); }, 1100);
+  }
 
   function loadScript(src) {
     return new Promise(function (res, rej) { var s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
@@ -479,7 +514,7 @@
 
   /* ---------- input handling ---------- */
   var ARGS = {
-    open: WORKS.map(function (w) { return w.alias; }).concat(["resume", "email", "linkedin", "works", "about", "contact"]), cat: ["about.txt", "sergio.png", "sergio.asc", "resume.pdf", "contact.txt", "README.md"],
+    open: WORKS.map(function (w) { return w.alias; }).concat(["resume", "email", "linkedin", "works", "about", "contact"]), 
     ls: ["works", "projects", "-l", "-a"], cd: ["works", "about", "contact", "resume", "~", ".."], theme: THEMES, sound: ["on", "off"]
   };
   function complete() {
@@ -497,7 +532,7 @@
     if (k === KONAMI[kpos]) { if (++kpos === KONAMI.length) { kpos = 0; if (!busy && !booting && !inGame) { inp.blur(); exec("./tetris"); } } } else kpos = (k === KONAMI[0]) ? 1 : 0;
   }
   document.addEventListener("keydown", function (e) {
-    if (inGame) return;
+    if (inGame || !gate.hidden) return;
     konami(e);
     if (e.__unlockOnly) return;
     if (booting || busy) {
@@ -531,7 +566,7 @@
   });
   /* tap or click anywhere while something is typing: finish it instantly */
   screen.addEventListener("pointerdown", function (e) {
-    if (e.__unlockOnly || !(booting || busy) || inGame) return;
+    if (e.__unlockOnly || !(booting || busy) || inGame || !gate.hidden) return;
     if (e.target.closest("a, button, iframe, .vid")) return;
     skip();
   });
@@ -540,7 +575,6 @@
     var b = e.target.closest("[data-cmd]"); if (!b) return;
     if (booting) return skip(); if (busy) return skip(); exec(b.dataset.cmd);
   });
-  skipHint.addEventListener("click", function (e) { if (e.target.closest("button")) skip(); });
 
   /* secret on touch screens and desktops: five quick taps on the brand */
   var taps = [];
@@ -552,19 +586,16 @@
 
   /* dock */
   function buildDock() {
-    var list = [["help", "help"], ["works", "works"], ["about", "about"], ["contact", "contact"], ["resume", "resume"]];
-    if (PAGE === "project") list = [["back", "back"], ["prev", "prev"], ["next", "next"], ["works", "works"], ["contact", "contact"]];
+    var list = [["home", "home"], ["works", "works"], ["about", "about"], ["contact", "contact"], ["resume", "resume"], ["help", "help"]];
+    if (PAGE === "project") list = [["back", "back"], ["prev", "prev"], ["next", "next"], ["works", "works"], ["home", "home"], ["contact", "contact"]];
     dock.replaceChildren(); list.forEach(function (c) { var b = el("button", "chip"); b.type = "button"; b.dataset.cmd = c[1]; b.append(c[0]); dock.append(b); });
   }
   buildDock();
 
   /* ---------- boot and page intros ---------- */
-  function paintSkipHint() {
-    if (!booting) { skipHint.hidden = true; return; }
-    skipHint.hidden = false; skipHint.replaceChildren();
-    if (A.isOn() && !A.ready()) { var s = el("div", "soundhint", (coarse ? "tap" : "press a key") + " for sound"); skipHint.append(s); }
-    var b = el("button", "", "skip"); b.type = "button"; skipHint.append(b);
-  }
+  setInterval(function () { var v = (booting || busy) && !inGame && !leaving && gate.hidden; bSkip.hidden = !v; mSkip.hidden = !v; }, 120);
+  bSkip.addEventListener("click", skip); mSkip.addEventListener("click", skip);
+
   var W = 40;
   function statusLine(name, status, cls) {
     var d = ln("", ""), left = ("  " + name).padEnd(W - status.length - 4, ".");
@@ -583,15 +614,35 @@
     var prev = null; try { prev = localStorage.getItem("jb-last"); localStorage.setItem("jb-last", new Date().toString().slice(0, 24)); } catch (e) {}
     return prev ? "Last login: " + prev + " on tty1" : "Welcome, new user. This is your first login.";
   }
+  function lightUp() { monitor.classList.add("on-air"); screen.classList.remove("off"); void screen.offsetWidth; screen.classList.add("on"); }
+
+  /* power-on screen: the one place a visitor picks sound, the plain site or the full experience */
+  function showGate() {
+    busy = true; gate.hidden = false;
+    gate.innerHTML = '<div class="gate-box"><div class="gate-title">PRODSOUL TERMINAL 29007</div><div class="gate-sub">standby</div>' +
+      '<button type="button" class="gbtn main" id="g-power">[ POWER ON ]</button>' +
+      '<a class="gbtn" id="g-plain" href="plain.html">[ PLAIN SITE ]</a>' +
+      '<div class="gate-snd">sound: <button type="button" class="gbtn sm" id="g-snd"></button></div>' +
+      '<div class="gate-hint">power on starts the full terminal experience.<br>the plain site is a simple, easy-to-read version.</div></div>';
+    var gs = gate.querySelector("#g-snd"), gp = gate.querySelector("#g-power");
+    function paintG() { gs.textContent = A.isOn() ? "[ ON ]" : "[ OFF ]"; }
+    paintG(); A.onChange(paintG);
+    gs.addEventListener("click", function () { A.unlock(); A.setOn(!A.isOn()); if (A.isOn()) A.ok(); paintG(); paintSound(); });
+    gp.addEventListener("click", function () {
+      A.unlock(); gate.hidden = true; gate.innerHTML = ""; lightUp(); boot();
+    });
+    setTimeout(function () { try { gp.focus(); } catch (e) {} }, 50);
+  }
+
   async function boot() {
-    booting = true; busy = true; pw.hidden = true; dock.hidden = true; paintSkipHint();
-    out.replaceChildren(); A.powerOn(); await sleep(700);
+    booting = true; busy = true; pw.hidden = true; dock.hidden = true; fast = false;
+    out.replaceChildren(); A.powerOn(); A.hum(true); await sleep(900);
     A.post();
     await typeLn("JB-BIOS v2.6.1   (C) 2026 PRODSOUL SYSTEMS", "bright", 70); await sleep(120);
     ln("UX-CORE(tm) 8 CORES @ 4.20GHz"); await sleep(150);
     await counter("MEMORY TEST  ", 65536, 4096, "OK"); await sleep(140); gap();
     ln("Detecting devices ...", "dim"); await sleep(240);
-    var devs = [["/dev/figma", "OK"], ["/dev/unity", "OK"], ["/dev/playtest", "OK"], ["/dev/kopi", "OK"], ["/dev/sergio", "ZZZ", "warn"]];
+    var devs = [["/dev/figma", "OK"], ["/dev/unity", "OK"], ["/dev/playtest", "OK"], ["/dev/kopi", "OK"], ["/dev/coffee", "ZZZ", "warn"]];
     for (var i = 0; i < devs.length; i++) { statusLine(devs[i][0], devs[i][1], devs[i][2]); A.seek(3); scrollEnd(); await sleep(200); }
     gap(); await sleep(140);
     ln("Loading kernel: PORTFOLIO_OS 1.0", "bright"); await progress(""); await sleep(120);
@@ -600,33 +651,34 @@
     gap(); var lg = ln("", ""); lg.append("joann login: "); var t = document.createTextNode(""); lg.append(t);
     if (fast) t.data = "guest"; else { await sleep(300); for (var c of "guest") { t.data += c; A.key(); await sleep(110); } await sleep(200); }
     var pwl = ln("Password: ", ""); if (!fast) { for (var k = 0; k < 8; k++) { A.key(); await sleep(70); } } pwl.append("********"); A.enter(); await sleep(380);
-    ln(lastLogin(), "dim"); await sleep(400);
-    screen.classList.add("flash"); A.whoosh(); out.replaceChildren(); await sleep(130);
+    ln(lastLogin(), "dim"); await sleep(500);
+    A.hum(false);
+    await intro();
+  }
+  /* home screen: name banner, then a few commands typed for the visitor. Also used by the `home` command (no boot). */
+  async function intro() {
+    booting = true; busy = true; pw.hidden = true; dock.hidden = true;
+    screen.classList.add("flash"); A.whoosh(); out.replaceChildren(); await sleep(200);
     var wrap = el("div", "banner"); out.append(wrap);
-    await art(bannerRows("JOANN"), { delay: 70, label: "Joann", into: wrap, cls: "b1" });
-    await art(bannerRows("BISSELING"), { delay: 70, label: "Bisseling", into: wrap, cls: "b2" });
+    await blockArt(NAME1, { delay: 90, label: "Joann", into: wrap });
+    await blockArt(NAME2, { delay: 90, label: "Bisseling", into: wrap });
     ln("PORTFOLIO_OS 1.0   //   UX & GAME DESIGN   //   SINGAPORE", "dim"); await sleep(450); gap();
     await autoType("whoami"); await sleep(220); gap();
-    await autoType("cat about.txt"); await sleep(160);
-    await autoType("ls projects"); await sleep(120); gap();
-    var hint = ln("", "dim"); await typeInto(hint, "Type `help` for commands, or tap a shortcut below. Something is hiding in here. Try `ls -a`.", 110);
+    await autoType("about"); await sleep(160);
+    await autoType("projects"); await sleep(120); gap();
+    var hint = ln("", "dim"); await typeInto(hint, "Type `help` for commands, `commands` for the full list, or tap a shortcut below. Something is hiding in here. Try `ls -a`.", 110);
     finishIntro();
   }
-  function finishIntro() { booting = false; fast = false; busy = false; skipHint.hidden = true; showPrompt(); screen.classList.remove("flash"); }
-  async function powerCycle() {
-    if (booting) return; pw.hidden = true; dock.hidden = true; screen.classList.remove("on"); screen.classList.add("off"); A.powerOff();
-    await new Promise(function (r) { setTimeout(r, 520); }); out.replaceChildren(); screen.classList.remove("off"); void screen.offsetWidth; screen.classList.add("on");
-    await boot();
-  }
+  function finishIntro() { booting = false; fast = false; busy = false; A.hum(false); showPrompt(); setTimeout(function () { screen.classList.remove("flash"); }, 900); }
   async function pageIntro() {
-    booting = true; busy = true; paintSkipHint(); A.powerOn(); A.seek(4); out.replaceChildren(); await sleep(450);
+    booting = true; busy = true; lightUp(); A.powerOn(); A.seek(4); out.replaceChildren(); await sleep(700);
     var l1 = ln("", "dim"); await typeInto(l1, "link up ... 9600 baud ... " + lastLogin(), 160); gap();
-    var f = { works: ["ls -l works", function () { return C.ls("-l works"); }], about: ["cat about.txt", null], contact: ["contact", null], resume: ["cat resume.pdf", null], project: ["cat " + ((findWork(SLUG) || { alias: SLUG }).alias) + ".txt", null] }[PAGE] || ["help", null];
-    var d = ln("", ""); d.append(el("span", "prompt", psEl.textContent)); var t = document.createTextNode(""), cur = el("span", "cursor solid", "\u00a0"); d.append(t, cur);
-    if (fast) t.data = f[0]; else { await sleep(180); for (var i = 0; i < f[0].length; i++) { t.data += f[0][i]; A.key(); await sleep(45 + Math.random() * 50); } await sleep(160); }
+    var typed = { works: "works", about: "about", contact: "contact", resume: "resume", project: "open " + ((findWork(SLUG) || { alias: SLUG }).alias) }[PAGE] || "help";
+    var d = ln("", ""); d.append(el("span", "prompt", psEl.textContent)); var t = document.createTextNode(""), cur = el("span", "cursor solid", " "); d.append(t, cur);
+    if (fast) t.data = typed; else { await sleep(220); for (var i = 0; i < typed.length; i++) { t.data += typed[i]; A.key(); await sleep(50 + Math.random() * 50); } await sleep(200); }
     cur.remove(); A.enter(); gap();
     if (PAGE === "works") await workCards(WORKS);
-    else if (PAGE === "about") { await C.about(); await sleep(150); await autoType("skills", true); gap(); await autoType("cat sergio.png", true); }
+    else if (PAGE === "about") { await C.about(); await sleep(200); gap(); await autoType("skills", true); }
     else if (PAGE === "contact") { await C.contact(); gap(); ln("Open to conversations about design, internships and collaboration.", "dim"); }
     else if (PAGE === "resume") await C.resume();
     else if (PAGE === "project") await renderDoc();
@@ -642,6 +694,14 @@
 
   /* ---------- go ---------- */
   window.JBTerm = { run: run, go: go };
-  function start() { (PAGE === "home" ? boot() : pageIntro()).catch(function (e) { console.error(e); finishIntro(); }); }
+  function start() {
+    var q = location.search;
+    if (PAGE === "home" && q.indexOf("home") > -1) {
+      try { history_.replaceState(null, "", location.pathname); } catch (e) {}
+      lightUp(); A.powerOn(); intro().catch(function (e) { console.error(e); finishIntro(); });
+    } else if (PAGE === "home") showGate();
+    else pageIntro().catch(function (e) { console.error(e); finishIntro(); });
+  }
+  var history_ = window.history;
   if (document.fonts && document.fonts.load) Promise.race([document.fonts.load('17px "Departure Mono"'), new Promise(function (r) { setTimeout(r, 1200); })]).then(start, start); else start();
 })();
