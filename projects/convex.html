@@ -70,7 +70,13 @@
           <p>CONVEX was designed around three roles: attendees, vendors and organisers. My teammates designed the attendee and vendor experiences, and I designed the organiser interface. On a phone, that meant supporting two different jobs: checking performance at a glance and following up on a specific event or application.</p>
         </div>
         <figure class="convex-paper">
-          <img src="../assets/convex/Paper-Prototype.webp" width="1566" height="1080" loading="lazy" decoding="async" alt="Three paper prototype screens showing the dashboard, events list and individual event overview">
+          <img src="../assets/convex/Paper-Prototype.webp"
+               onerror="if (this.getAttribute('src').endsWith('.webp')) {
+                 this.src = '../assets/convex/Paper-Prototype.png';
+               } else {
+                 this.onerror = null;
+                 this.src = '../assets/convex/paper-prototype.jpg';
+               }" width="1566" height="1080" loading="lazy" decoding="async" alt="Three paper prototype screens showing the dashboard, events list and individual event overview">
           <figcaption>Paper prototype V3</figcaption>
         </figure>
         <p>The team tested organiser tasks such as reviewing a booth application, assigning a booth number and finding an event’s revenue. I used the early paper rounds to refine how people moved between those tasks and what each screen needed to show.</p>
