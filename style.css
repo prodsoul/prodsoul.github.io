@@ -785,55 +785,97 @@ body[data-page="project"] .case-story {
 }
 
 
-/* Keep the featured CONVEX screenshots inside the homepage folder. */
-.convex-showcase {
-  --showcase-image-height: clamp(18rem, 48svh, 34rem);
+/* Size the sticky showcase from the viewport, then give media the space left by the header. */
+.folders > .folder {
+  height: calc(100svh - var(--gap) - var(--tab));
+  min-height: 0;
 }
 
-.convex-showcase .folder-body {
+.folders .folder-sheet {
+  min-height: 0;
+  padding-block: clamp(.75rem, 3.6svh, 2.875rem);
+  gap: clamp(.65rem, 2.3svh, 1.4rem);
+  overflow: clip;
+}
+
+.folders .folder-sheet > header {
+  flex: none;
+}
+
+.folders .folder-body {
+  min-height: 0;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 
-.convex-showcase .folder-body > figure,
-.convex-showcase .details {
-  height: var(--showcase-image-height);
-}
-
-.convex-showcase .details {
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: .85rem;
-}
-
-.convex-showcase figure.media-box {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+.folders .details {
   min-width: 0;
   min-height: 0;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(.45rem, 1.5svh, 1rem);
+}
+
+.folders .media-box {
+  min-width: 0;
+  min-height: 0;
+}
+
+.folders .media-box:has(img) {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   border: 0;
 }
 
 .convex-showcase-screens {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template: minmax(0, 1fr) / repeat(2, minmax(0, 1fr));
   gap: clamp(.35rem, 1vw, 1rem);
   min-height: 0;
 }
 
-.convex-showcase .media-box img {
+.folders .media-box img {
+  min-width: 0;
   min-height: 0;
 }
 
-.convex-showcase .media-box figcaption {
-  padding: .5rem .2rem 0;
-  font-size: clamp(.8rem, 1.1vw, 1rem);
+.folders .media-box:has(img) figcaption {
+  padding: .35rem .2rem 0;
+  font-size: clamp(.72rem, 1.05vw, .95rem);
 }
 
 @media (max-width: 720px) {
-  .convex-showcase {
-    --showcase-image-height: clamp(13rem, 36svh, 19rem);
+  .folders .folder-body {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
-  .convex-showcase .folder-body {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  .folders .folder-sheet header {
+    padding-bottom: .45rem;
   }
+
+  .folders .folder-body p {
+    font-size: clamp(.85rem, 2.8vw, 1rem);
+    line-height: 1.35;
+  }
+
+  .folders .view-link {
+    margin-top: .2rem;
+  }
+}
+
+@media (max-width: 640px) and (orientation: portrait) {
+  .folders .folder-sheet { padding-block: clamp(.75rem, 2.7svh, 1.5rem); }
+}
+
+@media (max-width: 720px) and (max-height: 650px) {
+  .folders .folder-sheet header { gap: .4rem; }
+  .folders .folder-meta { display: flex; flex-wrap: wrap; gap: .15rem .65rem; font-size: .75rem; }
+  .folders .folder-skills { margin-top: 0; padding: .1rem .3rem; }
+  .folders .folder-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .folders .view-link { min-height: 36px; }
+  .convex-showcase .details {
+    grid-template: minmax(0, 1fr) / repeat(2, minmax(0, 1fr));
+    gap: .35rem;
+  }
+  .convex-showcase .media-box:has(img) figcaption { font-size: .65rem; line-height: 1.15; }
 }
