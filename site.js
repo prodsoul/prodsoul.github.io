@@ -187,16 +187,26 @@ function projectCard(link, number) {
   return card;
 }
 
-function projectGrid(links, numbered = false) {
+function projectGrid(links, slots = 0) {
   const grid = document.createElement("ul");
   grid.className = "project-grid";
   for (const [index, link] of links.entries()) {
     const item = document.createElement("li");
-    item.append(projectCard(link, numbered ? index + 1 : null));
+    item.append(projectCard(link, slots ? index + 1 : null));
     grid.append(item);
   }
 
-  if (numbered) {
+  for (let index = links.length; index < slots; index++) {
+    const item = document.createElement("li");
+    item.className = "coming-soon";
+    const frame = document.createElement("div");
+    frame.className = "project-card-frame";
+    frame.setAttribute("aria-hidden", "true");
+    item.append(frame, cardCaption("Coming soon", index + 1));
+    grid.append(item);
+  }
+
+  if (slots) {
     const coverSizes = new ResizeObserver(entries => {
       for (const { target: frame } of entries) {
         frame.nextElementSibling.style.inlineSize = `${frame.getBoundingClientRect().width}px`;
@@ -309,7 +319,7 @@ function groupWorks() {
     panel.id = group.id;
     const heading = document.createElement("h2");
     heading.textContent = group.name;
-    panel.append(heading, projectGrid(members, true));
+    panel.append(heading, projectGrid(members, 6));
     panelStack.append(panel);
     panels.push({ group, tab, panel });
   }

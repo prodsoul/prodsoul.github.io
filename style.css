@@ -315,6 +315,12 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
   min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .project-card:hover .project-card-title { color: var(--hover); }
+.coming-soon .project-card-frame {
+  border: 1px solid #686659; background:
+    linear-gradient(to top right, transparent calc(50% - .5px), #686659 50%, transparent calc(50% + .5px)),
+    linear-gradient(to bottom right, transparent calc(50% - .5px), #686659 50%, transparent calc(50% + .5px));
+}
+.coming-soon .project-card-title { color: var(--soft); }
 .see-more { padding: 2rem var(--edge) 5rem; }
 @media (max-width: 1000px) {
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -342,7 +348,7 @@ main,.top-nav,.folder-sheet,.gallery-panel,.contact-panel {
     grid-auto-rows: minmax(0,1fr);
     row-gap: clamp(12px,2.4svh,32px);
   }
-  .gallery-panel .project-card {
+  .gallery-panel .project-card, .gallery-panel .coming-soon {
     display: grid; grid-template-rows: minmax(0,1fr) auto; height: 100%;
   }
   .gallery-panel .project-card-frame { max-height: 100%; align-self: start; }
