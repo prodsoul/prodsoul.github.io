@@ -467,6 +467,8 @@ function setupScrollReveals() {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       seen.unobserve(entry.target);
+      // Landing folders in the interactive version reveal in step with their typing instead (setupFolderReveal).
+      if (document.documentElement.classList.contains("folder-reveals") && entry.target.closest(".folders .folder-sheet")) continue;
       entry.target.animate(
         [{ opacity: 0, transform: "translateY(36px)" }, { opacity: 1, transform: "none" }],
         { duration: 1100, delay: Math.min(order++, 5) * 90, easing: "cubic-bezier(.18,.7,.24,1)", fill: "backwards" }
@@ -882,6 +884,7 @@ function setupScrollTyping(groups) {
   const finishGroup = group => {
     group.state = "done";
     for (const item of group.items) showFull(item);
+    group.onFinish?.();
   };
 
   window.addEventListener("scroll", () => {
@@ -913,6 +916,7 @@ function setupScrollTyping(groups) {
     running = next;
     next.state = "running";
     token = { stop: false };
+    next.onStart?.();
     runGroup(next, token).then(() => { next.state = "done"; next.onDone?.(); running = null; token = null; });
   }, 140);
 }
@@ -935,6 +939,51 @@ function textGroup(elements, headingSpeed = 46) {
   return { items, speeds, state: "pending" };
 }
 
+// Landing folders (interactive version only): the top-right details, the media and the "View project" link stay
+// hidden until the folder's title starts typing, then ease in one after another. The link waits for the paragraph.
+// Anything skipped (scrolling fast, scrolling past) is simply shown, so nothing can stay hidden.
+function setupFolderReveal(folder, group) {
+  if (reducedMotion.matches) return;
+  const sheet = folder.querySelector(".folder-sheet");
+  if (!sheet) return;
+  const metaBox = sheet.querySelector("header > div");
+  const meta = !metaBox ? [] : metaBox.classList.contains("folder-meta") ? [...metaBox.children] : [metaBox];
+  const screens = [...sheet.querySelectorAll(".convex-showcase-screens > img")];
+  const video = sheet.querySelector(".folder-video");
+  const media = screens.length ? screens : video ? [video] : [];
+  const link = sheet.querySelector(".view-link");
+
+  const waiting = new Set([...meta, ...media, ...(link ? [link] : [])]);
+  for (const el of waiting) {
+    el.style.opacity = "0";
+    el.style.pointerEvents = "none";
+  }
+  if (link) link.style.visibility = "hidden";
+
+  function reveal(els, { delay = 0, stagger = 0, duration = 700, rise = 12, instant = false } = {}) {
+    els.forEach((el, index) => {
+      if (!waiting.delete(el)) return;
+      el.style.opacity = el.style.pointerEvents = el.style.visibility = "";
+      if (instant) return;
+      el.animate(
+        [{ opacity: 0, transform: `translateY(${rise}px)` }, { opacity: 1, transform: "none" }],
+        { duration, delay: delay + index * stagger, easing: "cubic-bezier(.18,.7,.24,1)", fill: "backwards" }
+      );
+    });
+  }
+  const all = [...meta, ...media, ...(link ? [link] : [])];
+
+  group.onStart = () => {
+    reveal(meta, { delay: 350, stagger: 90, duration: 800 });
+    reveal(media, { delay: 700, stagger: 110, duration: 1000, rise: 28 });
+  };
+  group.onDone = () => {
+    reveal([...meta, ...media], { duration: 500 });
+    if (link) reveal([link], { delay: 150, duration: 800, rise: 10 });
+  };
+  group.onFinish = () => reveal(all, { instant: true });
+}
+
 function setupHomeTyping() {
   const groups = [];
   const folders = Array.from(document.querySelectorAll(".folders .folder"));
@@ -948,6 +997,7 @@ function setupHomeTyping() {
       const box = heading.getBoundingClientRect();
       return onScreen(heading) && box.top >= 0 && (!next || next.getBoundingClientRect().top > box.bottom);
     };
+    setupFolderReveal(folder, group);
     groups.push(group);
   }
 
@@ -1106,6 +1156,7 @@ function prepareHero() {
 }
 
 function startInteractiveHome(reveal) {
+  document.documentElement.classList.add("folder-reveals");
   const hero = prepareHero();
   includesDone.then(setupHomeTyping);
   if (reveal) reveal();
