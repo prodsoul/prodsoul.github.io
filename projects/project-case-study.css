@@ -1,0 +1,152 @@
+.convex-case {
+  padding-inline: var(--edge);
+  padding-top: clamp(1rem, 2.6vw, 2.4rem);
+  align-items: start;
+}
+
+.convex-case .convex-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .45em;
+  font-family: var(--body-font, monospace);
+  font-size: clamp(.95rem, 1.25vw, 1.25rem);
+  text-transform: uppercase;
+}
+
+.convex-case .case-intro p {
+  margin: 0;
+  font-size: clamp(1rem, 1.3vw, 1.25rem);
+  line-height: 1.55;
+}
+
+.convex-case .case-story.convex-story {
+  gap: clamp(1.7rem, 3.6vw, 3.55rem);
+}
+
+.convex-case .case-chapter {
+  display: grid;
+  gap: clamp(.85rem, 1.7vw, 1.6rem);
+  min-width: 0;
+}
+
+.convex-case .case-chapter-copy {
+  display: grid;
+  gap: .65rem;
+}
+
+.convex-case .case-chapter h2 {
+  margin: 0;
+  font: 700 clamp(1.25rem, 1.75vw, 1.8rem)/1.24 var(--body-font, monospace);
+}
+
+.convex-case .case-story p {
+  margin: 0;
+  max-width: none;
+  font-size: clamp(1.05rem, 1.38vw, 1.33rem);
+  line-height: 1.56;
+}
+
+.convex-phones {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.45rem, 2vw, 1.7rem);
+  align-items: start;
+}
+
+.convex-phones--pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 66%;
+  justify-self: start;
+}
+
+.convex-phones figure,
+.convex-paper {
+  margin: 0;
+  min-width: 0;
+}
+
+.convex-case .convex-device img,
+.convex-case .convex-paper img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+
+.convex-case figcaption {
+  margin: .55rem 0 0;
+  color: var(--soft, #48463e);
+  text-align: center;
+  font-size: clamp(.82rem, 1.06vw, 1.06rem);
+  line-height: 1.3;
+}
+
+.convex-case .convex-prototype {
+  width: fit-content;
+  max-width: 100%;
+  justify-self: start;
+  color: var(--red, #783c43);
+  font-family: var(--display-font, monospace);
+  font-size: clamp(1.7rem, 3.8vw, 3.9rem);
+  text-align: left;
+  text-decoration: none;
+  text-underline-offset: .13em;
+}
+
+.convex-case .convex-prototype:hover {
+  text-decoration: underline;
+}
+
+.convex-case .convex-prototype--intro {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-size: clamp(1.25rem, 2vw, 2rem);
+}
+
+@media (min-width: 721px) {
+  .convex-case {
+    grid-template-columns: minmax(0, 5fr) clamp(1.5rem, 3.5vw, 4.5rem) minmax(0, 11fr) max-content;
+    column-gap: 0;
+  }
+
+  .convex-case .case-intro {
+    grid-area: 1 / 1;
+  }
+
+  .convex-case .convex-story {
+    grid-area: 1 / 3;
+  }
+
+  /* Reserve the same width as the Contact link in the top navigation. */
+  .convex-case::after {
+    content: "Contact";
+    grid-area: 1 / 4;
+    font-family: var(--display-font, monospace);
+    font-size: clamp(1rem, 1.95vw, 1.8rem);
+    text-transform: uppercase;
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 520px) {
+  .convex-phones {
+    grid-template-columns: minmax(0, 1fr);
+    width: min(76%, 14rem);
+    margin-inline: auto;
+    gap: 1rem;
+  }
+
+  .convex-case .case-chapter-copy {
+    gap: .55rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .convex-phones--pair {
+    justify-self: center;
+  }
+
+  .convex-case .convex-story > .convex-prototype {
+    display: none;
+  }
+}
