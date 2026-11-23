@@ -93,7 +93,8 @@
   text-underline-offset: .13em;
 }
 
-.convex-case .convex-prototype:hover {
+.convex-case .convex-prototype:hover,
+.convex-case .convex-prototype:focus-visible {
   text-decoration: underline;
 }
 
@@ -101,6 +102,34 @@
   display: inline-block;
   margin-top: 1.5rem;
   font-size: clamp(1.25rem, 2vw, 2rem);
+}
+
+.project-case-study .case-intro h1 {
+  text-transform: none;
+  overflow-wrap: break-word;
+}
+
+.case-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 8px;
+  clip-path: inset(0 round 8px);
+}
+
+.case-actions {
+  display: grid;
+  justify-items: start;
+  gap: .65rem;
+}
+
+.case-intro > .case-actions {
+  margin-top: 1.5rem;
+}
+
+.case-actions .convex-prototype--intro {
+  margin-top: 0;
 }
 
 @media (min-width: 721px) {
@@ -146,7 +175,8 @@
     justify-self: center;
   }
 
-  .convex-case .convex-story > .convex-prototype {
+  .convex-case .convex-story > .convex-prototype,
+  .convex-case .convex-story > .case-actions {
     display: none;
   }
 }

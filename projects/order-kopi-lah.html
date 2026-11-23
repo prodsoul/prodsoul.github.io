@@ -5,6 +5,7 @@
 <title>Order Kopi Lah! | Joann Bisseling</title>
 <link rel="icon" type="image/svg+xml" href="../assets/icons/websitelogo.svg">
 <link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="project-case-study.css">
 <script defer src="../site.js"></script>
 </head>
 <body data-page="project">
@@ -34,56 +35,54 @@
   </nav>
   <button class="pan" type="button" data-pan="1" aria-label="Scroll to later projects" hidden>›</button>
 </div>
-  <article class="case-sheet">
+  <article class="case-sheet convex-case project-case-study">
     <aside class="case-intro">
-      <a class="back-link" href="../works.html">Back to all works</a>
+      <a class="back-link convex-back" href="../works.html#playtesting-analysis"><span class="link-arrow" aria-hidden="true">←</span> See all works</a>
       <h1>Order Kopi Lah!</h1>
-      <p>Order Kopi Lah! is a mobile sorting puzzle set in a Singapore kopitiam. I tested how players read orders, understood boosters and discovered vocabulary in the Lingo Book.</p>
-      <dl>
-        <div><dt>Date</dt><dd>October 2026 – November 2026</dd></div>
-        <div><dt>Project type</dt><dd>Team project</dd></div>
-        <div><dt>My role</dt><dd>Usability researcher</dd></div>
-        <div><dt>Methods used</dt><dd>Survey design, mobile playtesting, iteration</dd></div>
-      </dl>
+      <div class="case-meta">
+        <span class="case-date">October 2026 – November 2026</span>
+        <span class="case-category">Playtesting &amp; Analysis</span>
+        <span class="case-skills">Survey design, mobile playtesting, iteration</span>
+        <span class="case-extra">Team project · Usability researcher</span>
+      </div>
+      <p>Order Kopi Lah! is a mobile sorting puzzle set in a Singapore kopitiam. I led two rounds of playtesting to see how people read orders, recognised which boosters they could use, and found new vocabulary in the Lingo Book.</p>
+      <div class="case-actions" role="group" aria-label="Project links">
+        <a class="convex-prototype convex-prototype--intro" href="https://kopilah.siruixia.workers.dev/">Play Game Here</a>
+      </div>
     </aside>
-    <div class="case-story">
-      <section class="case-chapter case-chapter--split">
+
+    <div class="case-story convex-story">
+      <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>What I tested</h2>
-          <p>Players match ingredients to drink orders that use kopitiam lingo, such as Kopi C or Teh Tarik. I wrote a 13-question survey and ran two playtest rounds with three players each. I looked at how people interpreted the board, identified available boosters and found words after a level.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="portrait">
-            <!-- Image to add: Show the customer order and the ingredients the player is sorting. -->
-            <div class="case-visual-frame"><span>A drink order in play</span></div>
-          </figure>
+          <h2>Test the decisions players make in a level</h2>
+          <p>Players sort items to fulfil orders written in kopitiam lingo, such as Kopi C or Teh Tarik. I wrote a 13-question survey and ran two rounds with three testers each. I asked about decisions that could interrupt play: working out what a clear would reveal, identifying available boosters, and finding what they had just unlocked.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Changes between rounds</h2>
-          <p>In the first round, one of three testers reported finding new words without help. The team added a Lingo Book notification after a level clear, clarified booster states and adjusted shop prices.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="portrait">
-            <!-- Image to add: Show how players could reach the Lingo Book in the first version. -->
-            <div class="case-visual-frame"><span>First build home screen</span></div>
-          </figure>
-          <figure class="case-evidence" data-format="portrait">
-            <!-- Image to add: Show the notification by the Lingo Book. -->
-            <div class="case-visual-frame"><span>Second build home screen</span></div>
-          </figure>
+          <h2>Make booster and reward states easier to read</h2>
+          <p>In the first round, available and empty boosters looked similar. My teammates faded the empty states and clarified their feedback. We also added a dot on the Lingo Book tab after a level clear so players had a cue to check the words they’d unlocked.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>What the second round showed</h2>
-          <p>All three testers said they found new words unaided. All three rated booster availability at least 4 out of 5, up from zero in round one. Those results describe the six responses across both small rounds.</p>
-          <p>Some players still needed to see a set clear before they understood what was underneath it. I’d test whether a first-time player can predict that result. I owned the sessions, survey and findings. My teammates built and revised the prototype.</p>
+          <h2>Check how the changes read in the next round</h2>
+          <p>All three testers in the second round rated booster availability at least 4 out of 5, compared with none in the first round. All three also said they found new words without help, compared with one of three in the first round. Those are self-reported results from two small rounds.</p>
         </div>
       </section>
+
+      <section class="case-chapter">
+        <div class="case-chapter-copy">
+          <h2>What I’d test next</h2>
+          <p>Players still had some difficulty predicting which items would appear after a clear. I’d ask a first-time player to predict the next layer before making a move, then see whether the board gives them enough information to explain their answer. My teammate built the playable web version linked here.</p>
+        </div>
+      </section>
+
+      <div class="case-actions" role="group" aria-label="Project links">
+        <a class="convex-prototype" href="https://kopilah.siruixia.workers.dev/">Play Game Here</a>
+      </div>
     </div>
   </article>
 </main>

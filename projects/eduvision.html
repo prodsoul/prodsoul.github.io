@@ -5,6 +5,7 @@
 <title>EduVision | Joann Bisseling</title>
 <link rel="icon" type="image/svg+xml" href="../assets/icons/websitelogo.svg">
 <link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="project-case-study.css">
 <script defer src="../site.js"></script>
 </head>
 <body data-page="project">
@@ -34,72 +35,56 @@
   </nav>
   <button class="pan" type="button" data-pan="1" aria-label="Scroll to later projects" hidden>›</button>
 </div>
-  <article class="case-sheet">
+  <article class="case-sheet convex-case project-case-study">
     <aside class="case-intro">
-      <a class="back-link" href="../works.html">Back to all works</a>
+      <a class="back-link convex-back" href="../works.html#learning-tools"><span class="link-arrow" aria-hidden="true">←</span> See all works</a>
       <h1>EduVision</h1>
-      <p>EduVision is an Android field guide for young learners exploring insects in Singapore. I manage milestones and implement the interface from Figma in Unity.</p>
-      <dl>
-        <div><dt>Date</dt><dd>September 2026 – Present</dd></div>
-        <div><dt>Project type</dt><dd>Team project</dd></div>
-        <div><dt>My role</dt><dd>Project manager and UX designer</dd></div>
-        <div><dt>Methods used</dt><dd>UX research, Figma, Unity UI, Jira</dd></div>
-      </dl>
+      <div class="case-meta">
+        <span class="case-date">September 2026 – Present</span>
+        <span class="case-category">Learning &amp; Design Tools</span>
+        <span class="case-skills">UX research, Figma, Unity UI, Jira</span>
+        <span class="case-extra">Team project · Project manager and UX designer</span>
+      </div>
+      <p>EduVision is a field guide for young learners exploring insects in Singapore. I manage milestones and turn our Figma flows into Unity screens, working with teammates who build the recognition, content, and 3D and AR systems.</p>
+      <div class="case-actions" role="group" aria-label="Project links">
+        <a class="convex-prototype convex-prototype--intro" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_EDUVISION_ANDROID_APK_URL_HERE" -->Download Android APK Here</a>
+        <a class="convex-prototype convex-prototype--intro" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_EDUVISION_WINDOWS_BUILD_URL_HERE" -->Download Windows Build Here</a>
+      </div>
     </aside>
-    <div class="case-story">
+
+    <div class="case-story convex-story">
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>From noticing an insect to learning about it</h2>
-          <p>We designed around a real situation outdoors. A learner notices an insect, photographs it and wants to know what it is. The identification result gives them a way into the 3D specimen and the information that goes with it.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="portrait">
-            <!-- Image to add: Show the camera view or the capture and upload choices. -->
-            <div class="case-visual-frame"><span>Capture an insect</span></div>
-          </figure>
-          <figure class="case-evidence" data-format="portrait">
-            <!-- Image to add: Show the identification result and route into the specimen. -->
-            <div class="case-visual-frame"><span>Check the result</span></div>
-          </figure>
-          <figure class="case-evidence" data-format="portrait">
-            <!-- Image to add: Show a model with a body-part point and its associated information. -->
-            <div class="case-visual-frame"><span>Explore the specimen</span></div>
-          </figure>
+          <h2>Start with an insect someone just found</h2>
+          <p>We designed around a moment that can happen in a park. A learner spots an insect, takes a photo, and wants to know what it is. I worked on how capture leads to an identification result and how that result gives them a way into the specimen without breaking the thread of what they just found.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Giving learners a choice of what to explore</h2>
-          <p>I worked on the transitions between capture, identification and the viewer. The result supports a quick read. Body-part labels and audio support a closer look, and a field journal gives learners a way to revisit a discovery after they leave the park.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="wide">
-            <!-- Image to add: Use the same step in the flow in both formats so readers can compare the design and implementation. -->
-            <div class="case-visual-frame"><span>From Figma to the Android build</span></div>
-          </figure>
+          <h2>Let learners choose how far to explore</h2>
+          <p>The identification result supports a quick read. The viewer is for taking a closer look. Learners can rotate the specimen, open body-part information, and listen to descriptions. The field journal gives them a place to revisit discoveries later, when they may have more time to explore.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>My work across design and development</h2>
-          <p>I track milestones and priorities in Jira and build the screens in Unity. I work with the teammates responsible for recognition, content authoring, and 3D and AR systems. Their outputs determine what the interface can show while a learner is waiting and what information is available once a specimen opens.</p>
+          <h2>Carry the screen flow from Figma into Unity</h2>
+          <p>I work with engineering teammates to connect the screens to the systems behind them. For example, recognition determines what the interface can say while someone is waiting and what details are ready when the result opens. I track work across milestones in Jira so the interface and those systems can be reviewed together.</p>
         </div>
       </section>
 
-      <section class="case-chapter case-chapter--split">
+      <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>The current prototype</h2>
-          <p>The current build gives us a way to review the capture-to-exploration journey. The next questions are where young learners pause, whether they understand the result, and whether they can return to something they saved.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="portrait">
-            <!-- Image to add: Show a saved discovery and how a learner can return to the species information. -->
-            <div class="case-visual-frame"><span>Field journal entry</span></div>
-          </figure>
+          <h2>What I’d check with learners next</h2>
+          <p>The prototype gives us a way to try the journey from capture to exploration. I’d ask a learner to photograph an insect, tell me what they think the result means, then find something specific on the model. I’d also check whether they can return to the same discovery through the journal without help.</p>
         </div>
       </section>
+
+      <div class="case-actions" role="group" aria-label="Project links">
+        <a class="convex-prototype" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_EDUVISION_ANDROID_APK_URL_HERE" -->Download Android APK Here</a>
+        <a class="convex-prototype" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_EDUVISION_WINDOWS_BUILD_URL_HERE" -->Download Windows Build Here</a>
+      </div>
     </div>
   </article>
 </main>

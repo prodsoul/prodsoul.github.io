@@ -5,6 +5,7 @@
 <title>Key to Purrdom | Joann Bisseling</title>
 <link rel="icon" type="image/svg+xml" href="../assets/icons/websitelogo.svg">
 <link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="project-case-study.css">
 <script defer src="../site.js"></script>
 </head>
 <body data-page="project">
@@ -34,77 +35,58 @@
   </nav>
   <button class="pan" type="button" data-pan="1" aria-label="Scroll to later projects" hidden>›</button>
 </div>
-  <article class="case-sheet">
+  <article class="case-sheet convex-case project-case-study">
     <aside class="case-intro">
-      <a class="back-link" href="../works.html">Back to all works</a>
+      <a class="back-link convex-back" href="../works.html#game-level-design"><span class="link-arrow" aria-hidden="true">←</span> See all works</a>
       <h1>Key to Purrdom</h1>
-      <p>I designed most of the puzzles and levels for Key to Purrdom, a cat-themed 2D puzzle platformer. I also implemented gameplay and integrated audio in Unity.</p>
-      <dl>
-        <div><dt>Date</dt><dd>April 2025</dd></div>
-        <div><dt>Project type</dt><dd>Cross-degree team project</dd></div>
-        <div><dt>My role</dt><dd>Level designer and Unity gameplay developer</dd></div>
-        <div><dt>Methods used</dt><dd>Puzzle design, Unity, audio integration, playtesting</dd></div>
-      </dl>
+      <div class="case-meta">
+        <span class="case-date">April 2025</span>
+        <span class="case-category">Game &amp; Level Design</span>
+        <span class="case-skills">Puzzle design, Unity, audio integration, playtesting</span>
+        <span class="case-extra">Cross-degree team project · Level designer and Unity gameplay developer</span>
+      </div>
+      <p>I designed most of the puzzles and levels for Key to Purrdom, a cat-themed 2D puzzle platformer. I also implemented gameplay and integrated audio in Unity while my art teammates created the visual assets.</p>
+      <div class="case-actions" role="group" aria-label="Project links">
+        <a class="convex-prototype convex-prototype--intro" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_KEY_TO_PURRDOM_RELEASE_ASSET_URL_HERE" -->Download Game Here</a>
+      </div>
     </aside>
-    <div class="case-story">
+
+    <div class="case-story convex-story">
+      <iframe class="case-video" src="https://www.youtube-nocookie.com/embed/uHrP4txDE-Q" title="Key to Purrdom trailer" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Game trailer</h2>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="video">
-            <div class="video-slot" data-youtube="https://youtu.be/uHrP4txDE-Q" data-video-title="Key to Purrdom trailer">
-              <span>Key to Purrdom trailer</span>
-            </div>
-            <figcaption><a href="https://youtu.be/uHrP4txDE-Q">Watch Key to Purrdom trailer on YouTube</a></figcaption>
-          </figure>
+          <h2>Show what each mouse controls</h2>
+          <p>Interacting with a colour-coded mouse toggles the platforms that match it. I used early rooms to give players room to try one mouse and see which platforms move. That connection needs to be easy to spot before a room asks them to keep track of several colours.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Teaching the mouse-to-platform connection</h2>
-          <p>Colour-coded mice toggle matching platforms. Early rooms let players see which area changes when they interact with a mouse. Later puzzles ask them to choose which platforms they want active and in what order to toggle them.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="wide">
-            <!-- Image to add: Label the starting position, relevant mice and platforms, and the key. -->
-            <div class="case-visual-frame"><span>A puzzle route from start to key</span></div>
-          </figure>
-        </div>
-      </section>
-
-      <section class="case-chapter case-chapter--split">
-        <div class="case-chapter-copy">
-          <h2>Reading hesitation in a playtest</h2>
-          <p>In classroom sessions I watched for players who could see the destination but couldn’t tell what opened the route. That helped me separate the challenge of finding a sequence from confusion about what a mouse controlled.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="screen">
-            <!-- Image to add: Show the platforms and route before the player interacts. -->
-            <div class="case-visual-frame"><span>Before the toggle</span></div>
-          </figure>
-          <figure class="case-evidence" data-format="screen">
-            <!-- Image to add: Use the same room and framing to make the route change visible. -->
-            <div class="case-visual-frame"><span>After the toggle</span></div>
-          </figure>
+          <h2>Build the puzzles around a sequence</h2>
+          <p>Once the relationship is familiar, players have to work out which platforms they need at each point in the route. A platform that helps them get to one place can be in the way later, and the order in which they use the mice affects what they can reach.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Final gameplay</h2>
-          <p>I built the puzzles and interactive levels and integrated the audio. The art students on the team created the visual assets.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="video">
-            <div class="video-slot" data-youtube="https://youtu.be/9Vtfi-8STSI" data-video-title="Key to Purrdom gameplay">
-              <span>Key to Purrdom gameplay</span>
-            </div>
-            <figcaption><a href="https://youtu.be/9Vtfi-8STSI">Watch Key to Purrdom gameplay on YouTube</a></figcaption>
-          </figure>
+          <h2>Watch where a player hesitates</h2>
+          <p>In classroom playtests I paid attention to players who could see where they needed to go but paused before opening the route. Watching what they looked at and what they tried helped me distinguish an unclear mouse-to-platform connection from a puzzle that simply needed more thought.</p>
         </div>
       </section>
+
+      <section class="case-chapter">
+        <div class="case-chapter-copy">
+          <h2>What I took into the final game</h2>
+          <p>I built the interactive levels and integrated audio in Unity. If I tested the game again, I’d ask a new player to predict what one mouse will change before trying it, then see whether they can use that relationship on their own in a later room.</p>
+        </div>
+      </section>
+
+      <iframe class="case-video" src="https://www.youtube-nocookie.com/embed/9Vtfi-8STSI" title="Key to Purrdom gameplay" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+
+      <div class="case-actions" role="group" aria-label="Project links">
+        <a class="convex-prototype" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_KEY_TO_PURRDOM_RELEASE_ASSET_URL_HERE" -->Download Game Here</a>
+      </div>
     </div>
   </article>
 </main>

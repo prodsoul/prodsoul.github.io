@@ -5,6 +5,7 @@
 <title>Game Feel in Unity | Joann Bisseling</title>
 <link rel="icon" type="image/svg+xml" href="../assets/icons/websitelogo.svg">
 <link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="project-case-study.css">
 <script defer src="../site.js"></script>
 </head>
 <body data-page="project">
@@ -34,55 +35,56 @@
   </nav>
   <button class="pan" type="button" data-pan="1" aria-label="Scroll to later projects" hidden>›</button>
 </div>
-  <article class="case-sheet">
+  <article class="case-sheet convex-case project-case-study">
     <aside class="case-intro">
-      <a class="back-link" href="../works.html">Back to all works</a>
+      <a class="back-link convex-back" href="../works.html#game-level-design"><span class="link-arrow" aria-hidden="true">←</span> See all works</a>
       <h1>Game Feel in Unity</h1>
-      <p>I built two Unity prototypes around game feel. One uses a carnival HUD to communicate combat state. The other uses a low camera and sound to make a sprint through a park feel like a dog has the zoomies.</p>
-      <dl>
-        <div><dt>Date</dt><dd>Month · Year</dd></div>
-        <div><dt>Project type</dt><dd>Solo prototypes</dd></div>
-        <div><dt>My role</dt><dd>Interaction designer and Unity prototyper</dd></div>
-        <div><dt>Methods used</dt><dd>Unity, HUD design, camera, audio feedback</dd></div>
-      </dl>
+      <div class="case-meta">
+        <span class="case-date">Month · Year</span>
+        <span class="case-category">Game &amp; Level Design</span>
+        <span class="case-skills">Unity, HUD design, camera, audio feedback</span>
+        <span class="case-extra">Solo prototypes · Interaction designer and Unity prototyper</span>
+      </div>
+      <p>I built two solo Unity prototypes around game feel. Last Token uses an abandoned carnival’s objects to tell players what’s happening in combat. Zoomies uses a low camera and sound to give a short run through a park the energy of a dog sprinting.</p>
+      <div class="case-actions" role="group" aria-label="Project links">
+        <a class="convex-prototype convex-prototype--intro" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_LAST_TOKEN_RELEASE_ASSET_URL_HERE" -->Download Last Token Here</a>
+        <a class="convex-prototype convex-prototype--intro" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_ZOOMIES_RELEASE_ASSET_URL_HERE" -->Download Zoomies Here</a>
+      </div>
     </aside>
-    <div class="case-story">
+
+    <div class="case-story convex-story">
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Combat feedback in an abandoned carnival</h2>
-          <p>Gumballs show how much ammo the player has. Carnival tickets identify light, medium and heavy attacks. The HUD takes gumballs away as the player fires and refills them on reload. I used sound and impact cues to help a player read whether an attack landed.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="wide">
-            <!-- Image to add: Show the gumball ammo display, tickets and an attack effect during play. -->
-            <div class="case-visual-frame"><span>Combat and the carnival HUD</span></div>
-          </figure>
-          <figure class="case-evidence" data-format="screen">
-            <!-- Image to add: Show the HUD immediately before or after firing or reloading. -->
-            <div class="case-visual-frame"><span>A change in combat state</span></div>
-          </figure>
+          <h2>Last Token — show what the player can do</h2>
+          <p>I used gumballs to show ammo and carnival tickets to distinguish light, medium, and heavy attacks. Gumballs disappear as the player fires and return on reload. That ties the counter to an action the player can see, and the ticket cues tell them which attack they’re about to use.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>A park from a dog’s eye level</h2>
-          <p>For the second prototype I used a low first-person camera, quick movement and responsive sound. The camera height makes familiar park features feel close, and the route and sound cues help communicate the speed of the run.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="wide">
-            <!-- Image to add: Show the path and nearby features at the prototype’s running height. -->
-            <div class="case-visual-frame"><span>Low view along the route</span></div>
-          </figure>
+          <h2>Last Token — show whether the action landed</h2>
+          <p>A player needs different cues for selecting an attack and successfully landing one. I paired attacks with sound and impact feedback, so the player has something to check at the point of contact instead of looking back at the HUD.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>What I learned from the two prototypes</h2>
-          <p>Combat needs to communicate which options are available and whether an action worked. The park experience depends more on speed, scale and proximity. Building both gave me a practical way to explore which feedback carries meaning in each situation.</p>
+          <h2>Zoomies — work from a dog’s eye level</h2>
+          <p>I built the park sprint around a low first-person camera, quick movement, and sound that responds to the run. From that height, familiar objects feel closer and pass more quickly. The route gives players open space to pick up speed and nearby scenery to judge how fast they’re moving.</p>
         </div>
       </section>
+
+      <section class="case-chapter">
+        <div class="case-chapter-copy">
+          <h2>What I learned from building both</h2>
+          <p>In Last Token, I needed feedback that could answer a question during combat: how much ammo is left, or did the hit land? In Zoomies, I used feedback to give the same space a different sense of speed and scale. If I revisited the two builds, I’d watch players with the HUD and audio cues reduced one at a time to see which cues they rely on.</p>
+        </div>
+      </section>
+
+      <div class="case-actions" role="group" aria-label="Project links">
+        <a class="convex-prototype" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_LAST_TOKEN_RELEASE_ASSET_URL_HERE" -->Download Last Token Here</a>
+        <a class="convex-prototype" aria-disabled="true"><!-- Replace aria-disabled="true" with href="PASTE_ZOOMIES_RELEASE_ASSET_URL_HERE" -->Download Zoomies Here</a>
+      </div>
     </div>
   </article>
 </main>
