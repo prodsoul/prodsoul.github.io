@@ -5,6 +5,12 @@
 <title>3D Specimen Adaptation Tool | Joann Bisseling</title>
 <link rel="icon" type="image/svg+xml" href="../assets/icons/websitelogo.svg">
 <link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="convex.css">
+<style>
+.specimen-case .case-intro h1 { text-transform: none; overflow-wrap: break-word; }
+.specimen-player { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; }
+.specimen-download { padding: 0; border: 0; background: transparent; cursor: default; }
+</style>
 <script defer src="../site.js"></script>
 </head>
 <body data-page="project">
@@ -34,77 +40,64 @@
   </nav>
   <button class="pan" type="button" data-pan="1" aria-label="Scroll to later projects" hidden>›</button>
 </div>
-  <article class="case-sheet">
+  <article class="case-sheet convex-case specimen-case">
     <aside class="case-intro">
-      <a class="back-link" href="../works.html">Back to all works</a>
+      <a class="back-link convex-back" href="../works.html#learning-tools"><span class="link-arrow" aria-hidden="true">←</span> See all works</a>
       <h1>3D Specimen Adaptation Tool</h1>
-      <p>I built a Unity developer tool that maps colours and markings from insect photos onto existing 3D specimens. It grew from a ladybug proof of concept to three insect types and ten photo-mappable regions.</p>
-      <dl>
-        <div><dt>Date</dt><dd>November 2026</dd></div>
-        <div><dt>Project type</dt><dd>Solo project</dd></div>
-        <div><dt>My role</dt><dd>System designer and Unity prototype developer</dd></div>
-        <div><dt>Methods used</dt><dd>Unity, C#, image processing, testing</dd></div>
-      </dl>
+      <div class="case-meta">
+        <span class="case-date">November 2026</span>
+        <span class="case-category">Learning &amp; Design Tools</span>
+        <span class="case-skills">UNITY, C#, TOOL DESIGN, IMAGE FITTING</span>
+        <span class="case-extra">Solo project · System designer &amp; developer</span>
+      </div>
+      <p>I built a Unity tool for the EduVision team to adapt existing 3D insect models using colours and markings from reference photos. I designed the workflow around what developers could see in each photo. They could fit a visible pattern, adjust a colour by hand, or keep the original texture, then check the result on the model before applying it.</p>
+      <button class="convex-prototype specimen-download convex-prototype--intro" type="button" aria-disabled="true">Download Tool Here</button>
     </aside>
-    <div class="case-story">
+
+    <div class="case-story convex-story">
+      <iframe class="specimen-player" src="https://www.youtube-nocookie.com/embed/60DYkS7XbvM" title="EduVision 3D Specimen Adaptation Tool showcase" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Watch the fitting workflow</h2>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="video">
-            <div class="video-slot" data-youtube="https://youtu.be/60DYkS7XbvM" data-video-title="EduVision specimen tool showcase">
-              <span>EduVision specimen tool showcase</span>
-            </div>
-            <figcaption><a href="https://youtu.be/60DYkS7XbvM">Watch EduVision specimen tool showcase on YouTube</a></figcaption>
-          </figure>
+          <h2>Give the team a way to reuse its models</h2>
+          <p>EduVision needed to show variations in how insects look. Building a new texture for every variation would mean repeating work, even when the team could reuse the same 3D model. I started with one ladybug to see whether I could transfer its shell pattern from a photo onto an existing model.</p>
+          <p>The final prototype expanded to ladybugs, butterflies, and dragonflies, with ten regions that could take textures from photos. Developers could edit each part separately. That meant they could fit a butterfly’s wing markings from a photo and keep the original texture on a part the photo didn’t show clearly.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>From a photo to an editable model appearance</h2>
-          <p>The EduVision team needed a way to reuse a prepared model and adapt the appearance of a specific part. In the tool I built, a developer chooses a photo and model region, checks the boundary, previews the fit and applies the texture or colour.</p>
-          <p>I first proved out the workflow on a ladybug shell, then expanded it to fitting regions on butterflies and dragonflies.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="wide">
-            <!-- Image to add: Use a composite showing the source image, selected region, preview and applied result. -->
-            <div class="case-visual-frame"><span>Photo-to-model workflow</span></div>
-          </figure>
-        </div>
-      </section>
-
-      <section class="case-chapter case-chapter--split">
-        <div class="case-chapter-copy">
-          <h2>Keeping control when the photo is imperfect</h2>
-          <p>Automatic outlines help with the initial selection. Reflections and unwanted background can interfere with the fit, so I kept direct outline editing and added targeted glare reduction and background cleanup. The preview lets a developer check the result before applying it. A mirrored fit can reuse one visible wing on the opposite side.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="screen">
-            <!-- Image to add: Show the editable boundary around a shell, wing or abdomen. -->
-            <div class="case-visual-frame"><span>Editing the outline</span></div>
-          </figure>
-          <figure class="case-evidence" data-format="screen">
-            <!-- Image to add: Show the source or original model alongside the adaptation. -->
-            <div class="case-visual-frame"><span>Comparing the fit</span></div>
-          </figure>
+          <h2>Give automatic outlines a way to be corrected</h2>
+          <p>I used automatic detection to give developers an outline to start from. In a test with three known shapes, detection met my overlap target on two. On the narrow dragonfly abdomen, it covered about 70% of the intended area and missed part of the body. If that outline went straight into the fit, part of the pattern would be left out.</p>
+          <p>I let developers move individual points or draw an outline by hand. For narrow parts, they could also draw a line along the body to create a starting outline, then adjust its width and shape. I kept Preview separate from Apply so they could rotate the model, check where the pattern landed, and go back to the outline if it needed another pass.</p>
         </div>
       </section>
 
       <section class="case-chapter">
         <div class="case-chapter-copy">
-          <h2>Testing the limits of the approach</h2>
-          <p>All 50 automated fitting attempts completed on prepared test images. In six manual runs on my test machine, each adaptation reached a recorded result in roughly two and a half to three and a half minutes.</p>
-          <p>The automatic outline missed part of one dragonfly abdomen. That gave me a specific reason to keep manual correction in the workflow. The timings reflect the prototype on one machine.</p>
-        </div>
-        <div class="case-media-set">
-          <figure class="case-evidence" data-format="wide">
-            <!-- Image to add: Show the missed part of the abdomen and the corrected outline. -->
-            <div class="case-visual-frame"><span>Dragonfly boundary correction</span></div>
-          </figure>
+          <h2>Choose the fitting method for each part</h2>
+          <p>For butterfly wings, I added a Mirror mode that copies the pattern from one selected wing onto both sides of the model. This lets a developer work with a photo where only one wing is clear. If the two wings have different markings worth preserving, they can select the full wing pattern instead.</p>
+          <p>Dragonfly wings needed a different approach. I kept their transparent base texture and let developers sample and adjust the colour. That let them carry over the colour from the photo while retaining the transparency already built into the model.</p>
         </div>
       </section>
+
+      <section class="case-chapter">
+        <div class="case-chapter-copy">
+          <h2>Use cleanup for the details around the outline</h2>
+          <p>Even with a close outline, small patches of background could still come through at the edges of a butterfly wing. I added a cleanup control that samples those unwanted colours. It helped around the curved edges and notches, but turning up the colour similarity too far could also remove colours from the wing itself.</p>
+          <p>I also let developers mark individual reflections on a ladybug shell. Glare correction made those areas less bright, though some reflection remained. In both cases, I got the best result by starting with a close outline and making small corrections while checking the preview.</p>
+        </div>
+      </section>
+
+      <section class="case-chapter">
+        <div class="case-chapter-copy">
+          <h2>What I took into the final prototype</h2>
+          <p>I ran six manual adaptations, two for each insect type, and reached a finished result in all six. The median was just under three minutes on the prepared models. The adapted models kept details such as butterfly wing markings and dragonfly abdomen bands, although some details changed where the photo and model had different proportions.</p>
+          <p>Working through those examples taught me where automation helped most. It gave me a starting point quickly, and the most useful controls were the ones that let me see what had transferred and fix the parts that hadn’t. If I tested the tool again, I’d give another developer a photo they hadn’t seen before and watch where they pause, which corrections they reach for, and how they decide the fit is ready to apply.</p>
+        </div>
+      </section>
+
+      <button class="convex-prototype specimen-download" type="button" aria-disabled="true">Download Tool Here</button>
     </div>
   </article>
 </main>

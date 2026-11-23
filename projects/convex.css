@@ -136,11 +136,17 @@
     gap: 1rem;
   }
 
-  .convex-phones--pair {
-    margin-inline: 0 auto;
-  }
-
   .convex-case .case-chapter-copy {
     gap: .55rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .convex-phones--pair {
+    justify-self: center;
+  }
+
+  .convex-case .convex-story > .convex-prototype {
+    display: none;
   }
 }
