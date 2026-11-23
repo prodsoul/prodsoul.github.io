@@ -65,11 +65,30 @@
   border: 0;
 }
 
+.folders .convex-showcase > header {
+  align-items: center;
+}
+
+.folders .convex-showcase .folder-body {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3.8fr);
+}
+
 .convex-showcase-screens {
   display: grid;
-  grid-template: minmax(0, 1fr) / repeat(2, minmax(0, 1fr));
-  gap: clamp(.35rem, 1vw, 1rem);
+  grid-template: minmax(0, 1fr) / repeat(5, minmax(0, 1fr));
+  gap: clamp(.2rem, .55vw, .75rem);
+  min-width: 0;
   min-height: 0;
+  margin: 0;
+}
+
+.convex-showcase-screens > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
 }
 
 .folders .media-box img {
@@ -80,16 +99,6 @@
   min-width: 0;
   min-height: 0;
   object-fit: contain;
-}
-
-.convex-showcase .folder-body > figure,
-.convex-showcase .details {
-  height: auto;
-}
-
-.convex-showcase-screens > img {
-  max-width: 14rem;
-  margin-inline: auto;
 }
 
 .folders .media-box:has(img) figcaption {
@@ -117,6 +126,12 @@
   }
 }
 
+@media (max-width: 720px) {
+  .folders .convex-showcase .folder-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 640px) and (orientation: portrait) {
   .folders .folder-sheet { padding-block: clamp(.75rem, 2.7svh, 1.5rem); }
 }
@@ -127,11 +142,6 @@
   .folders .folder-skills { margin-top: 0; padding: .1rem .3rem; }
   .folders .folder-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .folders .view-link { min-height: 36px; }
-  .convex-showcase .details {
-    grid-template: minmax(0, 1fr) / repeat(2, minmax(0, 1fr));
-    gap: .35rem;
-  }
-  .convex-showcase .media-box:has(img) figcaption { font-size: .65rem; line-height: 1.15; }
 }
 </style>
 <script defer src="site.js"></script>
@@ -179,23 +189,13 @@
           <p>I designed the organiser side of CONVEX, a mobile app for managing conventions and markets. After usability testing, I replaced weekly arrows with a calendar picker and made the revenue breakdown expandable, so organisers could jump to a date range and see what made up the total.</p>
           <a class="view-link" href="projects/convex.html">View project</a>
         </div>
-        <figure class="media-box">
-          <div class="convex-showcase-screens">
-            <img src="assets/projects/convex/Overview-1.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Final organiser dashboard with ticket sales and sales revenue">
-            <img src="assets/projects/convex/Overview-2.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Final Your Events screen with search, filters and event cards">
-          </div>
-          <figcaption>Final dashboard and events list</figcaption>
+        <figure class="convex-showcase-screens">
+          <img src="assets/projects/convex/Overview-1.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Organiser dashboard with ticket sales and revenue">
+          <img src="assets/projects/convex/Overview-3.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Vendor application review">
+          <img src="assets/projects/convex/Overview-4.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Ads dashboard with campaign performance">
+          <img src="assets/projects/convex/Overview-5.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Event overview with revenue and foot traffic">
+          <img src="assets/projects/convex/Overview-6.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Event preview with tickets and booth options">
         </figure>
-        <div class="details">
-          <figure class="media-box">
-            <img src="assets/projects/convex/Paper-Prototype.webp" width="1566" height="1080" loading="lazy" decoding="async" alt="Paper sketches of the organiser dashboard, events list and event detail">
-            <figcaption>Paper prototype</figcaption>
-          </figure>
-          <figure class="media-box">
-            <img src="assets/projects/convex/Dashboard-3.webp" width="766" height="1570" loading="lazy" decoding="async" alt="Low-fidelity dashboard with a calendar button at the top right">
-            <figcaption>Low-fi V2 · Calendar picker</figcaption>
-          </figure>
-        </div>
       </div>
     </div>
   </article>
