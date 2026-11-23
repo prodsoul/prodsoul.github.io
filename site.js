@@ -942,8 +942,8 @@ function textGroup(elements, headingSpeed = 46) {
 // Landing folders (interactive version only): the top-right details, the media and the "View project" link stay
 // hidden until the folder's title starts typing, then ease in one after another. The link waits for the paragraph.
 // Anything skipped (scrolling fast, scrolling past) is simply shown, so nothing can stay hidden.
+// With "reduce motion" on (the typing still plays), they fade in without moving.
 function setupFolderReveal(folder, group) {
-  if (reducedMotion.matches) return;
   const sheet = folder.querySelector(".folder-sheet");
   if (!sheet) return;
   const metaBox = sheet.querySelector("header > div");
@@ -966,7 +966,7 @@ function setupFolderReveal(folder, group) {
       el.style.opacity = el.style.pointerEvents = el.style.visibility = "";
       if (instant) return;
       el.animate(
-        [{ opacity: 0, transform: `translateY(${rise}px)` }, { opacity: 1, transform: "none" }],
+        [{ opacity: 0, transform: `translateY(${reducedMotion.matches ? 0 : rise}px)` }, { opacity: 1, transform: "none" }],
         { duration, delay: delay + index * stagger, easing: "cubic-bezier(.18,.7,.24,1)", fill: "backwards" }
       );
     });
