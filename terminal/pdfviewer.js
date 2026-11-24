@@ -27,8 +27,7 @@
     root.innerHTML = '<div class="pdfv-stage"><canvas></canvas><div class="pdfv-load">loading report ...</div></div>' +
       '<div class="pdfv-bar"><button type="button" data-d="-1" disabled><span>&lt; prev</span></button><span class="pdfv-n">- / -</span>' +
       '<button type="button" data-d="1" disabled><span>next &gt;</span></button><span class="sp"></span>' +
-      '<a target="_blank" rel="noopener">open</a><a download>download</a></div>' +
-      '<div class="pdfv-hint">click the page, then use the left and right arrow keys (or swipe)</div>';
+      '<a target="_blank" rel="noopener">open</a><a download>download</a></div>';
     host.appendChild(root);
     var stage = root.querySelector(".pdfv-stage"), cv = root.querySelector("canvas"), nEl = root.querySelector(".pdfv-n"), loadEl = root.querySelector(".pdfv-load");
     var btns = root.querySelectorAll("button"), links = root.querySelectorAll("a");

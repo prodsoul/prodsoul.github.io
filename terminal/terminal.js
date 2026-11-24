@@ -330,7 +330,7 @@
       ["date", "current date and time"], ["uname", "system name"], ["ping", "test the connection"], ["history", "commands you typed so far"], ["echo <text>", "repeat some text"]]],
     ["display and sound", [["theme <name>", "green, amber, blue or ice"], ["sound on|off", "key clicks, beeps and effects"], ["clear", "wipe the screen"],
       ["plain", "switch to the plain, easy-to-read site"]]],
-    ["system", [["help", "short help"], ["commands", "this list"], ["shutdown", "power off, back to the power-on screen"], ["restart", "same as shutdown"], ["exit", "try it"]]],
+    ["system", [["help", "short help"], ["commands", "this list"], ["reboot", "restart the experience from the power-on screen"]]],
     ["extras", [["matrix", "digital rain (any key stops it)"], ["hire", "a good decision"], ["sudo", "ask nicely"], ["rm", "please do not"], ["man", "the manual"]]]
   ];
 
@@ -338,7 +338,7 @@
     var g = el("div", "help ln new"), rows = [
       ["home", "back to the home screen"], ["projects", "the three showcase projects"], ["works", "all projects with previews"], ["about", "who is Joann?"], ["open <name>", "open a project (try: open convex)"],
       ["contact · resume", "reach me, read my resume"], ["theme <name>", "green · amber · blue · ice"], ["sound on|off", "clicks and beeps"],
-      ["shutdown", "power off, back to the start"]
+      ["reboot", "restart from the power-on screen"]
     ];
     rows.forEach(function (r) { g.append(el("b", "", r[0]), el("span", "dim", r[1])); }); out.append(g);
     ln("type `commands` for the full list.   tab: autocomplete   up/down: history", "dim");
@@ -454,7 +454,7 @@
     if (arg === "on" || arg === "off") { A.unlock(); A.setOn(arg === "on"); if (arg === "on") A.ok(); paintSound(); ln("sound " + arg + ".", "dim"); } else ln("usage: sound on|off");
   });
   def("clear cls", async function () { out.replaceChildren(); });
-  def("shutdown restart reboot poweroff", async function () { await shutdown(); });
+  def("reboot shutdown restart exit logout poweroff", async function () { await shutdown(); });
   def("date", async function () { ln(new Date().toString()); });
   def("echo", async function (a, raw) { ln(raw.replace(/^echo\s*/i, "")); });
   def("history", async function () { history.forEach(function (x, i) { ln(String(i + 1).padStart(3) + "  " + x); }); });
@@ -462,7 +462,6 @@
   def("ping", async function () { for (var i = 0; i < 3; i++) { ln("64 bytes from joann: icmp_seq=" + i + " time=" + (8 + Math.random() * 20).toFixed(1) + " ms"); A.tick(); await sleep(380); } });
   def("sudo", async function () { A.error(); ln("guest is not in the sudoers file. This incident will be reported.", "warn"); });
   def("rm", async function () { A.error(); ln("rm: permission denied. nice try.", "warn"); });
-  def("exit logout", async function () { ln("There is no escape. Try `shutdown` instead.", "dim"); });
   def("hire", async function () { await typeLn("Excellent decision.", "bright", 40); await C.contact(); });
   def("man", async function () { ln("What manual? Try `commands`.", "dim"); });
   def("matrix", async function () { await matrix(); });
@@ -607,8 +606,8 @@
 
   /* dock */
   function buildDock() {
-    var list = [["home", "home"], ["works", "works"], ["about", "about"], ["contact", "contact"], ["resume", "resume"], ["help", "help"]];
-    if (PAGE === "project") list = [["back", "back"], ["prev", "prev"], ["next", "next"], ["works", "works"], ["home", "home"], ["contact", "contact"]];
+    var list = [["home", "home"], ["works", "works"], ["about", "about"], ["contact", "contact"], ["resume", "resume"], ["plain", "plain site"], ["help", "help"]];
+    if (PAGE === "project") list = [["back", "back"], ["prev", "prev"], ["next", "next"], ["works", "works"], ["home", "home"], ["contact", "contact"], ["plain", "plain site"]];
     dock.replaceChildren(); list.forEach(function (c) { var b = el("button", "chip"); b.type = "button"; b.dataset.cmd = c[1]; b.append(c[0]); dock.append(b); });
   }
   buildDock();

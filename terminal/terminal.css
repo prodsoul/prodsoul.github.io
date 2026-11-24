@@ -284,3 +284,5 @@ body.mobile .gate-title { font-size: 1.05em; }
 .vid-in .shot { animation: raster 1.2s steps(22) both; }
 .vid-in .vid-cap { animation: fadeup .9s .5s both; }
 @keyframes fadeup { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.game .msg { left: 50%; right: auto; transform: translateX(-50%); width: max-content; max-width: 92%; padding: .7em 1.6em; background: var(--bg); border: 1px solid var(--fg); box-shadow: 0 0 22px rgba(var(--fg-rgb), .45), 0 0 0 6px var(--bg); line-height: 1.6; }
+.game .msg:empty { display: none; }
