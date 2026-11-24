@@ -111,7 +111,8 @@
       }
     });
     var i = W.indexOf(w), np = el("div", "nextprev");
-    np.append(i > 0 ? link("← " + W[i - 1].title, "#/work/" + W[i - 1].slug) : el("span"), i < W.length - 1 ? link(W[i + 1].title + " →", "#/work/" + W[i + 1].slug) : el("span")); f.append(rv(np));
+    function npl(w, prev) { var a = link("", "#/work/" + w.slug, "np"); a.append.apply(a, prev ? [el("i", "", "←"), el("span", "t", w.title)] : [el("span", "t", w.title), el("i", "", "→")]); return a; }
+    np.append(i > 0 ? npl(W[i - 1], true) : el("span"), i < W.length - 1 ? npl(W[i + 1], false) : el("span")); f.append(rv(np));
     return f;
   }
 

@@ -13,7 +13,7 @@
   /* ---------- build the monitor ---------- */
   var h = '<div class="stage" id="stage"><div class="monitor" id="monitor"><div class="crt" id="crt">' +
     '<div class="screen" id="screen">' +
-    '<div class="mtop"><span>JB-TERM</span><span class="sp2"></span><button type="button" id="m-skip" hidden>skip</button><button type="button" id="m-snd"></button><button type="button" id="m-thm"></button></div>' +
+    '<div class="mtop"><button type="button" id="m-plain" aria-label="Plain site"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button><span>JB-TERM</span><span class="sp2"></span><button type="button" id="m-skip" hidden>skip</button><button type="button" id="m-snd"></button><button type="button" id="m-thm"></button></div>' +
     '<div class="scroll" id="scroll"><div class="term" id="term"><div id="out" role="log" aria-live="off"></div>' +
     '<label id="promptwrap" hidden><span class="prompt" id="ps"></span><span id="line"><span id="cpre"></span><span class="cursor" id="ccur">&nbsp;</span><span id="cpost"></span></span>' +
     '<input id="inp" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="terminal input"></label></div></div>' +
@@ -65,7 +65,9 @@
   new MutationObserver(syncFx).observe(screen, { subtree: true, attributes: true, attributeFilter: ["class"] });
   function working() { return booting || busy || leaving; }
   /* skip: finish typing at once, drop any half-played screen animation, and cut straight to the next page when leaving */
+  var leaveAt = 0;
   function skip() {
+    if (leaving && Date.now() - leaveAt < 1000) return;
     fast = true; sleepers.slice().forEach(function (f) { f(); });
     screen.classList.remove("on", "flash", "glitch");
     if (navNow) { screen.style.opacity = "0"; navNow(); }
@@ -131,7 +133,7 @@
   setTheme(themeSaved);
   function paintSound() {
     var on = A.isOn(), tx = "sound: " + (on ? "on" : "off");
-    bSnd.textContent = tx; mSnd.textContent = on ? "snd on" : "snd off"; bSnd.setAttribute("aria-pressed", String(on));
+    bSnd.textContent = tx; mSnd.textContent = on ? (A.ready() ? "snd on" : "tap: snd") : "snd off"; bSnd.setAttribute("aria-pressed", String(on));
   }
   A.onChange(paintSound); paintSound();
   function toggleSound() { A.unlock(); A.setOn(!A.isOn()); if (A.isOn()) A.ok(); paintSound(); }
@@ -146,7 +148,7 @@
     if (!wasReady) { A.unlock(); }
     firstGesture = false;
   }
-  ["pointerdown", "keydown", "touchend"].forEach(function (ev) { addEventListener(ev, gesture, true); });
+  ["pointerdown", "keydown", "touchend", "click"].forEach(function (ev) { addEventListener(ev, gesture, true); });
 
   /* ---------- ascii art ---------- */
   var arts = [];
@@ -298,7 +300,7 @@
   /* ---------- navigation between pages (each page is a separate screen) ---------- */
   var leaving = false;
   async function go(file) {
-    if (leaving) return; leaving = true; busy = true; pw.hidden = true; dock.hidden = true;
+    if (leaving) return; leaving = true; leaveAt = Date.now(); busy = true; pw.hidden = true; dock.hidden = true;
     if (/^https?:/.test(file) || /^mailto:/.test(file)) { location.href = file; return; }
     var done = false, target = href(file);
     navNow = function () { if (done) return; done = true; location.href = target; };
@@ -334,7 +336,7 @@
 
   var HOME = "index.html?home";
   var CMDS = [
-    ["navigate", [["home", "back to the home screen with my name"], ["projects", "the three showcase projects"], ["works", "every project, with previews"], ["about", "who I am"], ["contact", "email and LinkedIn"],
+    ["navigate", [["home", "back to home"], ["projects", "three showcase projects"], ["works", "every project, with previews"], ["about", "who I am"], ["contact", "email and LinkedIn"],
       ["resume", "read my resume"], ["open <name>", "open a project, e.g. open convex"], ["next / prev", "move between projects"], ["back", "go up one level"],
       ["cd <place>", "works, about, contact, resume, ~ or .."], ["ls [works]", "list projects"], ["pwd", "show where you are"]]],
     ["info", [["whoami", "one-line profile"], ["skills", "tools and methods"], ["neofetch", "system info"], ["top", "running processes"],
@@ -347,7 +349,7 @@
 
   def("help ?", async function () {
     var g = el("div", "help ln new"), rows = [
-      ["home", "back to the home screen"], ["projects", "the three showcase projects"], ["works", "all projects with previews"], ["about", "who is Joann?"], ["open <name>", "open a project (try: open convex)"],
+      ["home", "back to home"], ["projects", "three showcase projects"], ["works", "all projects with previews"], ["about", "who is Joann?"], ["open <name>", "open a project (try: open convex)"],
       ["contact · resume", "reach me, read my resume"], ["theme <name>", "green · amber · blue · ice · pink"], ["sound on|off", "clicks and beeps"],
       ["reboot", "restart the terminal experience"]
     ];
@@ -577,6 +579,7 @@
     konami(e);
     if (e.__unlockOnly) return;
     if (working()) {
+      if (e.repeat) { e.preventDefault(); return; }
       if (e.metaKey || e.altKey) return;
       if (e.ctrlKey && e.key !== "c") return;
       if (["Shift", "Control", "Alt", "Meta", "Tab"].indexOf(e.key) > -1) return;
@@ -625,7 +628,7 @@
     var now = Date.now(); taps = taps.filter(function (t) { return now - t < 1800; }); taps.push(now);
     if (taps.length >= 5 && !busy && !booting && !inGame) { taps = []; exec("./tetris"); }
   }
-  $("#brand").addEventListener("click", brandTap); $(".mtop span").addEventListener("click", brandTap);
+  $("#brand").addEventListener("click", brandTap); document.querySelector(".mtop span").addEventListener("click", brandTap);
 
   /* dock */
   function buildDock() {
@@ -675,6 +678,7 @@
   }
   /* the button on the monitor does the same thing: powers on from standby, shuts down otherwise */
   $("#b-pwr").addEventListener("click", function () { if (!gate.hidden) doPowerOn(); else askPlain(); });
+  $("#m-plain").addEventListener("click", function () { if (!gate.hidden) return; askPlain(); });
   /* yes/no confirmation: enter or "yes" confirms, esc or "no" cancels */
   var confirming = null;
   function askPlain() {

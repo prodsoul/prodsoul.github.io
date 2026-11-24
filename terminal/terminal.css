@@ -298,3 +298,6 @@ body.allclear .shot img { filter: none !important; animation: none !important; c
 .plate #b-snd[aria-pressed="true"] { background: linear-gradient(#b2aa95, #c4bda9); box-shadow: inset 0 3px 6px rgba(0,0,0,.4), inset 0 -1px 0 rgba(255,255,255,.4); transform: translateY(2px); color: #2d2a22; }
 .plate #b-snd[aria-pressed="true"]::before { background: #5dff7a; box-shadow: 0 0 6px 1px rgba(93,255,122,.8); }
 .plate #b-snd[aria-pressed="false"] { box-shadow: 0 3px 0 #7d7665, inset 0 1px 0 rgba(255,255,255,.55); }
+
+#m-plain { width: 26px; height: 26px; padding: 0 !important; border-radius: 50%; display: grid; place-items: center; flex: none; }
+#m-plain svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 6; stroke-linecap: round; }
