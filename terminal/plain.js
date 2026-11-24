@@ -23,6 +23,11 @@
     var sec = el("section", "home-sec"); sec.id = "about";
     sec.append(rv(el("div", "prompt", "guest@joann:~$ about")), rv(el("h2", "", "About me"), 1));
     JB.about.forEach(function (t, i) { sec.append(rv(el("p", i ? "" : "lede", t), 2 + i)); });
+    sec.append(rv(el("h3", "jhead", "My journey"), 3));
+    var jl = el("div", "journey"); JB.journey.forEach(function (j, i) {
+      var it = el("div", "jitem"); it.append(el("b", "", j.school), el("span", "", j.what), el("em", "", j.when));
+      j.notes.forEach(function (n) { it.append(el("small", "", n)); }); jl.append(rv(it, 4 + i));
+    }); sec.append(jl);
     var dl = el("dl", "skills"); JB.skills.forEach(function (s) { dl.append(el("dt", "", s[0]), el("dd", "", s[1])); }); sec.append(rv(dl, 4));
     return sec;
   }
@@ -40,7 +45,6 @@
       var f = document.createDocumentFragment(), hero = el("section", "hero"); hero.id = "top-sec";
       hero.append(rv(el("div", "prompt", "guest@joann:~$ whoami")), rv(el("h1", "", "Joann Bisseling"), 1));
       hero.append(rv(el("p", "lede dim", "UX & Game Design student · Singapore · open to internships"), 2));
-      var b = el("div", "btns"); b.append(link("View works", "#/works", "btn"), link("About me", "#/about", "btn"), link("Contact", "#/contact", "btn"), link("Resume", "#/resume", "btn")); hero.append(rv(b, 3));
       f.append(hero);
       var sh = el("div", "sec-head"); sh.append(el("h2", "", "Featured projects"), link("All works →", "#/works")); f.append(rv(sh));
       var g = el("div", "grid"); W.filter(function (w) { return w.featured; }).forEach(function (w, i) { g.append(card(w, i)); }); f.append(g);

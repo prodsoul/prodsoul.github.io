@@ -351,7 +351,10 @@
     }
     ln("a few commands are not listed. keep poking around.", "dim");
   });
-  def("about", async function () { for (var i = 0; i < JB.about.length; i++) { var p = el("p", "p ln new"); out.append(p); await typeInto(p, JB.about[i], 170); } });
+  def("about", async function () { for (var i = 0; i < JB.about.length; i++) { var p = el("p", "p ln new"); out.append(p); await typeInto(p, JB.about[i], 170); }
+    gap(); var jh = el("h2", "h ln new"); out.append(jh); await typeInto(jh, "my journey", 90);
+    for (var j = 0; j < JB.journey.length; j++) { var it = JB.journey[j], jp = el("p", "p ln new"); jp.style.whiteSpace = "pre-wrap"; out.append(jp); await typeInto(jp, it.school + "\n" + it.what + "\n" + it.when + (it.notes.length ? "\n" + it.notes.join("\n") : ""), 170); }
+  });
   def("whoami", async function () { await typeLn("Joann Bisseling | UX & Game Design | Singapore", "bright", 70); ln("status: open to internships", "dim"); });
   def("skills", async function () {
     var g = el("div", "help tight ln new"); JB.skills.forEach(function (s) { g.append(el("b", "", s[0]), el("span", "", s[1])); }); out.append(g); A.tick();
@@ -607,7 +610,7 @@
   /* dock */
   function buildDock() {
     var list = [["home", "home"], ["works", "works"], ["about", "about"], ["contact", "contact"], ["resume", "resume"], ["plain", "plain site"], ["help", "help"]];
-    if (PAGE === "project") list = [["back", "back"], ["prev", "prev"], ["next", "next"], ["works", "works"], ["home", "home"], ["contact", "contact"], ["plain", "plain site"]];
+    if (PAGE === "project") list = [["back", "back"], ["works", "works"], ["home", "home"], ["contact", "contact"], ["plain", "plain site"]];
     dock.replaceChildren(); list.forEach(function (c) { var b = el("button", "chip"); b.type = "button"; b.dataset.cmd = c[1]; b.append(c[0]); dock.append(b); });
   }
   buildDock();

@@ -72,9 +72,9 @@ figcaption { color: var(--dim); font-size: 14px; margin-top: .7em; text-align: c
 .pdfv-bar a, .pdfv-bar button { color: var(--bright); }
 .nextprev { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 4rem; padding-top: 1.6rem; border-top: 1px solid var(--line); font-family: var(--head); font-size: 14px; }
 .skills { display: grid; grid-template-columns: max-content 1fr; gap: .5em 2em; margin: 1.6em 0; } .skills dt { color: var(--dim); font-family: var(--head); } .skills dd { margin: 0; }
-.big-links { display: grid; gap: 14px; margin-top: 1.8rem; }
-.big-links a { display: flex; justify-content: space-between; align-items: center; gap: 1rem; text-decoration: none; padding: 20px 22px; border: 1px solid var(--line); background: var(--card); font-family: var(--head); font-size: clamp(16px, 2.4vw, 20px); transition: transform .35s var(--ease), border-color .3s, background .3s; }
-.big-links a span { color: var(--dim); font-size: 14px; } .big-links a:hover { transform: translateX(6px); border-color: rgba(255,255,255,.55); background: rgba(255,255,255,.07); }
+.big-links { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 1.8rem; }
+.big-links a { flex-wrap: wrap; min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 1rem; text-decoration: none; padding: 20px 22px; border: 1px solid var(--line); background: var(--card); font-family: var(--head); font-size: clamp(16px, 2.4vw, 20px); transition: transform .35s var(--ease), border-color .3s, background .3s; }
+.big-links a span { color: var(--dim); font-size: 14px; overflow-wrap: anywhere; min-width: 0; } .big-links a:hover { transform: translateX(6px); border-color: rgba(255,255,255,.55); background: rgba(255,255,255,.07); }
 
 .lb { position: fixed; inset: 0; z-index: 90; background: rgba(5,7,8,.94); display: grid; place-items: center; padding: 3vh 3vw; cursor: zoom-out; animation: swap .3s var(--ease); }
 .lb img { max-width: 100%; max-height: 94vh; border: 1px solid var(--line); }
@@ -82,11 +82,18 @@ figcaption { color: var(--dim); font-size: 14px; margin-top: .7em; text-align: c
 .rv { opacity: 0; transform: translateY(26px); transition: opacity 1s var(--ease), transform 1s var(--ease); transition-delay: var(--d, 0s); }
 .rv.in { opacity: 1; transform: none; }
 .loading { color: var(--dim); font-family: var(--head); }
-@media (max-width: 760px) { body { font-size: 16px; } .gallery.n2, .gallery.n3 { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; padding-bottom: 8px; }
+@media (max-width: 760px) { body { font-size: 16px; } .gallery.n2, .gallery.n3 { display: flex; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; touch-action: pan-x pan-y; scroll-snap-type: x mandatory; gap: 14px; padding-bottom: 8px; }
   .gallery.n2 figure, .gallery.n3 figure { flex: 0 0 78%; scroll-snap-align: start; } .meta { grid-template-columns: 1fr; } .meta dt { margin-top: .6em; } }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .rv { opacity: 1; transform: none; transition: none; } main.swap, .lb { animation: none; } .cur { animation: none; } * { transition-duration: .01ms !important; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .rv { opacity: 1; transform: none; transition: none; } main.swap, .lb { animation: none; } * { transition-duration: .01ms !important; } }
 
 section[id], .hero { scroll-margin-top: 78px; }
 .home-sec { margin-top: 6rem; padding-top: 2.4rem; border-top: 1px solid var(--line); }
 .home-sec h2 { margin-top: 0; }
 .grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+
+.jhead { margin: 2.4em 0 .9em; font-family: var(--head); font-size: 1.15em; font-weight: normal; }
+.journey { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.jitem { display: flex; flex-direction: column; gap: .25em; padding: 18px 22px; border: 1px solid var(--line); background: var(--card); }
+.jitem b { font-family: var(--head); font-weight: normal; font-size: 1.05em; } .jitem span { overflow-wrap: anywhere; }
+.jitem em { font-style: normal; color: var(--dim); font-size: .9em; } .jitem small { color: var(--dim); font-size: .88em; margin-top: .3em; }
+.jitem small + small { margin-top: 0; }

@@ -15,8 +15,11 @@ window.JB = {
   skills: [
     ["design", "UX design · interface design · prototyping"],
     ["testing", "playtesting · usability testing · iteration"],
-    ["tools", "Figma · Unity"],
-    ["background", "Big Data Analytics"]
+    ["tools", "Figma · Unity"]
+  ],
+  journey: [
+    { school: "DigiPen Institute of Technology Singapore", what: "Bachelor of Arts in User Experience and Game Design", when: "Sep 2024 – Sep 2028", notes: [] },
+    { school: "Temasek Polytechnic", what: "Diploma of Education, Big Data and Analytics", when: "Apr 2020 – Apr 2023", notes: ["Activities and societies: Green Interest Club", "Competitions: Shopee Code League 2021"] }
   ],
   /* alias, title, type, slug, thumbnail (or ""), featured */
   works: [
