@@ -28,7 +28,6 @@
       var it = el("div", "jitem"); it.append(el("b", "", j.school), el("span", "", j.what), el("em", "", j.when));
       j.notes.forEach(function (n) { it.append(el("small", "", n)); }); jl.append(rv(it, 4 + i));
     }); sec.append(jl);
-    var dl = el("dl", "skills"); JB.skills.forEach(function (s) { dl.append(el("dt", "", s[0]), el("dd", "", s[1])); }); sec.append(rv(dl, 4));
     return sec;
   }
   function contactSection() {
@@ -36,8 +35,9 @@
     sec.append(rv(el("div", "prompt", "guest@joann:~$ contact")), rv(el("h2", "", "Contact me"), 1));
     sec.append(rv(el("p", "lede dim", "Open to conversations about design, internships and collaboration."), 2));
     var b = el("div", "big-links");
-    [["Email", JB.email, JB.links.email, 0], ["LinkedIn", "linkedin.com/in/joannbisseling", JB.links.linkedin, 1], ["Resume", "view the PDF", "#/resume", 0]].forEach(function (r, i) {
-      var a = link("", r[2], "", r[3]); a.append(el("b", "", r[0]), el("span", "", r[1])); a.firstChild.style.fontWeight = "normal"; b.append(rv(a, 3 + i));
+    [["Email", JB.email, JB.links.email, 0], ["LinkedIn", "linkedin.com/in/joannbisseling", JB.links.linkedin, 1, "joannbisseling"], ["Resume", "view the PDF", "#/resume", 0]].forEach(function (r, i) {
+      var a = link("", r[2], "", r[3]); var sp = el("span", "", ""); if (r[4]) { sp.append(el("i", "full", r[1]), el("i", "short", r[4])); } else sp.textContent = r[1];
+      a.append(el("b", "", r[0]), sp); a.firstChild.style.fontWeight = "normal"; b.append(rv(a, 3 + i));
     }); sec.append(b); return sec;
   }
   var views = {

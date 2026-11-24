@@ -7,7 +7,7 @@
   var coarse = matchMedia("(pointer: coarse)").matches;
   var WORKS = JB.works, doc = document.getElementById("doc");
   A.setRoot(ROOT);
-  var THEMES = ["green", "amber", "blue", "ice"];
+  var THEMES = ["green", "amber", "blue", "ice", "pink"];
   var t0 = Date.now();
 
   /* ---------- build the monitor ---------- */
@@ -41,6 +41,10 @@
       document.documentElement.style.setProperty("--s", Math.max(0.35, s).toFixed(4));
     }
   }
+  if (window.visualViewport) {
+    var vvFix = function () { var h = visualViewport.height; document.documentElement.style.setProperty("--vvh", h + "px"); if (mobile) { window.scrollTo(0, 0); scrollEnd(); } };
+    visualViewport.addEventListener("resize", vvFix); visualViewport.addEventListener("scroll", function () { if (mobile) window.scrollTo(0, 0); }); vvFix();
+  }
   fitScreen(); addEventListener("resize", fitScreen); addEventListener("orientationchange", fitScreen);
 
   /* ---------- state ---------- */
@@ -55,7 +59,9 @@
     });
   }
   var navNow = null;
-  function syncFx() { monitor.classList.toggle("nofx", !!screen.querySelector(".shot.clear")); }
+  var allClear = false; try { allClear = localStorage.getItem("jb-filter") === "off"; } catch (e) {}
+  function syncFx() { document.body.classList.toggle("allclear", allClear); monitor.classList.toggle("nofx", allClear || !!screen.querySelector(".shot.clear")); }
+  setTimeout(syncFx, 0);
   new MutationObserver(syncFx).observe(screen, { subtree: true, attributes: true, attributeFilter: ["class"] });
   function working() { return booting || busy || leaving; }
   /* skip: finish typing at once, drop any half-played screen animation, and cut straight to the next page when leaving */
@@ -74,7 +80,11 @@
   function scrollEnd(force) { if (force) follow = true; if (follow) scroller.scrollTop = scroller.scrollHeight; }
   /* auto-follow stops only when the visitor scrolls up on purpose, and resumes when they reach the bottom */
   scroller.addEventListener("scroll", function () { if (scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 50) follow = true; });
-  scroller.addEventListener("wheel", function (e) { if (e.deltaY < 0) follow = false; }, { passive: true });
+  scroller.addEventListener("wheel", function (e) {
+    if (e.deltaY < 0) follow = false;
+    if (e.ctrlKey || e.target.closest("iframe, .pdfv")) return;
+    e.preventDefault(); scroller.scrollTop += (e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY) * 0.45;
+  }, { passive: false });
   scroller.addEventListener("touchmove", function () { follow = false; }, { passive: true });
   scroller.addEventListener("pointerdown", function (e) { if (e.target === scroller) follow = false; });
   document.addEventListener("keydown", function (e) { if (["PageUp", "Home"].indexOf(e.key) > -1 || (e.key === "ArrowUp" && document.activeElement !== inp)) follow = false; });
@@ -185,6 +195,7 @@
     var b = el("div", "th" + (w.thumb ? "" : " none"));
     if (w.thumb) { b = el("div", "th shot"); var im = new Image(); im.src = href("assets/thumbnails/" + w.thumb + ".webp"); im.alt = w.title + " thumbnail"; im.loading = "lazy"; b.append(im); b.style.padding = "4px"; }
     else b.textContent = "no preview";
+    b.style.cursor = "pointer"; b.title = "open " + w.title; b.addEventListener("click", function () { go("projects/" + w.slug + ".html"); });
     return b;
   }
   async function workCards(items) {
@@ -328,17 +339,17 @@
       ["cd <place>", "works, about, contact, resume, ~ or .."], ["ls [works]", "list projects"], ["pwd", "show where you are"]]],
     ["info", [["whoami", "one-line profile"], ["skills", "tools and methods"], ["neofetch", "system info"], ["top", "running processes"],
       ["date", "current date and time"], ["uname", "system name"], ["ping", "test the connection"], ["history", "commands you typed so far"], ["echo <text>", "repeat some text"]]],
-    ["display and sound", [["theme <name>", "green, amber, blue or ice"], ["sound on|off", "key clicks, beeps and effects"], ["clear", "wipe the screen"],
+    ["display and sound", [["theme <name>", "green, amber, blue, ice or pink"], ["sound on|off", "key clicks, beeps and effects"], ["clear", "wipe the screen"], ["filter on|off", "turn the screen filter on all images on or off"],
       ["plain", "switch to the plain, easy-to-read site"]]],
-    ["system", [["help", "short help"], ["commands", "this list"], ["reboot", "restart the experience from the power-on screen"]]],
+    ["system", [["help", "short help"], ["commands", "this list"], ["reboot", "restart the terminal experience"]]],
     ["extras", [["matrix", "digital rain (any key stops it)"], ["hire", "a good decision"], ["sudo", "ask nicely"], ["rm", "please do not"], ["man", "the manual"]]]
   ];
 
   def("help ?", async function () {
     var g = el("div", "help ln new"), rows = [
       ["home", "back to the home screen"], ["projects", "the three showcase projects"], ["works", "all projects with previews"], ["about", "who is Joann?"], ["open <name>", "open a project (try: open convex)"],
-      ["contact · resume", "reach me, read my resume"], ["theme <name>", "green · amber · blue · ice"], ["sound on|off", "clicks and beeps"],
-      ["reboot", "restart from the power-on screen"]
+      ["contact · resume", "reach me, read my resume"], ["theme <name>", "green · amber · blue · ice · pink"], ["sound on|off", "clicks and beeps"],
+      ["reboot", "restart the terminal experience"]
     ];
     rows.forEach(function (r) { g.append(el("b", "", r[0]), el("span", "dim", r[1])); }); out.append(g);
     ln("type `commands` for the full list.   tab: autocomplete   up/down: history", "dim");
@@ -449,6 +460,12 @@
     if (PAGE !== "project" || i < 0) return ln("nothing open. try `open " + WORKS[0].alias + "` first.", "warn");
     var w = WORKS[(i + dir + WORKS.length) % WORKS.length]; await go("projects/" + w.slug + ".html");
   });
+  def("filter", async function (arg) {
+    var a = (arg || "").toLowerCase();
+    if (a !== "on" && a !== "off") { ln("usage: filter <on|off>   (now: " + (allClear ? "off" : "on") + ")"); return; }
+    allClear = a === "off"; try { localStorage.setItem("jb-filter", a); } catch (e) {} syncFx(); A.ok();
+    ln("screen filter on images is now " + a + ".", "dim");
+  });
   def("theme", async function (arg) {
     if (THEMES.indexOf(arg) > -1) { setTheme(arg); A.ok(); ln("display phosphor set to " + arg + ".", "dim"); }
     else ln("usage: theme <" + THEMES.join("|") + ">   (now: " + document.documentElement.dataset.theme + ")");
@@ -517,6 +534,7 @@
     ln("bash: " + parts[0] + ": command not found" + (close ? ". did you mean `" + close + "`?" : ". type `help`"), "warn");
   }
   async function exec(raw) {
+    if (confirming) { answerConfirm(raw); return; }
     var cmd = raw.trim(); busy = true; pw.hidden = true; dock.hidden = true; A.enter(); echoCmd(raw);
     if (cmd) {
       if (history[history.length - 1] !== cmd) history.push(cmd);
@@ -538,7 +556,7 @@
   /* ---------- input handling ---------- */
   var ARGS = {
     open: WORKS.map(function (w) { return w.alias; }).concat(["resume", "email", "linkedin", "works", "about", "contact"]), 
-    ls: ["works", "projects", "-l", "-a"], cd: ["works", "about", "contact", "resume", "~", ".."], theme: THEMES, sound: ["on", "off"]
+    ls: ["works", "projects", "-l", "-a"], cd: ["works", "about", "contact", "resume", "~", ".."], theme: THEMES, sound: ["on", "off"], filter: ["on", "off"]
   };
   function complete() {
     var v = inp.value, parts = v.split(/\s+/), last = parts[parts.length - 1].toLowerCase();
@@ -568,6 +586,7 @@
   });
   inp.addEventListener("keydown", function (e) {
     if (busy || booting) return;
+    if (e.key === "Escape" && confirming) { e.preventDefault(); confirming = null; echoCmd(inp.value); ln("cancelled.", "dim"); setInput(""); return; }
     if (e.key === "Enter") { e.preventDefault(); exec(inp.value); }
     else if (e.key === "Tab") { e.preventDefault(); complete(); A.key(); }
     else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
@@ -585,6 +604,7 @@
     if (e.target.closest("a, button, iframe, .vid")) return;
     if (String(getSelection())) return;
     if (booting || busy) return;
+    if (coarse && e.target.closest(".shot, .vid-wrap, .gallery, .work, .cat-pic")) return;
     focusInput();
   });
   /* tap or click anywhere while something is typing: finish it instantly */
@@ -609,8 +629,8 @@
 
   /* dock */
   function buildDock() {
-    var list = [["home", "home"], ["works", "works"], ["about", "about"], ["contact", "contact"], ["resume", "resume"], ["plain", "plain site"], ["help", "help"]];
-    if (PAGE === "project") list = [["back", "back"], ["works", "works"], ["home", "home"], ["contact", "contact"], ["plain", "plain site"]];
+    var list = [["home", "home"], ["works", "works"], ["about", "about"], ["contact", "contact"], ["resume", "resume"], ["help", "help"]];
+    if (PAGE === "project") list = [["back", "back"], ["works", "works"], ["home", "home"], ["contact", "contact"]];
     dock.replaceChildren(); list.forEach(function (c) { var b = el("button", "chip"); b.type = "button"; b.dataset.cmd = c[1]; b.append(c[0]); dock.append(b); });
   }
   buildDock();
@@ -647,17 +667,30 @@
       '<button type="button" class="pbtn" id="g-power" aria-label="Power on"><span class="ring"></span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button>' +
       '<div class="gate-hint">press the button to power on</div>' +
       '<div class="gate-opts"><a class="gbtn" id="g-plain" href="plain.html">plain site</a>' +
-      '<div class="sw"><span>sound</span><button type="button" class="swb" id="g-snd" role="switch"><i></i></button></div></div>' +
+      '</div>' +
       '<div class="gate-hint">power on starts the full terminal experience.<br>the plain site is a simple, easy-to-read version.</div></div>';
-    var gs = gate.querySelector("#g-snd"), gp = gate.querySelector("#g-power");
-    function paintG() { gs.setAttribute("aria-checked", String(A.isOn())); gs.classList.toggle("on", A.isOn()); }
-    paintG(); A.onChange(paintG);
-    gs.addEventListener("click", function () { A.unlock(); A.setOn(!A.isOn()); if (A.isOn()) A.ok(); paintG(); paintSound(); });
+    var gp = gate.querySelector("#g-power");
     gp.addEventListener("click", doPowerOn);
     setTimeout(function () { try { gp.focus(); } catch (e) {} }, 50);
   }
   /* the button on the monitor does the same thing: powers on from standby, shuts down otherwise */
-  $("#b-pwr").addEventListener("click", function () { if (!gate.hidden) doPowerOn(); else shutdown(); });
+  $("#b-pwr").addEventListener("click", function () { if (!gate.hidden) doPowerOn(); else askPlain(); });
+  /* yes/no confirmation: enter or "yes" confirms, esc or "no" cancels */
+  var confirming = null;
+  function askPlain() {
+    if (busy || booting || leaving || inGame || confirming) return;
+    pw.hidden = false; dock.hidden = false;
+    var q = ln("Leave the terminal and open the plain site? [Y/n]  (enter = yes, esc = no)", "warn");
+    confirming = function (yes) { if (yes) { ln("switching to the plain site ...", "dim"); busy = true; pw.hidden = true; dock.hidden = true; go("plain.html"); } else ln("cancelled.", "dim"); };
+    setInput(""); focusInput(); scrollEnd(true);
+  }
+  function answerConfirm(raw) {
+    var a = raw.trim().toLowerCase(), f = confirming; echoCmd(raw);
+    if (a === "" || a === "y" || a === "yes") { confirming = null; f(true); }
+    else if (a === "n" || a === "no") { confirming = null; f(false); }
+    else ln("please answer yes or no.", "dim");
+    setInput("");
+  }
 
   async function boot() {
     booting = true; busy = true; pw.hidden = true; dock.hidden = true; fast = false;
@@ -667,7 +700,7 @@
     ln("UX-CORE(tm) 8 CORES @ 4.20GHz"); await sleep(150);
     await counter("MEMORY TEST  ", 65536, 4096, "OK"); await sleep(140); gap();
     ln("Detecting devices ...", "dim"); await sleep(240);
-    var devs = [["/dev/figma", "OK"], ["/dev/unity", "OK"], ["/dev/playtest", "OK"], ["/dev/digipen", "OK"], ["/dev/sergio", "ZZZ", "warn"]];
+    var devs = [["/dev/figma", "OK"], ["/dev/unity", "OK"], ["/dev/playtest", "OK"], ["/dev/digipen", "OK"], ["/dev/sergio", "MEOW", "warn"]];
     for (var i = 0; i < devs.length; i++) { statusLine(devs[i][0], devs[i][1], devs[i][2]); A.seek(3); scrollEnd(); await sleep(200); }
     gap(); await sleep(140);
     ln("Loading kernel: PORTFOLIO_OS 1.0", "bright"); await progress(""); await sleep(120);
