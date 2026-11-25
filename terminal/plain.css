@@ -29,7 +29,7 @@ main.swap { animation: swap .3s var(--ease); }
 h1, h2, h3 { font-family: var(--head); font-weight: normal; color: var(--headc); line-height: 1.25; margin: 0; }
 h1 { font-size: clamp(30px, 6vw, 58px); letter-spacing: -.01em; }
 h2 { font-size: clamp(20px, 3vw, 27px); margin: 2.6em 0 .7em; }
-p { margin: 0 0 1.25em; max-width: 70ch; }
+p { margin: 0 0 1.25em; max-width: none; }
 .prompt { font-family: var(--head); color: var(--dim); font-size: 14px; margin-bottom: 1rem; }
 .lede { font-size: 1.12em; color: var(--fg); }
 .dim { color: var(--dim); }
