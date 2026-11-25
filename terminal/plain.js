@@ -7,7 +7,8 @@
   }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }) : null;
 
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-  function rv(node, i) { node.classList.add("rv"); if (i) node.style.setProperty("--d", (Math.min(i, 8) * 0.07) + "s"); return node; }
+  function rv(node, i) { node.classList.add("rv"); if (i) node.style.setProperty("--d", (Math.min(i, 6) * 0.05) + "s"); return node; }
+  function sentence(t) { t = t.trim(); return /^([A-Z][a-z]+\s?)+$/.test(t) ? t.charAt(0) + t.slice(1).toLowerCase() : t; }
   function link(text, href, cls, ext) { var a = el("a", cls, text); a.href = href; if (ext) { a.target = "_blank"; a.rel = "noopener noreferrer"; } return a; }
   function findWork(slug) { return W.filter(function (w) { return w.slug === slug; })[0]; }
 
@@ -89,7 +90,7 @@
     var intro = doc.querySelector(".intro"); if (intro) f.append(rv(el("p", "lede", intro.textContent), 3));
     var act = doc.querySelector(".actions");
     if (act) { var bt = el("div", "btns"); [].slice.call(act.children).forEach(function (a) {
-      if (a.tagName === "A") { var h = a.getAttribute("href"), ext = /^https?:/.test(h); bt.append(link(a.textContent, h, "btn", ext)); } else bt.append(el("span", "btn off", a.textContent));
+      if (a.tagName === "A") { var h = a.getAttribute("href"), ext = /^https?:/.test(h); bt.append(link(sentence(a.textContent), h, "btn", ext)); } else bt.append(el("span", "btn off", a.textContent));
     }); f.append(rv(bt, 4)); }
     [].slice.call(doc.children).forEach(function (n) {
       var tag = n.tagName.toLowerCase(), cls = n.className;
