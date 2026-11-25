@@ -2,13 +2,7 @@
 (function () {
   "use strict";
   var JB = window.JB, W = JB.works, main = document.getElementById("main"), top = document.getElementById("top"), prog = document.getElementById("prog");
-  var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function (es) {
-    es.forEach(function (e) { e.target.classList.toggle("in", e.isIntersecting); });
-  }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }) : null;
-
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-  function rv(node, i) { node.classList.add("rv"); if (i) node.style.setProperty("--d", (Math.min(i, 6) * 0.05) + "s"); return node; }
-  function sentence(t) { t = t.trim(); return /^([A-Z][a-z]+\s?)+$/.test(t) ? t.charAt(0) + t.slice(1).toLowerCase() : t; }
   function link(text, href, cls, ext) { var a = el("a", cls, text); a.href = href; if (ext) { a.target = "_blank"; a.rel = "noopener noreferrer"; } return a; }
   function findWork(slug) { return W.filter(function (w) { return w.slug === slug; })[0]; }
 
@@ -17,49 +11,51 @@
     var th = el("div", "th");
     if (w.thumb) { var im = new Image(); im.src = "assets/thumbnails/" + w.thumb + ".webp"; im.alt = ""; im.loading = "lazy"; th.append(im); } else th.textContent = "no preview";
     var tx = el("div", "tx"); tx.append(el("div", "no", String(W.indexOf(w) + 1).padStart(2, "0")), el("div", "nm", w.title), el("div", "tp", w.type));
-    a.append(th, tx); return rv(a, i);
+    a.append(th, tx); return a;
   }
 
   function aboutSection() {
     var sec = el("section", "home-sec"); sec.id = "about";
-    sec.append(rv(el("div", "prompt", "guest@joann:~$ about")), rv(el("h2", "", "About me"), 1));
-    JB.about.forEach(function (t, i) { sec.append(rv(el("p", i ? "" : "lede", t), 2 + i)); });
-    sec.append(rv(el("h3", "jhead", "My journey"), 3));
+    sec.append(el("div", "prompt", "guest@joann:~$ about"), el("h2", "", "About me"));
+    JB.about.forEach(function (t, i) { sec.append(el("p", i ? "" : "lede", t)); });
+    sec.append(el("h3", "jhead", "My journey"));
     var jl = el("div", "journey"); JB.journey.forEach(function (j, i) {
       var it = el("div", "jitem"); it.append(el("b", "", j.school), el("span", "", j.what), el("em", "", j.when));
-      j.notes.forEach(function (n) { it.append(el("small", "", n)); }); jl.append(rv(it, 4 + i));
+      j.notes.forEach(function (n) { it.append(el("small", "", n)); }); jl.append(it);
     }); sec.append(jl);
     return sec;
   }
   function contactSection() {
     var sec = el("section", "home-sec"); sec.id = "contact";
-    sec.append(rv(el("div", "prompt", "guest@joann:~$ contact")), rv(el("h2", "", "Contact me"), 1));
-    sec.append(rv(el("p", "lede dim", "Open to conversations about design, internships and collaboration."), 2));
+    sec.append(el("div", "prompt", "guest@joann:~$ contact"), el("h2", "", "Contact me"));
+    sec.append(el("p", "lede dim", "Open to conversations about design, internships and collaboration."));
     var b = el("div", "big-links");
     [["Email", JB.email, JB.links.email, 0], ["LinkedIn", "linkedin.com/in/joannbisseling", JB.links.linkedin, 1, "joannbisseling"], ["Resume", "view the PDF", "#/resume", 0]].forEach(function (r, i) {
       var a = link("", r[2], "", r[3]); var sp = el("span", "", ""); if (r[4]) { sp.append(el("i", "full", r[1]), el("i", "short", r[4])); } else sp.textContent = r[1];
-      a.append(el("b", "", r[0]), sp); a.firstChild.style.fontWeight = "normal"; b.append(rv(a, 3 + i));
+      a.append(el("b", "", r[0]), sp); a.firstChild.style.fontWeight = "normal"; b.append(a);
     }); sec.append(b); return sec;
   }
   var views = {
     home: function () {
       var f = document.createDocumentFragment(), hero = el("section", "hero"); hero.id = "top-sec";
-      hero.append(rv(el("div", "prompt", "guest@joann:~$ whoami")), rv(el("h1", "", "Joann Bisseling"), 1));
-      hero.append(rv(el("p", "lede dim", "UX & Game Design student · Singapore · open to internships"), 2));
+      hero.append(el("div", "prompt", "guest@joann:~$ whoami"), el("h1", "", "Joann Bisseling"));
+      var roles = el("p", "lede dim roles");
+      ["UX & Game Design student", "Singapore", "open to internships"].forEach(function (t, i) { if (i) roles.append(el("i", "sep", " · ")); roles.append(el("span", "", t)); });
+      hero.append(roles);
       f.append(hero);
-      var sh = el("div", "sec-head"); sh.append(el("h2", "", "Featured projects"), link("All works →", "#/works")); f.append(rv(sh));
+      var sh = el("div", "sec-head"); sh.append(el("h2", "", "Featured projects"), link("All works →", "#/works")); f.append(sh);
       var g = el("div", "grid"); W.filter(function (w) { return w.featured; }).forEach(function (w, i) { g.append(card(w, i)); }); f.append(g);
       f.append(aboutSection(), contactSection());
       return f;
     },
     works: function () {
-      var f = document.createDocumentFragment(); f.append(rv(el("div", "prompt", "guest@joann:~/works$ ls")), rv(el("h1", "", "All works"), 1));
-      f.append(rv(el("p", "lede dim", W.length + " projects across UX and game design."), 2));
+      var f = document.createDocumentFragment(); f.append(el("div", "prompt", "guest@joann:~/works$ ls"), el("h1", "", "All works"));
+      f.append(el("p", "lede dim", W.length + " projects across UX and game design."));
       var g = el("div", "grid"); W.forEach(function (w, i) { g.append(card(w, i % 3)); }); f.append(g); return f;
     },
     resume: function () {
-      var f = document.createDocumentFragment(); f.append(rv(el("div", "prompt", "guest@joann:~$ resume")), rv(el("h1", "", "Resume"), 1));
-      var host = el("div", "pdfwrap"); f.append(rv(host, 2));
+      var f = document.createDocumentFragment(); f.append(el("div", "prompt", "guest@joann:~$ resume"), el("h1", "", "Resume"));
+      var host = el("div", "pdfwrap"); f.append(host);
       setTimeout(function () { window.JBPdf.mount(host, { src: JB.links.resumePdf, fitH: Math.max(380, Math.min(720, innerHeight - 220)), name: "JoannBisseling_Resume.pdf" }); }, 0); return f;
     }
   };
@@ -77,7 +73,7 @@
       var i = document.createElement("iframe"); i.src = "https://www.youtube-nocookie.com/embed/" + id + "?autoplay=1&rel=0&modestbranding=1"; i.title = title;
       i.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; i.allowFullscreen = true; v.classList.add("playing"); v.style.backgroundImage = "none"; v.append(i);
     });
-    f.append(rv(v), rv(el("div", "vcap", title))); return f;
+    f.append(v, el("div", "vcap", title)); return f;
   }
 
   async function project(slug) {
@@ -85,72 +81,56 @@
     if (!w) { f.append(el("h1", "", "Not found"), link("Back to works", "#/works")); return f; }
     var res; try { res = await fetch("projects/" + slug + ".html"); if (!res.ok) throw 0; } catch (e) { f.append(el("p", "loading", "Could not load this project. Open the site through its web address (not as a local file).")); return f; }
     var doc = new DOMParser().parseFromString(await res.text(), "text/html").getElementById("doc");
-    f.append(rv(link("← All works", "#/works", "back")), rv(el("h1", "", doc.querySelector("h1").textContent), 1));
-    var dl = el("dl", "meta"); [].slice.call(doc.querySelectorAll(".meta li")).forEach(function (li) { dl.append(el("dt", "", li.dataset.k), el("dd", "", li.textContent)); }); f.append(rv(dl, 2));
-    var intro = doc.querySelector(".intro"); if (intro) f.append(rv(el("p", "lede", intro.textContent), 3));
+    f.append(link("← All works", "#/works", "back"), el("h1", "", doc.querySelector("h1").textContent));
+    var dl = el("dl", "meta"); [].slice.call(doc.querySelectorAll(".meta li")).forEach(function (li) { dl.append(el("dt", "", li.dataset.k), el("dd", "", li.textContent)); }); f.append(dl);
+    var intro = doc.querySelector(".intro"); if (intro) f.append(el("p", "lede", intro.textContent));
     var act = doc.querySelector(".actions");
     if (act) { var bt = el("div", "btns"); [].slice.call(act.children).forEach(function (a) {
-      if (a.tagName === "A") { var h = a.getAttribute("href"), ext = /^https?:/.test(h); bt.append(link(sentence(a.textContent), h, "btn", ext)); } else bt.append(el("span", "btn off", a.textContent));
-    }); f.append(rv(bt, 4)); }
+      if (a.tagName === "A") { var h = a.getAttribute("href"), ext = /^https?:/.test(h); bt.append(link(a.textContent, h, "btn", ext)); } else bt.append(el("span", "btn off", a.textContent));
+    }); f.append(bt); }
     [].slice.call(doc.children).forEach(function (n) {
       var tag = n.tagName.toLowerCase(), cls = n.className;
       if (["h1", "ul"].indexOf(tag) > -1 || cls === "intro" || cls === "actions") return;
-      if (tag === "h2") f.append(rv(el("h2", "", n.textContent)));
-      else if (tag === "p") f.append(rv(el("p", "", n.textContent)));
+      if (tag === "h2") f.append(el("h2", "", n.textContent));
+      else if (tag === "p") f.append(el("p", "", n.textContent));
       else if (cls.indexOf("gallery") === 0) {
         var g = el("div", cls); [].slice.call(n.querySelectorAll("figure")).forEach(function (fg, i) {
           var im0 = fg.querySelector("img"), src = im0.getAttribute("src").replace(/^\.\.\//, ""), fig = el("figure"), im = new Image();
           im.src = src; im.alt = im0.getAttribute("alt") || ""; im.loading = "lazy"; im.addEventListener("click", function () { lightbox(src, im.alt); });
-          fig.append(im); var c = fg.querySelector("figcaption"); if (c) fig.append(el("figcaption", "", c.textContent)); g.append(rv(fig, i));
+          fig.append(im); var c = fg.querySelector("figcaption"); if (c) fig.append(el("figcaption", "", c.textContent)); g.append(fig);
         }); f.append(g);
       }
       else if (cls === "video") f.append(video(n.dataset.yt, n.dataset.title));
       else if (cls === "pdf") {
-        f.append(rv(el("h2", "", "Report")));
-        var host = el("div", "pdfwrap"); f.append(rv(host));
+        f.append(el("h2", "", "Report"));
+        var host = el("div", "pdfwrap"); f.append(host);
         setTimeout(function () { window.JBPdf.mount(host, { src: n.dataset.src, fitH: Math.max(380, Math.min(720, innerHeight - 220)), name: n.dataset.name }); }, 0);
       }
     });
     var i = W.indexOf(w), np = el("div", "nextprev");
     function npl(w, prev) { var a = link("", "#/work/" + w.slug, "np"); a.append.apply(a, prev ? [el("i", "", "←"), el("span", "t", w.title)] : [el("span", "t", w.title), el("i", "", "→")]); return a; }
-    np.append(i > 0 ? npl(W[i - 1], true) : el("span"), i < W.length - 1 ? npl(W[i + 1], false) : el("span")); f.append(rv(np));
+    np.append(i > 0 ? npl(W[i - 1], true) : el("span"), i < W.length - 1 ? npl(W[i + 1], false) : el("span")); f.append(np);
     return f;
   }
 
   var token = 0, current = null;
-  /* slow, eased scrolling so content is easier to follow */
-  var tgt = null, raf = 0, slow = !matchMedia("(prefers-reduced-motion: reduce)").matches && !matchMedia("(pointer: coarse)").matches;
-  function maxY() { return document.documentElement.scrollHeight - innerHeight; }
-  function glide() {
-    var y = scrollY, d = tgt - y;
-    if (Math.abs(d) < 0.6) { window.scrollTo(0, tgt); tgt = null; raf = 0; return; }
-    window.scrollTo(0, y + d * 0.07); raf = requestAnimationFrame(glide);
-  }
-  function glideTo(y) { tgt = Math.max(0, Math.min(maxY(), y)); if (!raf) raf = requestAnimationFrame(glide); }
-  if (slow) addEventListener("wheel", function (e) {
-    if (e.ctrlKey || e.defaultPrevented || document.querySelector(".lb")) return;
-    e.preventDefault();
-    var dy = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY;
-    glideTo((tgt == null ? scrollY : tgt) + dy * 0.55);
-  }, { passive: false });
-  addEventListener("keydown", function (e) { if (tgt != null && /^(ArrowUp|ArrowDown|PageUp|PageDown|Home|End| )$/.test(e.key)) { tgt = null; } });
+  var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
   function scrollToSection(sec) {
     var t = sec ? document.getElementById(sec) : null, y = t ? t.getBoundingClientRect().top + scrollY - 78 : 0;
-    if (slow) glideTo(y); else window.scrollTo({ top: y, behavior: "smooth" });
+    window.scrollTo({ top: y, behavior: calm ? "auto" : "smooth" });
   }
   function setNav(name) { [].slice.call(document.querySelectorAll("#nav a")).forEach(function (a) { a.classList.toggle("on", a.dataset.r === name); }); }
   async function route() {
     var h = location.hash.replace(/^#\/?/, ""), parts = h.split("/"), name = parts[0] || "home", my = ++token, section = null;
     if (name === "about" || name === "contact") { section = name; name = "home"; }
     if (name === "home" && current === "home") { scrollToSection(section); setNav(section || "home"); return; }
-    main.replaceChildren(el("p", "loading", "loading ...")); tgt = null; window.scrollTo({ top: 0, behavior: "auto" });
+    main.replaceChildren(el("p", "loading", "loading ...")); window.scrollTo({ top: 0, behavior: "auto" });
     var content = name === "work" ? await project(parts[1]) : (views[name] || views.home)();
     if (my !== token) return;
     current = name === "work" || views[name] ? name : "home";
     main.replaceChildren(content); main.classList.remove("swap"); void main.offsetWidth; main.classList.add("swap");
-    document.title = (name === "work" ? ((findWork(parts[1]) || {}).title || "Project") : name === "home" ? "Joann Bisseling" : name.charAt(0).toUpperCase() + name.slice(1)) + " | Joann Bisseling";
+    document.title = name === "home" || !(name === "work" || views[name]) ? "Joann Bisseling | UX & Game Design" : (name === "work" ? ((findWork(parts[1]) || {}).title || "Project") : name.charAt(0).toUpperCase() + name.slice(1)) + " | Joann Bisseling";
     setNav(section || (name === "work" ? "works" : name));
-    [].slice.call(main.querySelectorAll(".rv")).forEach(function (n) { if (io) io.observe(n); else n.classList.add("in"); });
     if (section) setTimeout(function () { scrollToSection(section); }, 350);
   }
   addEventListener("hashchange", route); route();

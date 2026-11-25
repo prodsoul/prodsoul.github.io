@@ -13,7 +13,7 @@
   /* ---------- build the monitor ---------- */
   var h = '<div class="stage" id="stage"><div class="monitor" id="monitor"><div class="crt" id="crt">' +
     '<div class="screen" id="screen">' +
-    '<div class="mtop"><button type="button" id="m-plain" aria-label="Plain site"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button><span>JB-TERM</span><span class="sp2"></span><button type="button" id="m-skip" hidden>skip</button><button type="button" id="m-snd"></button><button type="button" id="m-thm"></button></div>' +
+    '<div class="mtop"><button type="button" id="m-pwr" aria-label="Power off"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button><span>JB-TERM</span><span class="sp2"></span><button type="button" id="m-skip" hidden>skip</button><button type="button" id="m-snd"></button><button type="button" id="m-thm"></button><button type="button" id="m-plain" aria-label="Plain site">plain</button></div>' +
     '<div class="scroll" id="scroll"><div class="term" id="term"><div id="out" role="log" aria-live="off"></div>' +
     '<label id="promptwrap" hidden><span class="prompt" id="ps"></span><span id="line"><span id="cpre"></span><span class="cursor" id="ccur">&nbsp;</span><span id="cpost"></span></span>' +
     '<input id="inp" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="terminal input"></label></div></div>' +
@@ -21,7 +21,7 @@
     '<div class="gate" id="gate" hidden></div>' +
     '<div class="fx fx-flick"></div><div class="fx fx-roll"></div><div class="fx fx-noise"></div><div class="fx fx-scan"></div><div class="fx fx-glare"></div><div class="fx fx-vig"></div>' +
     '</div></div>' +
-    '<div class="plate"><button type="button" class="pwr" id="b-pwr" aria-label="Power"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button><span class="led"></span><span class="brand" id="brand">Prodsoul Terminal 29007</span><button type="button" id="b-skip" hidden>skip</button><button type="button" id="b-snd"></button><button type="button" id="b-thm"></button></div>' +
+    '<div class="plate"><button type="button" class="pwr" id="b-pwr" aria-label="Power"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button><span class="led"></span><span class="brand" id="brand">Prodsoul Terminal 29007</span><button type="button" id="b-skip" hidden>skip</button><button type="button" id="b-snd"></button><button type="button" id="b-thm"></button><button type="button" id="b-plain">plain site</button></div>' +
     '</div></div>';
   var keep = [].slice.call(body.querySelectorAll("script, noscript, #doc"));
   body.insertAdjacentHTML("afterbegin", h);
@@ -536,7 +536,6 @@
     ln("bash: " + parts[0] + ": command not found" + (close ? ". did you mean `" + close + "`?" : ". type `help`"), "warn");
   }
   async function exec(raw) {
-    if (confirming) { answerConfirm(raw); return; }
     var cmd = raw.trim(); busy = true; pw.hidden = true; dock.hidden = true; A.enter(); echoCmd(raw);
     if (cmd) {
       if (history[history.length - 1] !== cmd) history.push(cmd);
@@ -589,7 +588,6 @@
   });
   inp.addEventListener("keydown", function (e) {
     if (busy || booting) return;
-    if (e.key === "Escape" && confirming) { e.preventDefault(); confirming = null; echoCmd(inp.value); ln("cancelled.", "dim"); setInput(""); return; }
     if (e.key === "Enter") { e.preventDefault(); exec(inp.value); }
     else if (e.key === "Tab") { e.preventDefault(); complete(); A.key(); }
     else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
@@ -676,25 +674,13 @@
     gp.addEventListener("click", doPowerOn);
     setTimeout(function () { try { gp.focus(); } catch (e) {} }, 50);
   }
-  /* the button on the monitor does the same thing: powers on from standby, shuts down otherwise */
-  $("#b-pwr").addEventListener("click", function () { if (!gate.hidden) doPowerOn(); else askPlain(); });
-  $("#m-plain").addEventListener("click", function () { if (!gate.hidden) return; askPlain(); });
-  /* yes/no confirmation: enter or "yes" confirms, esc or "no" cancels */
-  var confirming = null;
-  function askPlain() {
-    if (busy || booting || leaving || inGame || confirming) return;
-    pw.hidden = false; dock.hidden = false;
-    var q = ln("Leave the terminal and open the plain site? [Y/n]  (enter = yes, esc = no)", "warn");
-    confirming = function (yes) { if (yes) { ln("switching to the plain site ...", "dim"); busy = true; pw.hidden = true; dock.hidden = true; go("plain.html"); } else ln("cancelled.", "dim"); };
-    setInput(""); focusInput(); scrollEnd(true);
-  }
-  function answerConfirm(raw) {
-    var a = raw.trim().toLowerCase(), f = confirming; echoCmd(raw);
-    if (a === "" || a === "y" || a === "yes") { confirming = null; f(true); }
-    else if (a === "n" || a === "no") { confirming = null; f(false); }
-    else ln("please answer yes or no.", "dim");
-    setInput("");
-  }
+  /* power button: powers on from standby, shuts down back to standby otherwise */
+  $("#b-pwr").addEventListener("click", function () { if (!gate.hidden) doPowerOn(); else shutdown(); });
+  $("#m-pwr").addEventListener("click", function () { if (gate.hidden) shutdown(); });
+  /* plain site button: works at any time, including standby and while text is typing */
+  function openPlain() { if (!gate.hidden) location.href = href("plain.html"); else go("plain.html"); }
+  $("#b-plain").addEventListener("click", openPlain);
+  $("#m-plain").addEventListener("click", openPlain);
 
   async function boot() {
     booting = true; busy = true; pw.hidden = true; dock.hidden = true; fast = false;
