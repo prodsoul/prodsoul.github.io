@@ -365,7 +365,7 @@
     ln("a few commands are not listed. keep poking around.", "dim");
   });
   def("about", async function () { for (var i = 0; i < JB.about.length; i++) { var p = el("p", "p ln new"); out.append(p); await typeInto(p, JB.about[i], 170); }
-    gap(); var jh = el("h2", "h ln new"); out.append(jh); await typeInto(jh, "my journey", 90);
+    var jh = el("h2", "h ln new"); jh.style.marginTop = "0"; out.append(jh); await typeInto(jh, "My journey", 90);
     for (var j = 0; j < JB.journey.length; j++) { var it = JB.journey[j], jp = el("p", "p ln new"); jp.style.whiteSpace = "pre-wrap"; out.append(jp); await typeInto(jp, it.school + "\n" + it.what + "\n" + it.when + (it.notes.length ? "\n" + it.notes.join("\n") : ""), 170); }
   });
   def("whoami", async function () { await typeLn("Joann Bisseling | UX & Game Design | Singapore", "bright", 70); ln("status: open to internships", "dim"); });
@@ -503,7 +503,7 @@
   }
   async function playTetris() {
     ln("chmod +x .tetris ... ok", "dim"); await sleep(250); A.seek(6);
-    try { if (!window.JBTetris) await loadScript(href("terminal/tetris.js")); } catch (e) { return ln("tetris: could not load (offline?)", "warn"); }
+    try { if (!window.JBTetris) await loadScript(href("terminal/tetris.js?v=11")); } catch (e) { return ln("tetris: could not load (offline?)", "warn"); }
     inGame = true; pw.hidden = true; dock.hidden = true;
     await new Promise(function (done) { window.JBTetris.start({ host: screen, A: A, mobile: mobile, onExit: done }); });
     inGame = false; ln("game over. thanks for playing.", "dim");
@@ -630,7 +630,7 @@
 
   /* dock */
   function buildDock() {
-    var list = [["home", "home"], ["works", "works"], ["about", "about"], ["contact", "contact"], ["resume", "resume"], ["help", "help"]];
+    var list = [["home", "home"], ["works", "works"], ["contact", "contact"], ["resume", "resume"], ["help", "help"]];
     if (PAGE === "project") list = [["back", "back"], ["works", "works"], ["home", "home"], ["contact", "contact"]];
     dock.replaceChildren(); list.forEach(function (c) { var b = el("button", "chip"); b.type = "button"; b.dataset.cmd = c[1]; b.append(c[0]); dock.append(b); });
   }
@@ -726,7 +726,7 @@
     if (fast) t.data = typed; else { await sleep(220); for (var i = 0; i < typed.length; i++) { t.data += typed[i]; A.key(); await sleep(50 + Math.random() * 50); } await sleep(200); }
     cur.remove(); A.enter(); gap();
     if (PAGE === "works") await workCards(WORKS);
-    else if (PAGE === "about") { await C.about(); await sleep(200); gap(); await autoType("skills", true); }
+    else if (PAGE === "about") { await C.about(); await sleep(200); await autoType("skills", true); }
     else if (PAGE === "contact") { await C.contact(); gap(); ln("Open to conversations about design, internships and collaboration.", "dim"); }
     else if (PAGE === "resume") await C.resume();
     else if (PAGE === "project") await renderDoc();

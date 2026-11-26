@@ -14,16 +14,21 @@
   function start(opts) {
     var host = opts.host, A = opts.A, mobile = opts.mobile;
     var root = document.createElement("div"); root.className = "game";
-    root.innerHTML = '<button class="quit" type="button">esc: quit</button><div class="box"><canvas></canvas><div class="side">' +
-      '<div class="big">T E T R I S</div><div>score <b id="g-score">0</b></div><div>lines <b id="g-lines">0</b></div><div>level <b id="g-level">1</b></div><div class="dim">best <span id="g-best">0</span></div>' +
-      '<div class="dim" style="margin-top:.8em">next</div><canvas id="g-next" width="96" height="64"></canvas>' +
+    root.innerHTML = '<button class="quit" type="button">' + (mobile ? "quit" : "esc: quit") + '</button><div class="box"><canvas></canvas><div class="side">' +
+      '<div class="big">T E T R I S</div><div class="stat">score <b id="g-score">0</b></div><div class="stat">lines <b id="g-lines">0</b></div><div class="stat">level <b id="g-level">1</b></div><div class="stat dim">best <span id="g-best">0</span></div>' +
+      '<div class="nextbox"><div class="dim">next</div><canvas id="g-next" width="96" height="64"></canvas></div>' +
       '<div class="keys">arrows / wasd  move<br>up / w / x  rotate<br>z  rotate back<br>space  hard drop<br>p  pause<br>esc / q  quit</div></div>' +
-      '<div class="pad"><button data-k="left">&lt;</button><button data-k="right">&gt;</button><button data-k="rot">@</button><button data-k="down">v</button><button data-k="drop">_</button></div></div>' +
+      '<div class="pad"><button type="button" data-k="left" aria-label="Move left">&lt;</button><button type="button" data-k="right" aria-label="Move right">&gt;</button><button type="button" data-k="rot">turn</button><button type="button" data-k="down">down</button><button type="button" data-k="drop">drop</button></div></div>' +
       '<div class="msg" id="g-msg"></div>';
     host.appendChild(root);
     var cv = root.querySelector("canvas"), ctx = cv.getContext("2d"), nx = root.querySelector("#g-next"), nctx = nx.getContext("2d");
     var cell = 28;
-    if (mobile) cell = Math.max(14, Math.floor(Math.min((host.clientHeight - 40 - 150 - 70) / H, (host.clientWidth - 30) / W)));
+    if (mobile) {
+      /* give the board whatever height is left once the stats and buttons are laid out */
+      var box = root.querySelector(".box"), bs = getComputedStyle(box); cv.width = cv.height = 0;
+      var free = box.clientHeight - parseFloat(bs.paddingTop) - parseFloat(bs.paddingBottom) - 2 * parseFloat(bs.rowGap) - root.querySelector(".side").offsetHeight - root.querySelector(".pad").offsetHeight - 2;
+      cell = Math.max(10, Math.floor(Math.min(free / H, (box.clientWidth - 32) / W)));
+    }
     cv.width = W * cell; cv.height = H * cell;
     var q = function (s) { return root.querySelector(s); };
     var best = 0; try { best = +localStorage.getItem("jb-tetris-hi") || 0; } catch (e) {}
@@ -74,7 +79,7 @@
       clearing = null; hud(); spawn();
     }
     function gameOver() {
-      over = true; A.t.over(); msgEl.innerHTML = "GAME OVER<br><span style='font-size:.6em'>enter / tap: again &nbsp; esc: quit</span>";
+      over = true; A.t.over(); msgEl.innerHTML = "GAME OVER<br><span style='font-size:.6em'>" + (mobile ? "tap the board to play again" : "enter / tap: again &nbsp; esc: quit") + "</span>";
       if (score > best) { best = score; try { localStorage.setItem("jb-tetris-hi", best); } catch (e) {} q("#g-best").textContent = best; }
     }
     function block(c, x, y, size, type, a, ghost) {

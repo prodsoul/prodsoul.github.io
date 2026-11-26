@@ -172,6 +172,8 @@ button.chip:hover .f { color: var(--bg); }
 .game .side .big { font-size: 1.3em; color: var(--bright); }
 .game .keys { margin-top: 1.2em; color: var(--dim); font-size: .85em; line-height: 1.7; }
 .game .pad { display: none; }
+.game .nextbox { margin-top: .8em; }
+.game .nextbox canvas { display: block; }
 .game .msg { position: absolute; left: 0; right: 0; top: 40%; text-align: center; font-size: 1.5em; color: var(--bright); text-shadow: 0 0 14px var(--fg); pointer-events: none; }
 
 /* ---------- mobile / small screens: no monitor, the phone is the screen ---------- */
@@ -194,10 +196,6 @@ body.mobile .mtop { position: absolute; left: 0; right: 0; top: 0; z-index: 16; 
 .mtop .sp2 { flex: 1; } .mtop button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--bright); background: none; border: 1px solid rgba(var(--fg-rgb), .5); padding: .3em .7em; text-shadow: none; }
 body.mobile .skiphint { top: 48px; right: 12px; }
 body.mobile .fx-noise { opacity: .05; }
-body.mobile .game .box { flex-direction: column; align-items: center; gap: 10px; }
-body.mobile .game .side { min-width: 0; display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
-body.mobile .game .keys { display: none; }
-body.mobile .game .pad { display: grid; grid-template-columns: repeat(5, 54px); gap: 8px; margin-top: 8px; }
 .game .pad button { height: 48px; font: inherit; font-size: 18px; color: var(--bright); background: rgba(var(--fg-rgb), .1); border: 1px solid rgba(var(--fg-rgb), .6); touch-action: manipulation; }
 .game .pad button:active { background: var(--fg); color: var(--bg); }
 .game .quit { position: absolute; top: 10px; right: 12px; font: inherit; color: var(--bright); background: none; border: 1px solid rgba(var(--fg-rgb), .5); padding: .2em .8em; cursor: pointer; z-index: 3; }
@@ -207,8 +205,6 @@ body.mobile .game .pad { display: grid; grid-template-columns: repeat(5, 54px); 
 .mtop, .plate .brand { user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 body.mobile .mtop { background: var(--bg); box-shadow: inset 0 0 0 100px rgba(var(--fg-rgb), .08); }
 body.mobile .scroll { top: 40px; padding-top: 18px; }
-body.mobile .game { top: 40px; }
-body.mobile .game .quit { top: 8px; }
 body.mobile .skiphint { top: 46px; }
 .help.tight { margin: .5em 0 1em; row-gap: .2em; }
 
@@ -301,3 +297,18 @@ body.allclear .shot img { filter: none !important; animation: none !important; c
 
 #m-pwr { width: 26px; height: 26px; padding: 0 !important; border-radius: 50%; display: grid; place-items: center; flex: none; }
 #m-pwr svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 6; stroke-linecap: round; }
+
+/* tetris on phones: title, one row of stats, the board, then the buttons */
+body.mobile .game { top: 40px; display: block; }
+body.mobile .game .box { width: 100%; height: 100%; flex-direction: column; align-items: center; gap: 12px; padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); }
+body.mobile .game .side { order: -1; width: 100%; max-width: 360px; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 64px; column-gap: 4px; row-gap: 8px; align-items: start; text-align: center; line-height: 1.5; }
+body.mobile .game .side .big { grid-column: 1 / -1; height: 32px; line-height: 32px; text-align: left; font-size: 16px; }
+body.mobile .game .stat, body.mobile .game .nextbox { margin: 0; font-size: 12px; }
+body.mobile .game .stat b, body.mobile .game .stat span { display: block; font-weight: normal; font-size: 16px; color: var(--bright); }
+body.mobile .game .nextbox canvas { width: 60px; height: 40px; margin: 4px auto 0; }
+body.mobile .game canvas { flex: none; }
+body.mobile .game .nextbox canvas { box-shadow: none; }
+body.mobile .game .keys { display: none; }
+body.mobile .game .pad { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 360px; margin-top: auto; }
+body.mobile .game .pad button { height: 56px; padding: 0; font-size: 14px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+body.mobile .game .quit { height: 32px; top: 8px; }
