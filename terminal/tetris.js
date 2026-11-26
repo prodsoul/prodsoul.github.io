@@ -23,14 +23,22 @@
     host.appendChild(root);
     var cv = root.querySelector("canvas"), ctx = cv.getContext("2d"), nx = root.querySelector("#g-next"), nctx = nx.getContext("2d");
     var cell = 28;
-    if (mobile) {
-      /* give the board whatever height is left once the stats and buttons are laid out */
-      var box = root.querySelector(".box"), bs = getComputedStyle(box); cv.width = cv.height = 0;
-      var free = box.clientHeight - parseFloat(bs.paddingTop) - parseFloat(bs.paddingBottom) - 2 * parseFloat(bs.rowGap) - root.querySelector(".side").offsetHeight - root.querySelector(".pad").offsetHeight - 2;
-      cell = Math.max(10, Math.floor(Math.min(free / H, (box.clientWidth - 32) / W)));
-    }
-    cv.width = W * cell; cv.height = H * cell;
     var q = function (s) { return root.querySelector(s); };
+    function size() { cv.width = W * cell; cv.height = H * cell; }
+    /* phones: fill whatever room is left beside the score column and above the buttons. Runs again when the
+       screen changes size, e.g. when the on-screen keyboard closes after typing the command. */
+    function fit() {
+      var box = q(".box"), s = getComputedStyle(box), px = function (v) { return parseFloat(v) || 0; };
+      var freeH = box.clientHeight - px(s.paddingTop) - px(s.paddingBottom) - px(s.rowGap) - q(".pad").offsetHeight - 2;
+      var freeW = box.clientWidth - px(s.paddingLeft) - px(s.paddingRight) - px(s.columnGap) - 68 - 2;
+      var next = Math.max(8, Math.floor(Math.min(freeH / H, freeW / W)));
+      if (next !== cell || cv.width !== W * next) { cell = next; size(); }
+    }
+    var watcher = null;
+    if (mobile) {
+      q(".side").appendChild(q(".quit")); cv.width = cv.height = 0; fit();
+      if (window.ResizeObserver) { watcher = new ResizeObserver(fit); watcher.observe(q(".box")); }
+    } else size();
     var best = 0; try { best = +localStorage.getItem("jb-tetris-hi") || 0; } catch (e) {}
     q("#g-best").textContent = best;
     var rgb = (getComputedStyle(document.documentElement).getPropertyValue("--fg-rgb") || "93,255,122").trim();
@@ -134,7 +142,7 @@
       if (KEYS[k]) { e.preventDefault(); e.stopPropagation(); act(KEYS[k]); }
     }
     function quit() {
-      dead = true; cancelAnimationFrame(raf); removeEventListener("keydown", key, true); root.remove(); opts.onExit && opts.onExit();
+      dead = true; if (watcher) watcher.disconnect(); cancelAnimationFrame(raf); removeEventListener("keydown", key, true); root.remove(); opts.onExit && opts.onExit();
     }
     addEventListener("keydown", key, true);
     q(".quit").addEventListener("click", quit);

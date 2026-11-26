@@ -190,10 +190,11 @@ body.mobile .work { grid-template-columns: 3ch 1fr; } body.mobile .work .th { gr
 body.mobile .row { grid-template-columns: 3ch 1fr; }
 body.mobile .gallery.n2, body.mobile .gallery.n3 { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-right: -18px; padding-right: 18px; gap: 14px; }
 body.mobile .gallery.n2 figure, body.mobile .gallery.n3 figure { flex: 0 0 72%; scroll-snap-align: start; }
-body.mobile .mtop { position: absolute; left: 0; right: 0; top: 0; z-index: 16; height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 14px;
+body.mobile .mtop { position: absolute; left: 0; right: 0; top: 0; z-index: 16; height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 12px; white-space: nowrap;
   background: rgba(var(--fg-rgb), .1); border-bottom: 1px solid rgba(var(--fg-rgb), .4); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
 .mtop { display: none; } body.mobile .mtop { display: flex; }
-.mtop .sp2 { flex: 1; } .mtop button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--bright); background: none; border: 1px solid rgba(var(--fg-rgb), .5); padding: .3em .7em; text-shadow: none; }
+.mtop .sp2 { flex: 1; } .mtop button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--bright); background: none; border: 1px solid rgba(var(--fg-rgb), .5); padding: .3em .7em; text-shadow: none; white-space: nowrap; flex: none; }
+@media (max-width: 359px) { body.mobile .mtop { gap: 4px; padding: 0 8px; letter-spacing: .04em; } .mtop button { padding: .3em .4em; } }
 body.mobile .skiphint { top: 48px; right: 12px; }
 body.mobile .fx-noise { opacity: .05; }
 .game .pad button { height: 48px; font: inherit; font-size: 18px; color: var(--bright); background: rgba(var(--fg-rgb), .1); border: 1px solid rgba(var(--fg-rgb), .6); touch-action: manipulation; }
@@ -295,20 +296,17 @@ body.allclear .shot img { filter: none !important; animation: none !important; c
 .plate #b-snd[aria-pressed="true"]::before { background: #5dff7a; box-shadow: 0 0 6px 1px rgba(93,255,122,.8); }
 .plate #b-snd[aria-pressed="false"] { box-shadow: 0 3px 0 #7d7665, inset 0 1px 0 rgba(255,255,255,.55); }
 
-#m-pwr { width: 26px; height: 26px; padding: 0 !important; border-radius: 50%; display: grid; place-items: center; flex: none; }
-#m-pwr svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 6; stroke-linecap: round; }
 
-/* tetris on phones: title, one row of stats, the board, then the buttons */
+/* tetris on phones: the board takes the space, next and score sit beside it, buttons underneath */
 body.mobile .game { top: 40px; display: block; }
-body.mobile .game .box { width: 100%; height: 100%; flex-direction: column; align-items: center; gap: 12px; padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); }
-body.mobile .game .side { order: -1; width: 100%; max-width: 360px; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 64px; column-gap: 4px; row-gap: 8px; align-items: start; text-align: center; line-height: 1.5; }
-body.mobile .game .side .big { grid-column: 1 / -1; height: 32px; line-height: 32px; text-align: left; font-size: 16px; }
-body.mobile .game .stat, body.mobile .game .nextbox { margin: 0; font-size: 12px; }
+body.mobile .game .box { width: 100%; height: 100%; display: grid; grid-template-columns: auto 68px; grid-template-rows: minmax(0, 1fr) auto; justify-content: center; align-items: start; gap: 8px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); }
+body.mobile .game .box > canvas { display: block; }
+body.mobile .game .side { min-width: 0; height: 100%; display: flex; flex-direction: column; gap: 12px; text-align: center; line-height: 1.5; }
+body.mobile .game .side .big, body.mobile .game .keys { display: none; }
+body.mobile .game .nextbox { order: -1; margin: 0; font-size: 12px; }
+body.mobile .game .nextbox canvas { width: 68px; height: 46px; margin-top: 4px; box-shadow: none; }
+body.mobile .game .stat { font-size: 12px; }
 body.mobile .game .stat b, body.mobile .game .stat span { display: block; font-weight: normal; font-size: 16px; color: var(--bright); }
-body.mobile .game .nextbox canvas { width: 60px; height: 40px; margin: 4px auto 0; }
-body.mobile .game canvas { flex: none; }
-body.mobile .game .nextbox canvas { box-shadow: none; }
-body.mobile .game .keys { display: none; }
-body.mobile .game .pad { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 360px; margin-top: auto; }
-body.mobile .game .pad button { height: 56px; padding: 0; font-size: 14px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-body.mobile .game .quit { height: 32px; top: 8px; }
+body.mobile .game .quit { position: static; margin-top: auto; height: 40px; padding: 0; }
+body.mobile .game .pad { grid-column: 1 / -1; justify-self: center; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; width: calc(100vw - 24px); max-width: 360px; }
+body.mobile .game .pad button { height: 52px; padding: 0; font-size: 14px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }

@@ -13,7 +13,7 @@
   /* ---------- build the monitor ---------- */
   var h = '<div class="stage" id="stage"><div class="monitor" id="monitor"><div class="crt" id="crt">' +
     '<div class="screen" id="screen">' +
-    '<div class="mtop"><button type="button" id="m-pwr" aria-label="Power off"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8v22"/><path d="M19 17a22 22 0 1 0 26 0"/></svg></button><span>JB-TERM</span><span class="sp2"></span><button type="button" id="m-skip" hidden>skip</button><button type="button" id="m-snd"></button><button type="button" id="m-thm"></button><button type="button" id="m-plain" aria-label="Plain site">plain</button></div>' +
+    '<div class="mtop"><span>JB-TERM</span><span class="sp2"></span><button type="button" id="m-skip" hidden>skip</button><button type="button" id="m-snd"></button><button type="button" id="m-thm"></button><button type="button" id="m-plain" aria-label="Plain site">plain</button></div>' +
     '<div class="scroll" id="scroll"><div class="term" id="term"><div id="out" role="log" aria-live="off"></div>' +
     '<label id="promptwrap" hidden><span class="prompt" id="ps"></span><span id="line"><span id="cpre"></span><span class="cursor" id="ccur">&nbsp;</span><span id="cpost"></span></span>' +
     '<input id="inp" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="terminal input"></label></div></div>' +
@@ -503,7 +503,7 @@
   }
   async function playTetris() {
     ln("chmod +x .tetris ... ok", "dim"); await sleep(250); A.seek(6);
-    try { if (!window.JBTetris) await loadScript(href("terminal/tetris.js?v=11")); } catch (e) { return ln("tetris: could not load (offline?)", "warn"); }
+    try { if (!window.JBTetris) await loadScript(href("terminal/tetris.js?v=12")); } catch (e) { return ln("tetris: could not load (offline?)", "warn"); }
     inGame = true; pw.hidden = true; dock.hidden = true;
     await new Promise(function (done) { window.JBTetris.start({ host: screen, A: A, mobile: mobile, onExit: done }); });
     inGame = false; ln("game over. thanks for playing.", "dim");
@@ -676,7 +676,6 @@
   }
   /* power button: powers on from standby, shuts down back to standby otherwise */
   $("#b-pwr").addEventListener("click", function () { if (!gate.hidden) doPowerOn(); else shutdown(); });
-  $("#m-pwr").addEventListener("click", function () { if (gate.hidden) shutdown(); });
   /* plain site button: works at any time, including standby and while text is typing */
   function openPlain() { if (!gate.hidden) location.href = href("plain.html"); else go("plain.html"); }
   $("#b-plain").addEventListener("click", openPlain);
