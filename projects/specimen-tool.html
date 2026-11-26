@@ -1,89 +1,244 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>3D Specimen Adaptation Tool | Joann Bisseling</title>
-<meta name="description" content="I built a Unity tool for the EduVision team to adapt existing 3D insect models using colours and markings from reference photos. I designed the workflow around what developers could see in each photo.">
-<meta name="theme-color" content="#050805">
-<link rel="icon" type="image/svg+xml" href="../terminal/favicon.svg">
-<link rel="stylesheet" href="../terminal/terminal.css?v=12">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>3D Specimen Adaptation Tool | Joann Bisseling</title>
+    <meta name="description" content="A Unity tool for adapting existing 3D insect models from reference photos, correcting the fit, and exporting models or textures.">
+    <meta name="theme-color" content="#050805">
+
+    <link rel="icon" type="image/svg+xml" href="../terminal/favicon.svg">
+    <link rel="stylesheet" href="../terminal/terminal.css?v=12">
+
+    <style>
+        body[data-slug="specimen-tool"] .gallery {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            justify-items: stretch;
+        }
+
+            body[data-slug="specimen-tool"] .gallery figure {
+                width: 100%;
+                min-width: 0;
+            }
+
+            body[data-slug="specimen-tool"] .gallery .shot img {
+                display: block;
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                max-height: none;
+            }
+    </style>
 </head>
+
 <body data-page="project" data-slug="specimen-tool" data-root="../">
     <article id="doc" hidden>
         <h1>3D Specimen Adaptation Tool</h1>
-        <ul class="meta"><li data-k="date">November 2026</li><li data-k="category">Learning &amp; Design Tools</li><li data-k="skills">UNITY, C#, TOOL DESIGN, IMAGE FITTING</li><li data-k="role">Solo project · System designer &amp; developer</li></ul>
-        <p class="intro">I built a Unity tool that transfers colours and markings from insect photos onto existing 3D models. I designed it for the EduVision development team so they could create variations from reference photos while reusing their existing models. The prototype supports ladybugs, butterflies, and dragonflies, with ten body regions that can take textures from photos.</p>
-        <p class="actions"><a href="https://github.com/prodsoul/prodsoul.github.io/releases/download/specimen-tool-v2.0/Specimen-Adaptation-Tool-Windows.zip">Download Tool Here</a></p>
 
-        <!-- Overview-1.webp
-             Create one wide comparison image with three panels from left to right. Show the source butterfly photo, the original prepared butterfly model, and the final adapted butterfly model. Use the same camera angle, zoom, and background for both models. Include the full wings in every panel. Crop out Unity editor chrome.
-             Save in assets/projects/3dadaptationtool/ as WebP. -->
+        <ul class="meta">
+            <li data-k="date">November 2026</li>
+            <li data-k="category">Learning &amp; Design Tools</li>
+            <li data-k="skills">UNITY, C#, TOOL DESIGN, IMAGE FITTING</li>
+            <li data-k="role">Solo project · System designer &amp; developer</li>
+        </ul>
+
+        <p class="intro">I built a Unity tool for the EduVision development team to adapt existing 3D insect models using colours and markings from photos. Developers can correct the selection, preview the fit, and export the result. I designed and implemented the workflow, expanding a ladybug prototype to three insect types and ten photo-mappable body regions.</p>
+
+        <p class="actions">
+            <a href="https://github.com/prodsoul/prodsoul.github.io/releases/download/specimen-tool-v2.0/Specimen-Adaptation-Tool-Windows.zip">Download Tool Here</a>
+        </p>
+
+        <!-- All project images belong in assets/projects/3dadaptationtool/. -->
         <div class="gallery">
+            <!-- Source: Butterfly Source Image VS Edited Model(1).png -->
             <figure>
-                <img src="../assets/projects/3dadaptationtool/Overview-1.webp" alt="The same butterfly reference photo beside the original 3D model and the adapted model, shown at matching angles." loading="lazy" decoding="async">
-                <figcaption>From reference photo to adapted model. The butterfly’s markings are fitted to the existing geometry.</figcaption>
+                <img src="../assets/projects/3dadaptationtool/Overview-1.webp"
+                     alt="Butterfly source photo beside the adapted model with black and cream wing markings."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>The reference photo beside the adapted model. Its markings are fitted to the existing geometry.</figcaption>
             </figure>
         </div>
-        <div class="video" data-yt="60DYkS7XbvM" data-title="EduVision 3D Specimen Adaptation Tool showcase"></div>
-        <h2>Start with one insect, then make the workflow reusable</h2>
-        <p>EduVision needed a way to show how individual insects can look different. I started with one ladybug and tested whether I could carry its shell markings from a photo onto a prepared model. That gave me a small enough problem to work through before expanding to other insects.</p>
-        <p>As I added butterflies and dragonflies, I made the workflow work one body part at a time. A developer selects a photo and a part, prepares an outline, then previews the fit before applying it. They can go back and adjust the outline or compare the result with the original model while they work.</p>
 
-        <!-- Outline-Editor.webp
-             Capture the actual Fit Pattern workspace after preparing a butterfly outline. Show the photo with visible editable outline points on the left and the matching 3D preview on the right. Keep Preview and Apply controls visible where the current workflow shows them. Crop out Unity editor toolbars. Suggested video reference is approximately 03:18 to 03:52.
-             Save in assets/projects/3dadaptationtool/ as WebP. -->
         <div class="gallery">
+            <!-- Source: Butterfly Original Model VS Edited Model(1).png -->
             <figure>
-                <img src="../assets/projects/3dadaptationtool/Outline-Editor.webp" alt="The fitting workspace with an editable butterfly outline on the source photo and the corresponding 3D preview." loading="lazy" decoding="async">
-                <figcaption>The outline and model preview sit together so the developer can check the fit before applying it.</figcaption>
+                <img src="../assets/projects/3dadaptationtool/Overview-2.webp"
+                     alt="Original orange butterfly model beside the adapted black and cream butterfly model."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>The original and adapted model share the same geometry. The comparison helps check what changed.</figcaption>
             </figure>
         </div>
+
         <h2>Give developers a way to fix the outline</h2>
-        <p>I used automatic detection to give developers a starting outline. In a check with three known shapes, two met my 80% overlap target. The outline for the narrow dragonfly abdomen reached about 70% overlap and missed part of the body. Applying that selection as it was would leave out some of the pattern.</p>
-        <p>I made the outline editable so a developer could move individual points or draw it by hand. For narrow parts, they could also draw a line along the body to create a starting shape and then adjust its width. I kept Preview separate from Apply so they could rotate the model, check the fit, and refine the outline without committing the change.</p>
 
-        <!-- Abdomen-Outline.webp
-             Create one side-by-side comparison using the same dragonfly abdomen photo at identical crop and zoom. Left shows the actual automatic outline missing part of the abdomen. Right shows the corrected outline enclosing that part after point edits or the axis tool. Capture real states from the tool. Recapture if the demo does not show both clearly. Suggested video reference is approximately 05:42 to 06:08.
-             Save in assets/projects/3dadaptationtool/ as WebP. -->
-        <div class="gallery">
-            <figure>
-                <img src="../assets/projects/3dadaptationtool/Abdomen-Outline.webp" alt="A dragonfly abdomen photo shown twice, first with the incomplete detected outline and then with the manually corrected outline." loading="lazy" decoding="async">
-                <figcaption>The narrow abdomen needed correction. Moving the outline points brings the missed part of the body into the selection.</figcaption>
-            </figure>
-        </div>
-        <h2>Choose the right method for each body part</h2>
-        <p>For butterfly wings, I added Mirror mode. If only one wing is clear in the photo, the developer can select that wing and reuse its pattern on both sides of the model. If the wings have different markings worth keeping, the developer can select the full pattern instead.</p>
-        <!-- Wing-Mirror.webp
-             Capture the butterfly wing fitting workspace with Mirror mode selected. Show the complete selected side on the photo and both wings in the matching model preview. Keep the mode control visible. Suggested video reference is approximately 02:03 to 03:02.
-             Save in assets/projects/3dadaptationtool/ as WebP. -->
-        <div class="gallery">
-            <figure>
-                <img src="../assets/projects/3dadaptationtool/Wing-Mirror.webp" alt="A single selected butterfly wing pattern on the source photo beside the 3D preview with the pattern mirrored onto both sides." loading="lazy" decoding="async">
-                <figcaption>Mirror mode reuses a clear wing pattern on both sides of the model.</figcaption>
-            </figure>
-        </div>
-        <p>Transparent dragonfly wings needed a different approach. I kept the original wing texture and let the developer sample and adjust its colour. This preserved the transparency already built into the model. I also added targeted cleanup for small patches of background and glare. In my comparisons, those controls helped most when the outline was already close to the part.</p>
+        <p>Automatic detection gave developers a starting selection. In a check with three known shapes, two met my 80% overlap target. The narrow dragonfly abdomen reached about 70%, showing why the selection needed to remain editable.</p>
 
-        <!-- Background-Cleanup.webp
-             Create one before-and-after comparison of the same orange butterfly wing edge or notch. Before shows green photo-background spill and after shows the cleanup result. Use exactly the same crop, model angle, zoom, and lighting so the edge can be compared. Use the example on the last page of the showcase report or recapture it from the tool.
-             Save in assets/projects/3dadaptationtool/ as WebP. -->
+        <p>I added movable points, freehand drawing, and an axis tool for narrow parts. Preview stays separate from Apply so developers can inspect the result and refine the selection before committing it.</p>
+
         <div class="gallery">
+            <!-- Source: Dragonfly Detected Abdomen.png -->
             <figure>
-                <img src="../assets/projects/3dadaptationtool/Background-Cleanup.webp" alt="Matching close-ups of an orange butterfly wing edge before and after cleanup of green background spill." loading="lazy" decoding="async">
-                <figcaption>Cleanup reduces background spill around the wing edge. A close outline still matters for preserving the wing’s own colours.</figcaption>
+                <img src="../assets/projects/3dadaptationtool/Abdomen-1.webp"
+                     alt="Detected dragonfly abdomen outline and model preview with green background spill near the abdomen base."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>The detected outline includes background near the abdomen’s base, which carries into the preview.</figcaption>
             </figure>
         </div>
-        <h2>What the prototype showed</h2>
-        <p>I completed six manual adaptations on prepared models, two for each insect type. All six reached a final result, with a median completion time of 2 minutes 55 seconds. The results kept recognisable details such as butterfly wing markings and dragonfly abdomen bands. Some markings shifted in size or placement where the photo and the model had different proportions.</p>
-        <p>Automated checks also completed 50 out of 50 fitting attempts on controlled test images. That gave me evidence that the fitting operation was repeatable under those conditions. The manual trials were all performed by me on one machine, so I’d test the workflow with other developers before drawing conclusions about production time.</p>
-        <p>The main lesson was to automate the starting point and give the developer control over the final fit. My next test would give another developer an unfamiliar photo and watch where they pause, what they choose to correct, and how they decide the result is ready to apply.</p>
+
+        <div class="gallery">
+            <!-- Source: Dragonfly Adjusted Abdomen.png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Abdomen-2.webp"
+                     alt="Corrected abdomen outline and model preview with reduced background spill."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Adjusting the outline reduces the spill while keeping the abdomen’s bands.</figcaption>
+            </figure>
+        </div>
+
+        <h2>Choose how each part receives its colour</h2>
+
+        <p>A photo may show one wing more clearly than the other. I added Mirror mode so developers can select one side and reuse its markings across both wings. Whole mode keeps both sides when their differences matter. Highlight Part makes the target region visible while the outline is being prepared.</p>
+
+        <div class="gallery">
+            <!-- Source: Butterfly Wing Fitting (Highlighted)(1).png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Wing-Mirror-1.webp"
+                     alt="Selected left butterfly wing outline beside a model with both wings highlighted in mint."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Highlight Part shows which surfaces will receive the selected wing pattern.</figcaption>
+            </figure>
+        </div>
+
+        <div class="gallery">
+            <!-- Source: Butterfly Wing Fitting(1).png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Wing-Mirror-2.webp"
+                     alt="Selected left butterfly wing pattern mirrored across both wings in the model preview."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Preview shows the selected side mirrored across both wings before Apply.</figcaption>
+            </figure>
+        </div>
+
+        <p>Dragonfly wings needed another option. Fitting the photo carried over their colour, but also picked up the leaf and stem visible through the photographed wings. I let developers keep the original wing texture and sample a colour from the photo instead. This changes the tint while retaining the existing vein detail and transparency.</p>
+
+        <div class="gallery">
+            <!-- Source: Dragonfly Wings Base Model Texture.png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Dragonfly-Wings-1.webp"
+                     alt="Dragonfly model with its original grey wing texture and visible vein details."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>The original wing texture provides the membrane and vein details.</figcaption>
+            </figure>
+        </div>
+
+        <div class="gallery">
+            <!-- Use the newer golden recolour screenshot with colour #CA9E18. -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Dragonfly-Wings-2.webp"
+                     alt="Dragonfly wings recoloured golden yellow using a colour sampled from the reference photo."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Sampling a golden yellow changes the wing colour while retaining the original texture details.</figcaption>
+            </figure>
+        </div>
+
+        <div class="gallery">
+            <!-- Source: Dragonfly Wings Fit Texture.png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Dragonfly-Wings-3.webp"
+                     alt="Photo-fitted dragonfly wings with leaf and stem colours transferred from the reference image."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Photo fitting also transfers background visible through the photographed wings. This example shows why retaining and tinting the original texture can give a cleaner result.</figcaption>
+            </figure>
+        </div>
+
+        <h2>Clean up the background around the wing</h2>
+
+        <p>Small patches of leaf colour could remain near the outline and appear on the fitted wing. I added colour-based background cleanup so developers can sample the unwanted colours and adjust the similarity range. The preview lets them check the edge as they work, because a broad range can also remove colours belonging to the wing.</p>
+
+        <div class="gallery">
+            <!-- Source: Butterfly No BG Cleanup(1).png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Background-Cleanup-1.webp"
+                     alt="Blue butterfly model with green background spill along its wing edges before cleanup."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Before cleanup, green background colour remains around parts of the wing edge.</figcaption>
+            </figure>
+        </div>
+
+        <div class="gallery">
+            <!-- Source: Butterfly BG Cleanup.png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Background-Cleanup-2.webp"
+                     alt="Blue butterfly preview with background cleanup enabled and reduced green wing-edge spill."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Sampling the leaf colours reduces the green spill around the same wing.</figcaption>
+            </figure>
+        </div>
+
+        <h2>Reduce glare without losing the markings</h2>
+
+        <p>Reflections on the ladybug photo transferred as bright patches across the shell and its spots. I added a control for marking glare areas, then checked the change in the model preview. It reduces the strongest reflections, although some bright areas remain. Keeping the correction local helps retain the surrounding pattern.</p>
+
+        <div class="gallery">
+            <!-- Source: Ladybug No Glare Cleanup.png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Glare-Cleanup-1.webp"
+                     alt="Yellow ladybug preview with strong white reflections across its shell and black spots."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Glare off. Reflections from the photo remain visible on the fitted shell.</figcaption>
+            </figure>
+        </div>
+
+        <div class="gallery">
+            <!-- Source: Ladybug Glare Cleanup.png -->
+            <figure>
+                <img src="../assets/projects/3dadaptationtool/Glare-Cleanup-2.webp"
+                     alt="Ladybug source photo with glare regions marked in magenta and a preview with reduced reflections."
+                     loading="lazy"
+                     decoding="async">
+                <figcaption>Marked glare areas receive correction. Reflections are reduced while the spots remain visible.</figcaption>
+            </figure>
+        </div>
+
+        <h2>Take the edited result into another application</h2>
+
+        <p>My professor pointed out that the workflow needed a way to take the finished result out of the tool. I added Export for the full model as GLB or OBJ, or textures for all parts or the selected part, including applied photo patterns and colour edits.</p>
+
+        <p>Developers can choose 1024, 2048, or 4096 texture size, PNG or JPG images, a file name, and a destination folder. Each export creates a new folder to preserve earlier versions. This extends the workflow from preparing and checking a fit to handing the edited asset over for use elsewhere.</p>
+
+        <h2>What I learned from the prototype</h2>
+
+        <p>I completed six manual adaptations on prepared models, two for each insect type, with a median time of 2 minutes 55 seconds. Controlled automated checks completed 50 out of 50 fitting attempts. These checks covered fitting before the export feature was added. My manual trials used one machine and were all performed by me.</p>
+
+        <p>The project taught me to automate the starting point while giving developers control over the final fit. My next test would ask another developer to adapt an unfamiliar photo, export it, and import the result into the target application. I would check both where they hesitate and whether the markings, colours, and wing transparency survive that handover.</p>
+
+        <div class="video"
+             data-yt="60DYkS7XbvM"
+             data-title="3D Specimen Adaptation Tool workflow demonstration">
+        </div>
     </article>
-<noscript><p>This site is a terminal. Please enable JavaScript, or open <a href="../works.html">works</a>.</p></noscript>
-<script src="../terminal/data.js?v=12"></script>
-<script src="../terminal/titles.js?v=12"></script>
-<script src="../terminal/audio.js?v=12"></script>
-<script src="../terminal/pdfviewer.js?v=12"></script>
-<script src="../terminal/terminal.js?v=12"></script>
+
+    <noscript>
+        <p>This site is a terminal. Please enable JavaScript, or open <a href="../works.html">works</a>.</p>
+    </noscript>
+
+    <script src="../terminal/data.js?v=12"></script>
+    <script src="../terminal/titles.js?v=12"></script>
+    <script src="../terminal/audio.js?v=12"></script>
+    <script src="../terminal/pdfviewer.js?v=12"></script>
+    <script src="../terminal/terminal.js?v=12"></script>
 </body>
 </html>
